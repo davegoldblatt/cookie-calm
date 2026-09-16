@@ -20,7 +20,7 @@ The popup includes a global switch and an exact-hostname pause control. Pauses a
 
 ## Install
 
-The Chrome Web Store listing is not available yet. The prepared package still requires developer registration and Google's review.
+Version 1.0.1 was submitted to the Chrome Web Store on September 16, 2026. Its status is **Pending review** as of that date. The store listing is not live yet.
 
 1. Download the extension ZIP from [Releases](https://github.com/davegoldblatt/cookie-calm/releases/latest).
 2. Extract the ZIP to a permanent folder.

@@ -1,6 +1,8 @@
 # Submit Cookie Calm to the Chrome Web Store
 
-The repository and release package are public. A prepared package is not a live Chrome Web Store listing.
+The repository and release package are public. Version 1.0.1 was submitted on September 16, 2026, and its saved dashboard status was verified as **Pending review**.
+
+Extension ID: `mlcplepgfaafffckbjbaekaekpphjccd`. The store listing is not live until Google approves it. The steps below remain useful for future submissions.
 
 ## Register the publisher account
 
