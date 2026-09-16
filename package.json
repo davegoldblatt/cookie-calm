@@ -1,0 +1,20 @@
+{
+  "name": "cookie-calm",
+  "version": "1.0.1",
+  "description": "Reject-first cookie consent automation with local rules and conservative click guards.",
+  "license": "MIT",
+  "repository": "https://github.com/davegoldblatt/cookie-calm",
+  "engines": { "node": ">=22" },
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "npm run build && playwright test",
+    "package": "npm run build && python3 scripts/package.py",
+    "store-assets": "node scripts/store-assets.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "esbuild": "0.28.2"
+  }
+}

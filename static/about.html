@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>About Cookie Calm</title><link rel="stylesheet" href="popup.css"></head>
+<body class="about"><img src="icons/48.png" width="48" height="48" alt=""><h1>Cookie Calm</h1>
+<p>Cookie Calm applies consent choices through the controls on supported websites. It rejects optional cookies by default.</p>
+<h2>Two choices</h2>
+<p><strong>Reject optional cookies</strong> requests the most restrictive choices supported by the bundled rules. Unknown banners stay visible.</p>
+<p><strong>Just dismiss the banner</strong> tries the same rejection flow first. If that fails, it can use a recognized acceptance button. This can allow tracking.</p>
+<p>A checkmark means that a banner disappeared after an action. It does not prove that a website honors your choice.</p>
+<h2>Suspicious pages</h2>
+<p>Clear scam phrases stop all automatic clicks. Password, payment, wallet, and download prompts stop the acceptance fallback.</p>
+<p>Public HTTP pages and internationalized domains cannot use automatic acceptance. Consent frames inherit checks on the parent page.</p>
+<p>These local checks can miss scams or stop on legitimate pages. They do not certify websites. Chrome Safe Browsing remains separate.</p>
+<h2>Coverage and limits</h2>
+<p>This build bundles 203 rule files from Consent-O-Matic, plus a conservative detector for common cookie buttons. Rules cover many banner variants.</p>
+<p>Delayed banners, embedded frames, and shadow DOM can work. Site changes and unusual consent forms can still require a manual choice.</p>
+<p>Cookie Calm does not block trackers, delete cookies, undo past consent, or bypass paywalls. It does not handle notification or location permission prompts.</p>
+<p>Chrome protects its settings pages and the Chrome Web Store from extensions. Cookie Calm cannot run there.</p>
+<p>The pause control applies to the exact hostname and all frames in that tab. Other subdomains remain separate.</p>
+<p>When you pause, Cookie Calm stops new clicks. The site can still finish a request from an earlier click.</p>
+<h2>Privacy and permissions</h2>
+<p>The extension needs website access to find cookie forms and use their controls. Settings stay in local Chrome storage.</p>
+<p>Temporary status stays in session storage. It contains a hostname, a rule name, and the result for each open tab.</p>
+<p>There is no account, analytics, remote AI, reporting service, or automatic rule download. Page checks stay on your device.</p>
+<p>The extension reads page text, consent-control states, and addresses locally. It does not read password or payment-field values.</p>
+<p><a href="https://davegoldblatt.github.io/cookie-calm/privacy.html" target="_blank" rel="noreferrer">Read the privacy policy</a>.</p>
+<p>Site controls can send the usual consent requests.</p>
+<p>The extension does not request access to the Chrome cookies API or browsing history API.</p>
+<h2>Credits and maintenance</h2>
+<p>Cookie Calm uses the MIT-licensed rule interpreter and rules from <a href="https://github.com/cavi-au/Consent-O-Matic" target="_blank" rel="noreferrer">Consent-O-Matic at Aarhus University</a>.</p>
+<p>It adds local packaging, new controls, guarded actions, cancellation, delayed detection, and an acceptance fallback. It is an independent customization.</p>
+<p>Rules are bundled from commit <code>8ca8500d26434c586039e126ad091e1bfccd205d</code>. This local build needs a new build for rule updates.</p>
+<p>The official <a href="https://consentomatic.au.dk/" target="_blank" rel="noreferrer">Consent-O-Matic extension</a> offers an alternative with maintained distribution.</p>
+<p><a href="CONSENT-O-MATIC-LICENSE.txt">Read the upstream license</a>.</p></body></html>
