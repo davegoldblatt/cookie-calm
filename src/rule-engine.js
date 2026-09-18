@@ -8,6 +8,31 @@ import { clickable, grantsAll } from './dom.js';
 const NONE = Object.freeze({ A: false, B: false, D: false, E: false, F: false, X: false });
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+function clickableForRule(element, cmp) {
+  const panel = cmp.name === 'cookiebar' && element?.closest('#cliSettingsPopup.cli-modal.cli-show');
+  const save = panel && element.matches('#wt-cli-privacy-save-btn.cli_setting_save_button[data-cli-action="accept"]');
+  const necessary = panel?.querySelector?.('#wt-cli-checkbox-necessary.cli-user-preference-checkbox');
+  if (save) {
+    const optional = [...panel.querySelectorAll('.cli-user-preference-checkbox')].filter(input => input !== necessary);
+    // Saving selected preferences must never become an accidental accept-all.
+    if (!necessary?.checked || !optional.length || optional.some(input => input.type !== 'checkbox' || input.checked)) return false;
+  }
+  if (clickable(element)) return true;
+  if (!panel || !necessary || panel.getAttribute('aria-hidden') !== 'true') return false;
+  const input = element.matches('label[for]') ? panel.querySelector(`#${CSS.escape(element.htmlFor)}`) : element;
+  const toggle = input?.matches('input.cli-user-preference-checkbox[id^="wt-cli-checkbox-"]') && input !== necessary;
+  if (!save && !toggle) return false;
+  if (element.disabled || input?.disabled || element.getAttribute('aria-disabled') === 'true' || element.closest('[inert],a[href]')) return false;
+  for (let node = element; node; node = node.parentElement) {
+    if (node !== panel && node.getAttribute('aria-hidden') === 'true') return false;
+  }
+  // CookieYes legacy opens this dialog without updating its stale aria-hidden.
+  // Ignore only that known ancestor; keep actual rendering and all other guards.
+  const style = getComputedStyle(element);
+  return style.display !== 'none' && style.visibility !== 'hidden' && element.getClientRects().length > 0 &&
+    element.checkVisibility({checkOpacity:true, checkVisibilityCSS:true});
+}
+
 const setConsent = Consent.prototype.setEnabled;
 Consent.prototype.setEnabled = async function(enabled) {
   await setConsent.call(this, enabled);
@@ -35,15 +60,15 @@ Action.createAction = function(config, cmp) {
         run.assertActive();
         // Hidden checkbox inputs are valid when their visible label is the control.
         let control = target;
-        if (target?.matches('input[type="checkbox"]') && !clickable(target)) {
-          control = [...(target.labels || [])].find(clickable);
+        if (target?.matches('input[type="checkbox"]') && !clickableForRule(target, cmp)) {
+          control = [...(target.labels || [])].find(label => clickableForRule(label, cmp));
         }
-        if (!control || !clickable(control) || target?.disabled) continue;
+        if (!control || !clickableForRule(control, cmp) || target?.disabled) continue;
         if (grantsAll(control)) continue; // The dedicated fallback owns acceptance.
         await run.wait(Math.min(config.timeout ?? 40, 500));
         await run.beforeClick?.();
         run.assertActive();
-        if (!clickable(control)) continue;
+        if (!clickableForRule(control, cmp)) continue;
         control.click();
         run.registerClick();
         await run.wait(Math.min(config.timeout ?? 60, 500));

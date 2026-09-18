@@ -2,7 +2,7 @@
 
 ## Release 1.1.0 — September 18, 2026
 
-All 60 Playwright tests passed against the built extension in isolated Chromium profiles: 22 existing cookie tests and 38 promotion tests. The suite also asserts that fixtures have no page errors.
+All 64 Playwright tests passed against the built extension in isolated Chromium profiles: 22 existing cookie tests, four CookieYes tests, and 38 promotion tests. The suite also asserts that fixtures have no page errors.
 
 Coverage includes the Guardian inline custom element and collapse state, eight prompt categories in both modes, protected forms and pages, active media and restored chats, trusted user intent, navigation, hydration, frames, shadow roots, bounded retries, and cosmetic restoration. Negative tests use a separate cookie-rejection witness where applicable to establish that the content script scanned.
 
@@ -13,6 +13,12 @@ The personal Chrome window was verified through `chrome://version` as the Defaul
 After replacing the unpacked folder and reloading the verified extension, a fresh Guardian US page automatically changed its native control from Collapse banner to Expand banner. No test script clicked that control. Chrome showed Cookie Calm 1.1.0 enabled in the same personal profile (Chrome 153.0.8010.37). The final package was reloaded and the automatic collapse repeated. After a deliberate reopen, the panel stayed open for at least ten seconds; it was then minimized through its native control. The installed files match the package byte for byte. A separate 30-page exploratory sample used disposable profiles and an earlier draft. It is research evidence, not final-release acceptance. Seven pages returned HTTP 401/403, Reddit presented a human challenge, and one screenshot inspection failed. Many other pages had no in-scope prompt. The sample does not support a percentage coverage claim. An Independent support panel remained visible; an Everlane inline newsletter section was correctly preserved.
 
 The final 1.1.0 smoke sample revisited Guardian, CNBC, Intercom, and Independent in verified disposable profiles. CNBC consent was rejected. The personalized Guardian support panel appeared only in the personal-profile check. Intercom consent remained unresolved, and the Independent support banner remained unsupported. These are recorded coverage limits; no removal percentage is claimed.
+
+### E4E Africa report
+
+A fresh, service-worker-verified 1.1.0 profile reproduced an actual failure on e4eafrica.com/jobs/: the cookiebar flow opened settings but refused to save. CookieYes legacy 3.5.6 leaves aria-hidden=true on its visibly open dialog. This was a product compatibility issue, not a wrong-profile result.
+
+The scoped fix keeps normal visibility checks everywhere else. Its Save path requires necessary cookies enabled and all optional consent boxes off. Four new fixtures cover successful rejection, truly hidden controls, a separate hidden ancestor, stuck and unknown categories, and the scam guard. The real site recorded necessary=yes and functional/performance/analytics/advertisement/others=no; the banner stayed dismissed after reload. The live CookieYes check passed in both cookie modes. The installed Gmail profile uses Allow acceptance if needed and already had saved acceptance from 20:51 UTC, before this fix. Its saved choices were preserved. That existing-state observation is not counted as a fresh rejection test.
 
 ### Performance
 
@@ -34,7 +40,7 @@ Live interaction checks preserved the Guardian expanded menu and search field, a
 
 Claude independently reviewed the plan and implementation. See [AUDIT.md](AUDIT.md) for findings and follow-up status. Generic promotional rules are English and run only in top-level or same-hostname frames. Playing media, chats with composers or logs, and protected account/payment flows remain untouched. Unknown prompts and ambiguous intent can still require manual handling.
 
-The store ZIP has a root manifest, passes ZIP integrity checks, and matches the installed folder. SHA-256: `54dd82023066e96b788793cacec938f7797b3675c5db9a7646e266ff233fdcf7`. The store dashboard showed the earlier release as Published - public; the new version requires its own review.
+The store ZIP has a root manifest, passes ZIP integrity checks, and matches the installed folder. SHA-256: `c720c79e5b666c4ce6ed95bf1319cfaed6082c7ab333013c3ccb073dc6a996da`. The store dashboard showed the earlier release as Published - public; the new version requires its own review.
 
 ## Release 1.0.1 — September 16, 2026
 
