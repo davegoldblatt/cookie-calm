@@ -18,7 +18,7 @@ Spend less time on cookie banners and unwanted popups.
 
 Cookie Calm automatically rejects optional cookies on supported websites. It uses recognized controls and bundled Consent-O-Matic rules to apply your choice.
 
-Promotional dismissal works automatically in both cookie modes. Supported newsletter, donation, subscription, discount, survey, app, notification, and chat prompts close or minimize. The Guardian support banner uses its native collapse control.
+Promotional dismissal works automatically in both cookie modes. Supported newsletter, donation, subscription, discount, survey, app, notification, and chat prompts close or minimize. The Guardian support banner uses its native collapse control. Recognized optional registration invitations use safe close controls across sites. Actual sign-in forms and session-expiry warnings stay available.
 
 Cookie preferences:
 

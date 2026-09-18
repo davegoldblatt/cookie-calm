@@ -1,9 +1,10 @@
 import { clickable, label, visible } from './dom.js';
 import { RULES, CATEGORIES, CANDIDATES } from './annoyance-rules.js';
+import { isRegistrationPrompt, REGISTRATION_INTENT } from './registration-prompts.js';
 
 const CONSENT = /\bcookies?\b|\bconsent\b|\btracking technologies\b/i;
-const PROTECTED = /\b(checkout|shopping cart|your cart|payment|billing|card number|password|passcode|verification code|two.factor|captcha|unsaved (work|changes)|delete (your |my )?account|log in|sign in|register|create (an |your )?account|verify your email|subscription (expired|expires|cancelled|canceled)|renewal failed|account suspended)\b/i;
-const CLOSE = /^(close|dismiss|minimi[sz]e|collapse)( (this|the))?( (banner|popup|pop-up|dialog|modal|offer|promotion|newsletter|subscription prompt|chat|messenger|video|player|survey|window))?$|^hide (this |the )?(banner|popup|pop-up|offer|chat)$|^[×✕✖]$/;
+const PROTECTED = /\b(checkout|shopping cart|your cart|payment|billing|card number|password|passcode|verification code|two.factor|captcha|unsaved (work|changes)|delete (your |my )?account|verify your email|subscription (expired|expires|cancelled|canceled)|renewal failed|account suspended)\b/i;
+const CLOSE = /^(close|dismiss|minimi[sz]e|collapse)( (this|the))?( (banner|popup|pop-up|dialog|modal|offer|promotion|newsletter|subscription prompt|sign-in gate|registration (prompt|wall|dialog)|chat|messenger|video|player|survey|window))?$|^hide (this |the )?(banner|popup|pop-up|offer|chat)$|^[×✕✖]$/;
 const DECLINE = /^(no[, ]+thanks|no[, ]+thank you|not now|maybe later|continue without (subscribing|signing up)|skip (this |the )?(offer|signup|sign-up|survey))$/;
 const CONTROLS = 'button, [role="button"], a[href]';
 const elements = (root, selector) => [...(root.matches?.(selector) ? [root] : []), ...root.querySelectorAll(selector)];
@@ -31,11 +32,15 @@ function classify(container, rule) {
   if (!container.isConnected || !panelVisible(container) || container.matches('html,body,main,article,header,footer,nav,button,a,input,label,span,p')) return '';
   const text = (container.innerText || container.textContent || '').trim();
   if (text.length > 10000 || CONSENT.test(text) || PROTECTED.test(text) || protectedForm(container)) return '';
+  const registration = !rule && isRegistrationPrompt(container, text, overlay(container));
+  if (REGISTRATION_INTENT.test(text) && !registration) return '';
   if ([...container.querySelectorAll('video,audio')].some(media => !media.paused || media.currentTime > 0)) return '';
   if (rule) return (!rule.required || container.querySelector(rule.required)) && rule.context.test(text) ? rule.category : '';
+  if (registration) return 'registration';
   if (!overlay(container)) return '';
   if (container.matches('.jw-flag-floating,[class*="floating-video" i],[id*="floating-video" i]') && container.querySelector('video')) return 'video';
   const category = CATEGORIES.find(([,pattern]) => pattern.test(text))?.[0] || '';
+  if (category === 'registration') return ''; // Invitation evidence above is mandatory.
   // A restored conversation or composer is useful even without a click on this page.
   if (category === 'chat' && container.querySelector('[role="log"],textarea,[contenteditable],input:not([type="hidden"]),[aria-live="polite"], [aria-live="assertive"]')) return '';
   return category;

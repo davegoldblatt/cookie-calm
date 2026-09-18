@@ -1,4 +1,19 @@
-# Independent audit: Cookie Calm 1.1.0
+# Independent audits
+
+## Version 1.1.1
+
+Claude reviewed the registration plan, implementation, and corrections through the authenticated CLI in read-only snapshots. It found and helped resolve four concrete issues:
+
+- Reading invitations could be confused with session-expiry warnings. The detector now requires reading context and vetoes required authentication.
+- Save or Comment actions could open sign-in without an explicit sign-in label. Recent interactions now protect the resulting prompt.
+- A busy scanner or delayed hydration could lose that intent. Mutation-time markers preserve it until classification.
+- A matching body class could protect the entire page. Intent markers now exclude html and body.
+
+The [initial review](docs/audits/1.1.1-initial.md), [follow-up](docs/audits/1.1.1-follow-up.md), [timing review](docs/audits/1.1.1-delayed-intent.md), and [final sign-off](docs/audits/1.1.1-signoff.md) are retained. The final review found no remaining code blocker. Full tests and a live Guardian check are separate acceptance gates; see [validation](VALIDATION.md).
+
+The reviewed design uses a shared category detector and executor. See [adding prompt categories](docs/ADDING-PROMPT-CATEGORIES.md). Claude did not run commands, change files, or test the browser.
+
+## Version 1.1.0
 
 Claude reviewed the plan and source through its CLI in a separate, read-only snapshot. The initial audit used Claude Opus 5. It could read snapshot files but could not execute commands, edit files, use connectors, or start other agents.
 

@@ -11,6 +11,7 @@ It adds promotional dismissal, a compact popup, local rules, site pauses, and ch
 
 - Rejects optional cookies by default through recognized controls and provider rules.
 - Automatically closes or minimizes supported newsletter, subscription, donation, discount, survey, app, notification, and chat prompts.
+- Dismisses recognized optional registration invitations through safe close controls across sites.
 - Collapses the Guardian support banner through its native control.
 - Closes recognized inactive floating video prompts. Playing or previously played media stays available.
 - Offers an optional acceptance fallback for cookies after rejection attempts fail.
@@ -25,7 +26,7 @@ The popup includes a global switch and an exact-hostname pause control. Pauses a
 
 ## Install
 
-Version 1.1.0 adds automatic promotional dismissal. The earlier release is [published in the Chrome Web Store](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd). Version 1.1.0 is available through GitHub; its store update still requires review.
+Version 1.1.1 adds a shared registration-prompt detector and clean shutdown after extension reloads. The earlier release is [published in the Chrome Web Store](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd). The 1.1.0 store update is pending review. The newer 1.1.1 package is a separate release.
 
 1. Download the extension ZIP from [Releases](https://github.com/davegoldblatt/cookie-calm/releases/latest).
 2. Extract the ZIP to a permanent folder.
@@ -58,6 +59,8 @@ In-page notification requests differ from Chrome permission prompts. Chrome noti
 Generic promotion matching currently uses English labels. Prompts without a recognized category and safe close control stay visible. Site changes, delayed user flows without identifiable controls, and unusual embedded widgets can limit coverage. Chat handling is limited to proactive greetings without a composer or conversation. Promotion actions do not run in foreign-host frames.
 
 Pausing restores elements hidden with extension-owned styles. Native website close actions can save preferences that Cookie Calm cannot undo.
+
+See [adding prompt categories](docs/ADDING-PROMPT-CATEGORIES.md) for the shared detection, safety, action, and verification pipeline.
 
 The bundled rules need release updates as websites change. Unpacked installations require manual updates.
 

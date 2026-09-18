@@ -19,6 +19,10 @@ For a missed banner, include the public page URL, browser version, and selected 
 
 Remove private information from screenshots. Do not include cookies, authentication tokens, payment details, or personal messages.
 
+## Prompt categories
+
+Read [adding prompt categories](docs/ADDING-PROMPT-CATEGORIES.md). Extend common detectors before adding a site adapter.
+
 ## Changes
 
 Keep unknown consent forms visible. Rejection is the default. Acceptance requires the explicit fallback mode and its page checks.

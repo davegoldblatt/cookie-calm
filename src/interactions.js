@@ -4,17 +4,30 @@ import { CANDIDATES, CATEGORIES } from './annoyance-rules.js';
 export class Interactions {
   constructor() {
     this.reset();
+    this.listeners = new AbortController();
     this.observed = new WeakSet();
     this.observe(document);
   }
   observe(root) {
     if (this.observed.has(root)) return;
     this.observed.add(root);
-    for (const name of ['pointerdown', 'keydown', 'input', 'change', 'focusin']) root.addEventListener(name, event => this.record(event), true);
+    for (const name of ['pointerdown', 'keydown', 'input', 'change', 'focusin']) root.addEventListener(name, event => this.record(event), {capture:true, signal:this.listeners.signal});
   }
+  disconnect() { this.listeners.abort(); }
   reset() {
     this.touched = new WeakSet(); this.protected = new WeakSet(); this.keys = new Set();
+    this.intentNodes = new WeakSet();
     this.targets = new Set(); this.categories = new Set(); this.gestureAt = 0;
+  }
+  noteChange(node) {
+    if (node.matches?.('html,body')) return;
+    if (Date.now() - this.gestureAt < 10000) this.intentNodes.add(node);
+  }
+  openedByUser(container) {
+    for (let node = container; node; node = node.parentElement || node.getRootNode()?.host) {
+      if (this.intentNodes.has(node)) return true;
+    }
+    return false;
   }
   record(event) {
     if (!event.isTrusted) return;
@@ -42,6 +55,11 @@ export class Interactions {
   recent() { return Date.now() - this.gestureAt < 1500; }
   protect(container, key) { this.protected.add(container); if (key) this.keys.add(key); }
   permits(container, key, category) {
+    // Save, comment, and similar controls can open authentication without
+    // mentioning it. Keep the resulting prompt protected beyond the short defer.
+    if (category === 'registration' && (Date.now() - this.gestureAt < 10000 || this.openedByUser(container))) {
+      this.protect(container, key); return false;
+    }
     const controlled = [...this.targets].some(id => {
       const selector = `#${CSS.escape(id)}`;
       return container.closest(selector) || container.querySelector(selector);

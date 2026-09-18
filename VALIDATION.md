@@ -1,5 +1,29 @@
 # Validation
 
+## Release 1.1.1 — September 18, 2026
+
+All **79 Playwright tests passed in one run on the final code** (5.5 minutes). The suite loads the actual unpacked extension in isolated Chromium profiles. It includes all 64 previous cases, nine registration tests, three delayed-intent cases, and three lifecycle tests.
+
+Registration tests cover the observed Guardian structure in both cookie modes, other domains and markup, missing or unsafe close controls, real forms, session-expiry warnings, user-initiated prompts, site pause, ordinary article content, delayed hydration, and page-wide class changes. Synthetic hostnames demonstrate reusable behavior; they are not claims about live coverage on those sites.
+
+A separate baseline check reproduced the invalidated-context errors with 1.1.0. The 1.1.1 lifecycle tests unload the extension and verify quiet shutdown, cancellation of an active consent flow, and restoration of extension-owned hiding. Chromium disables a CLI-loaded extension after runtime.reload; this harness behavior is not recorded as a product failure. Host-page refresh remains necessary to start the new content script.
+
+### Installed profile and live limit
+
+Chrome confirmed version **1.1.1 enabled** in the personal Gmail profile, loaded from the Desktop extension folder. Its existing acceptance-fallback preference was preserved. The Mission Control profile was not changed.
+
+Before the update, the user-provided Guardian article showed its registration gate in that same profile: one native dismiss control, two of five article paragraphs visible, and two masked paragraphs. The captured native control is a button labelled Dismiss sign-in gate inside the sign-in-gate-main container.
+
+After the update, all five paragraphs were visible and no gate remained. However, the diagnostic observer saw neither a gate nor a dismiss action on that visit, and the popup did not report a dismissal. Two disposable-profile visits, one per cookie mode, also showed no gate or dismissal and no extension errors. **These final visits are not proof of live automatic dismissal.** The captured markup passes the functional tests; end-to-end live confirmation remains limited by the site's variable prompt display. No claim of universal coverage is made.
+
+The installed files match the store package byte for byte. Package SHA-256: `a86d8e4b97318e8d9f61729fe9afad47f2538a0347b772d4e6d7085319888d90`.
+
+### Audit and publication
+
+Claude reviewed the plan, implementation, and corrections in four read-only passes. Its final report found no remaining code blocker. The full suite passed afterward; the live-display limitation above remains explicit. See [AUDIT.md](AUDIT.md).
+
+The dashboard still shows 1.1.0 pending review and 1.0.1 published. Upload new package is disabled during review. Version 1.1.1 is packaged separately; the pending submission was not withdrawn.
+
 ## Release 1.1.0 — September 18, 2026
 
 All 64 Playwright tests passed against the built extension in isolated Chromium profiles: 22 existing cookie tests, four CookieYes tests, and 38 promotion tests. The suite also asserts that fixtures have no page errors.

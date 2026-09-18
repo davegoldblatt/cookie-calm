@@ -7,7 +7,7 @@ import { Interactions } from './interactions.js';
 import { CANDIDATES } from './annoyance-rules.js';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-let engine, settings, enabled = false, promotionAllowed = false, generation = 0, reportedError = false;
+let engine, settings, enabled = false, promotionAllowed = false, generation = 0, reportedError = false, invalidated = false;
 let timer, interval, inFlight, dirty = false, fallbacks = [], configQueue = Promise.resolve();
 let clicked = new WeakSet(), lastUrl = location.href, lastScan = 0;
 const interactions = new Interactions();
@@ -15,6 +15,10 @@ const promotions = new Promotions(interactions);
 const RELEVANT = `${CANDIDATES},[id*="cookie" i],[class*="cookie" i],[id*="consent" i],[class*="consent" i]`;
 let changedScopes = new Set(), fullScan = true;
 const observer = new MutationObserver(records => {
+  if (!contextAlive()) return;
+  try { processMutations(records); } catch (error) { reportError(error); }
+});
+function processMutations(records) {
   invalidateAssessment();
   const rootCount = roots().length;
   let relevant = false;
@@ -35,9 +39,12 @@ const observer = new MutationObserver(records => {
     }
   }
   discoverRoots(added);
+  // Capture causality at mutation time, even while a consent flow owns the
+  // scanner or the tab is hidden. Delayed hydration must not erase user intent.
+  for (const node of added) interactions.noteChange(node);
   for (const element of targets) {
     const container = element?.closest(CANDIDATES);
-    if (container) { changedScopes.add(container); relevant = true; }
+    if (container) { interactions.noteChange(container); changedScopes.add(container); relevant = true; }
   }
   for (const node of added) {
     if (node.matches(RELEVANT) || node.querySelector(RELEVANT) || node.shadowRoot) {
@@ -46,6 +53,7 @@ const observer = new MutationObserver(records => {
   }
   for (const element of attributes) {
     if (element.matches(`html,body,${RELEVANT}`) || element.querySelector(RELEVANT)) {
+      if (!element.matches('html,body')) interactions.noteChange(element);
       changedScopes.add(element); relevant = true;
     }
   }
@@ -54,7 +62,31 @@ const observer = new MutationObserver(records => {
   if (roots().length !== rootCount) { relevant=true; fullScan=true; }
   if (changedScopes.size > 60) { changedScopes.clear(); fullScan = true; }
   if (relevant) schedule();
-});
+}
+
+function stopInvalidatedContext() {
+  if (invalidated) return;
+  invalidated = true; enabled = false; generation++;
+  engine?.cancel(); observer.disconnect(); interactions.disconnect();
+  clearTimeout(timer); clearInterval(interval); fallbacks.forEach(clearTimeout);
+  timer = null; fallbacks = []; dirty = false; changedScopes.clear();
+  promotions.restore();
+}
+function contextAlive() {
+  if (invalidated) return false;
+  try { if (chrome.runtime?.id) return true; } catch { /* Extension was unloaded. */ }
+  stopInvalidatedContext();
+  return false;
+}
+function reportError(error) {
+  if (/extension context invalidated/i.test(error?.message || '') || !contextAlive()) {
+    stopInvalidatedContext(); return;
+  }
+  if (!reportedError) {
+    reportedError = true;
+    console.warn('Cookie Calm could not process a page element:', error?.message || String(error));
+  }
+}
 function observe(root) {
   interactions.observe(root);
   observer.observe(root, {subtree:true, childList:true, characterData:true, attributes:true,
@@ -62,7 +94,14 @@ function observe(root) {
 }
 
 async function send(request) {
-  try { return await chrome.runtime.sendMessage(request); } catch { return null; }
+  if (!contextAlive()) return null;
+  try {
+    const result = await chrome.runtime.sendMessage(request);
+    return contextAlive() ? result : null;
+  } catch (error) {
+    if (/extension context invalidated/i.test(error?.message || '') || !contextAlive()) stopInvalidatedContext();
+    return null;
+  }
 }
 
 async function guard() {
@@ -70,6 +109,7 @@ async function guard() {
   return result && typeof result.stopAll === 'boolean' ? result : { stopAll: true, stopAccept: true, reason: 'The page could not be checked.' };
 }
 function assessment() {
+  if (!contextAlive()) return {stopAll:true, stopAccept:true, reason:'Extension updated; refresh this page.'};
   return {...assessPage(), deferPromotions: interactions.recent(), protectedPromotions: [...interactions.categories]};
 }
 
@@ -84,17 +124,12 @@ async function beforeClick() {
 }
 
 function schedule(delay = 200) {
-  if (!enabled || document.hidden) return;
+  if (!contextAlive() || !enabled || document.hidden) return;
   if (inFlight) { dirty = true; return; }
   if (timer) return;
   timer = setTimeout(() => {
     timer = null;
-    inFlight = scan().catch(error => {
-      if (!reportedError) {
-        reportedError = true;
-        console.warn('Cookie Calm could not process a page element:', error.message);
-      }
-    }).finally(() => {
+    inFlight = scan().catch(reportError).finally(() => {
       inFlight = null;
       if (dirty) { dirty = false; schedule(); }
     });
@@ -102,7 +137,7 @@ function schedule(delay = 200) {
 }
 
 async function scan() {
-  if (!enabled || document.hidden || !document.body) return;
+  if (!contextAlive() || !enabled || document.hidden || !document.body) return;
   const revision = generation;
   const scanUrl = location.href;
   lastScan = Date.now();
@@ -206,6 +241,7 @@ async function scan() {
 }
 
 function configure() {
+  if (!contextAlive()) return;
   const revision = ++generation;
   enabled = false;
   engine?.cancel();
@@ -217,7 +253,7 @@ function configure() {
   timer = null;
   configQueue = configQueue.then(async () => {
     await inFlight;
-    if (revision !== generation) return;
+    if (!contextAlive() || revision !== generation) return;
     const data = await send({ type: 'bootstrap' });
     if (revision !== generation) return;
     if (!data?.settings) { promotions.restore(); return; }
@@ -233,7 +269,7 @@ function configure() {
     clicked = new WeakSet();
     // Keep action budgets and user interactions across setting changes.
     // This interval only compares the address; unchanged pages do no DOM work.
-    interval = setInterval(() => { if (location.href !== lastUrl) schedule(0); }, 1000);
+    interval = setInterval(() => { if (contextAlive() && location.href !== lastUrl) schedule(0); }, 1000);
     fallbacks = [500, 1500, 5000, 15000, 45000].map(delay => setTimeout(() => {
       invalidateRoots(); invalidateAssessment(); fullScan=true; schedule(0);
     }, delay));
