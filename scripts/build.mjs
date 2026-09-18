@@ -1,11 +1,12 @@
 import { build } from 'esbuild';
-import { readFile, writeFile, cp, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, cp, mkdir, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const vendor = path.join(root, 'vendor/consent-o-matic');
 const out = path.join(root, 'extension');
+await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 await cp(path.join(root, 'static'), out, { recursive: true });
 const list = JSON.parse(await readFile(path.join(vendor, 'rules-list.json'), 'utf8'));
@@ -20,6 +21,7 @@ await writeFile(path.join(out, 'rules.json'), JSON.stringify(rules));
 await cp(path.join(vendor, 'LICENSE'), path.join(out, 'CONSENT-O-MATIC-LICENSE.txt'));
 await cp(path.join(vendor, 'UPSTREAM.json'), path.join(out, 'UPSTREAM.json'));
 await cp(path.join(root, 'LICENSE'), path.join(out, 'LICENSE.txt'));
+await cp(path.join(root, 'NOTICE.md'), path.join(out, 'NOTICE.txt'));
 await cp(path.join(root, 'PRIVACY.md'), path.join(out, 'PRIVACY.txt'));
 await build({
   entryPoints: ['content', 'background', 'popup'].map(name => path.join(root, `src/${name}.js`)),

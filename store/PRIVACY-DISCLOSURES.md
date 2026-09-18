@@ -4,13 +4,13 @@ These entries describe the code in this release. The account owner makes the fin
 
 ## Single purpose
 
-Automatically apply the user's cookie consent preference on supported websites, with controls and local checks that constrain those consent clicks.
+Automatically handle repetitive website interruptions through the user's cookie preferences and dismissal of supported promotional prompts, with local interaction safeguards and site pauses.
 
 ## Permission justification
 
 `storage`: save the selected mode, enabled state, and site pauses locally. Store temporary per-tab outcomes and guard reasons in session storage.
 
-HTTP and HTTPS host access: recognize and interact with consent forms across visited websites and frames. Read the current hostname for site pauses.
+HTTP and HTTPS host access: recognize consent forms and promotional interruptions and use their controls across visited websites and frames. Read the current hostname for site pauses.
 
 The extension runs automatically across supported sites. Access to only the active tab after a click would not provide this behavior.
 
@@ -24,11 +24,11 @@ No. All executable code and consent rules are included in the package. There is 
 
 Declare website content, web history/browsing activity, and user activity for the local processing described here.
 
-Website content: page text, DOM attributes, and consent-control state, used for detection and click guards.
+Website content: page text, DOM attributes, and control state, used for detection and action guards.
 
 Web history/browsing activity: addresses and hostnames of current pages. The extension does not access Chrome's history database or retain a navigation history.
 
-User activity: consent preference settings and temporary status of automatic consent actions. No general click or keystroke log is recorded.
+User activity: consent settings, temporary action status, and interaction events used to preserve active forms and user-opened prompts. No typed values or general interaction history are recorded.
 
 Page text can incidentally include personal information or communications. It is processed transiently, not extracted into separate records or sent elsewhere.
 
@@ -36,17 +36,19 @@ Do not claim that the extension handles no user data merely because processing s
 
 ## Data use
 
-Used only for cookie-consent automation, site pauses, status, and the associated click checks.
+Used only for consent automation, promotional dismissal, interaction protection, site pauses, and action status.
 
 No sale of user data. No advertising use. No unrelated transfer. No creditworthiness or lending use.
 
-The extension does not transmit page content or settings to the maintainer. Website controls can send their own consent requests after clicks.
+The extension does not transmit page content or settings to the maintainer. Website controls can send their own requests after automatic actions.
 
 ## Reviewer notes
 
 No account or login is required. Load the extension and visit a supported consent page.
 
-The default is rejection. Acceptance requires selecting the second mode in the popup and passing the local guards.
+Promotional dismissal is automatic in both modes. Site pause also restores extension-hidden elements.
+
+The default cookie behavior is rejection. Acceptance requires selecting the second mode in the popup and passing the local guards.
 
 Fixture tests are public in the repository. The test server and browser checks run through `npm test`.
 

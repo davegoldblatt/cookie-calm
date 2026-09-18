@@ -1,27 +1,4 @@
-import { test as base, expect, chromium } from '@playwright/test';
-import { mkdtemp, rm } from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
-
-const test = base.extend({
-  extension: async ({}, use) => {
-    const profile = await mkdtemp(path.join(os.tmpdir(), 'cookie-calm-test-'));
-    const extensionPath = path.resolve('extension');
-    const context = await chromium.launchPersistentContext(profile, {
-      channel: 'chromium', headless: true,
-      args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`]
-    });
-    const worker = context.serviceWorkers()[0] || await context.waitForEvent('serviceworker');
-    const id = new URL(worker.url()).host;
-    const page = context.pages()[0] || await context.newPage();
-    const errors = [];
-    page.on('pageerror', error => errors.push(error.message));
-    const settings = async value => worker.evaluate(value => chrome.storage.local.set({settings:value}), value);
-    await use({ context, worker, page, id, settings, errors });
-    await context.close();
-    await rm(profile, { recursive: true, force: true });
-  }
-});
+import {test, expect} from './fixtures.js';
 const visit = (page, route) => page.goto(`http://localhost:4179${route}`);
 const result = (page, value) => expect(page.locator('html')).toHaveAttribute('data-result', value, {timeout:15000});
 

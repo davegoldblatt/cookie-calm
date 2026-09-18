@@ -1,26 +1,31 @@
 # Cookie Calm
 
-Reject optional cookies on supported websites. Let the browser handle the repetitive consent clicks.
+Reject optional cookies and automatically dismiss supported website interruptions.
 
 Cookie Calm is an open-source Chrome extension built on [Consent-O-Matic](https://github.com/cavi-au/Consent-O-Matic).
-It adds a compact popup, local bundled rules, per-site pauses, and conservative checks before automatic clicks.
+It adds promotional dismissal, a compact popup, local rules, site pauses, and checks before automatic actions.
 
 ![Cookie Calm popup and consent controls](store/assets/screenshot-1.png)
 
 ## What it does
 
 - Rejects optional cookies by default through recognized controls and provider rules.
-- Offers an optional acceptance fallback after rejection attempts fail.
+- Automatically closes or minimizes supported newsletter, subscription, donation, discount, survey, app, notification, and chat prompts.
+- Collapses the Guardian support banner through its native control.
+- Closes recognized inactive floating video prompts. Playing or previously played media stays available.
+- Offers an optional acceptance fallback for cookies after rejection attempts fail.
 - Stops automatic clicks when local checks find certain suspicious instructions.
 - Blocks acceptance around password, payment, wallet, and software download prompts.
 - Supports delayed banners, embedded frames, and shadow DOM.
+- Preserves protected forms and recognized user-opened prompts.
+- Restores extension-hidden app banners when paused.
 - Runs locally without telemetry, accounts, remote AI, or automatic rule downloads.
 
 The popup includes a global switch and an exact-hostname pause control. Pauses also apply to embedded consent frames.
 
 ## Install
 
-Version 1.0.1 was submitted to the Chrome Web Store on September 16, 2026. Its status is **Pending review** as of that date. The store listing is not live yet.
+Version 1.1.0 adds automatic promotional dismissal. The earlier release is [published in the Chrome Web Store](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd). Version 1.1.0 is available through GitHub; its store update still requires review.
 
 1. Download the extension ZIP from [Releases](https://github.com/davegoldblatt/cookie-calm/releases/latest).
 2. Extract the ZIP to a permanent folder.
@@ -36,17 +41,23 @@ Keep the extracted folder in place. Chrome loads unpacked extensions from that l
 
 **Reject optional cookies** uses recognized rejection buttons and consent rules. Unknown forms stay visible.
 
-**Just dismiss the banner** tries rejection first. If rejection fails, it can use a recognized acceptance button. This can allow tracking.
+**Allow acceptance if needed** tries rejection first. If rejection fails, it can use a recognized acceptance button. This can allow tracking.
 
 Scam checks use local heuristics and some English phrases. They can miss scams or stop on legitimate pages. They do not certify websites.
 
 Public HTTP pages and internationalized domains cannot use the acceptance fallback. Loopback addresses remain available for local development.
 
-A checkmark means that a banner disappeared after an action. It does not prove that the site stored or honors the choice.
+A checkmark means that a supported banner disappeared or a collapse state changed after an action. It does not prove that the site stored or honors the choice.
 
 Settings apply to new consent choices. They do not undo previous consent. The extension does not delete cookies or block trackers.
 
-It does not bypass paywalls or handle browser notification and location prompts. Some sites still require a manual choice.
+Promotional dismissal operates in both cookie modes. Dismissible subscription prompts use their close or minimize controls. Paid-only articles still require access.
+
+In-page notification requests differ from Chrome permission prompts. Chrome notification and location prompts remain outside this release.
+
+Generic promotion matching currently uses English labels. Prompts without a recognized category and safe close control stay visible. Site changes, delayed user flows without identifiable controls, and unusual embedded widgets can limit coverage. Chat handling is limited to proactive greetings without a composer or conversation. Promotion actions do not run in foreign-host frames.
+
+Pausing restores elements hidden with extension-owned styles. Native website close actions can save preferences that Cookie Calm cannot undo.
 
 The bundled rules need release updates as websites change. Unpacked installations require manual updates.
 
@@ -62,7 +73,7 @@ Cookie Calm's main additions are local packaging, simplified controls, guarded a
 
 ## Privacy
 
-Cookie Calm reads page text, consent controls, and addresses locally to perform its features. It does not transmit them to the maintainer.
+Cookie Calm reads page text, consent controls, and addresses locally to perform its features. It also observes interaction events to protect active forms and user-opened prompts. It records no typed values and transmits none of this data to the maintainer.
 
 Settings stay in local extension storage. Temporary tab status stays in session storage. Website consent controls can send their normal requests.
 
@@ -85,7 +96,7 @@ The build writes an unpacked extension to `extension/`. Packaging writes a Chrom
 
 Playwright tests load the actual extension into isolated Chromium profiles. Fixtures cover consent flows, false positives, cancellation, frames, and guards.
 
-See [validation](VALIDATION.md), [contribution instructions](CONTRIBUTING.md), and the [store submission guide](store/SUBMISSION.md).
+See the [annoyance implementation plan](ANNOYANCES-PLAN.md) and [validation](VALIDATION.md), [independent audit](AUDIT.md), [contribution instructions](CONTRIBUTING.md), and the [store submission guide](store/SUBMISSION.md).
 
 ## Credits and license
 

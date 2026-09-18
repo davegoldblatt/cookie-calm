@@ -1,27 +1,49 @@
 {
   "manifest_version": 3,
   "name": "Cookie Calm",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "homepage_url": "https://davegoldblatt.github.io/cookie-calm/",
-  "description": "Automatically reject optional cookies on supported sites. Optional acceptance fallback and per-site pause. Works locally.",
+  "description": "Reject optional cookies and automatically dismiss supported promotional popups. Local rules, protected forms, and per-site pause.",
   "minimum_chrome_version": "120",
-  "permissions": ["storage"],
-  "host_permissions": ["http://*/*", "https://*/*"],
-  "background": { "service_worker": "background.js" },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_title": "Cookie Calm",
     "default_popup": "popup.html",
-    "default_icon": { "16": "icons/16.png", "32": "icons/32.png" }
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png"
+    }
   },
-  "icons": { "16": "icons/16.png", "32": "icons/32.png", "48": "icons/48.png", "128": "icons/128.png" },
-  "content_scripts": [{
-    "matches": ["http://*/*", "https://*/*"],
-    "js": ["content.js"],
-    "all_frames": true,
-    "match_about_blank": true,
-    "match_origin_as_fallback": true,
-    "run_at": "document_idle"
-  }],
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "all_frames": true,
+      "match_about_blank": true,
+      "match_origin_as_fallback": true,
+      "run_at": "document_start"
+    }
+  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self'"
   }

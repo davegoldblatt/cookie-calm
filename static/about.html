@@ -4,22 +4,27 @@
 <p>Cookie Calm applies consent choices through the controls on supported websites. It rejects optional cookies by default.</p>
 <h2>Two choices</h2>
 <p><strong>Reject optional cookies</strong> requests the most restrictive choices supported by the bundled rules. Unknown banners stay visible.</p>
-<p><strong>Just dismiss the banner</strong> tries the same rejection flow first. If that fails, it can use a recognized acceptance button. This can allow tracking.</p>
+<p><strong>Allow acceptance if needed</strong> tries the same rejection flow first. If that fails, it can use a recognized acceptance button. This can allow tracking.</p>
 <p>A checkmark means that a banner disappeared after an action. It does not prove that a website honors your choice.</p>
+<h2>Automatic popup handling</h2>
+<p>Supported newsletter, subscription, donation, offer, survey, app, notification, and chat prompts close or minimize in both cookie modes.</p>
+<p>Chat handling covers proactive greetings without a conversation or composer. Playing or previously played media stays available.</p>
+<p>Cookie Calm protects recognized user-opened forms and media. Pausing restores elements hidden by its own styles.</p>
+<p>Some native close controls save website preferences. Cookie Calm cannot reverse those choices.</p>
 <h2>Suspicious pages</h2>
-<p>Clear scam phrases stop all automatic clicks. Password, payment, wallet, and download prompts stop the acceptance fallback.</p>
+<p>Clear scam phrases stop all automatic clicks. Password, payment, and wallet signals stop promotional actions and the acceptance fallback. Download prompts stop the acceptance fallback.</p>
 <p>Public HTTP pages and internationalized domains cannot use automatic acceptance. Consent frames inherit checks on the parent page.</p>
 <p>These local checks can miss scams or stop on legitimate pages. They do not certify websites. Chrome Safe Browsing remains separate.</p>
 <h2>Coverage and limits</h2>
 <p>This build bundles 203 rule files from Consent-O-Matic, plus a conservative detector for common cookie buttons. Rules cover many banner variants.</p>
 <p>Delayed banners, embedded frames, and shadow DOM can work. Site changes and unusual consent forms can still require a manual choice.</p>
-<p>Cookie Calm does not block trackers, delete cookies, undo past consent, or bypass paywalls. It does not handle notification or location permission prompts.</p>
+<p>Cookie Calm does not block trackers, delete cookies, undo past consent, or bypass paywalls. It handles supported in-page notification requests. Chrome notification and location permission prompts remain outside its reach.</p>
 <p>Chrome protects its settings pages and the Chrome Web Store from extensions. Cookie Calm cannot run there.</p>
 <p>The pause control applies to the exact hostname and all frames in that tab. Other subdomains remain separate.</p>
-<p>When you pause, Cookie Calm stops new clicks. The site can still finish a request from an earlier click.</p>
+<p>When you pause, Cookie Calm stops new clicks and restores elements hidden by its own styles. The site can still finish a request from an earlier click.</p>
 <h2>Privacy and permissions</h2>
-<p>The extension needs website access to find cookie forms and use their controls. Settings stay in local Chrome storage.</p>
-<p>Temporary status stays in session storage. It contains a hostname, a rule name, and the result for each open tab.</p>
+<p>The extension needs website access to find consent forms and promotional prompts and use their controls. Settings stay in local Chrome storage.</p>
+<p>Temporary status stays in session storage. It contains a hostname, rule name, action results, and promotion counts for each open tab.</p>
 <p>There is no account, analytics, remote AI, reporting service, or automatic rule download. Page checks stay on your device.</p>
 <p>The extension reads page text, consent-control states, and addresses locally. It does not read password or payment-field values.</p>
 <p><a href="https://davegoldblatt.github.io/cookie-calm/privacy.html" target="_blank" rel="noreferrer">Read the privacy policy</a>.</p>

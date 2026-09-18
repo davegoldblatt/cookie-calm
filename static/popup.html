@@ -12,19 +12,19 @@
     <label class="switch" title="Enable Cookie Calm"><input id="enabled" type="checkbox" aria-label="Enable Cookie Calm" disabled><span></span></label>
   </header>
   <main>
-    <div class="intro"><h1>Less clicking.<br>More browsing.</h1><p>Cookie choices, taken care of.</p></div>
+    <div class="intro"><h1>Less clicking.<br>More browsing.</h1><p>Cookies and supported pop-ups, handled.</p></div>
     <section class="site" aria-label="Current site">
       <div class="site-heading"><span class="dot" aria-hidden="true"></span><strong id="hostname">Current page</strong></div>
       <p id="status" role="status">Loading your settings…</p>
       <button id="pause" class="site-button" disabled>Pause on this site</button>
     </section>
     <fieldset disabled id="modes">
-      <legend>Your automatic choice</legend>
+      <legend>Your cookie consent preference</legend>
       <label class="choice"><input type="radio" name="mode" value="reject"><span><strong>Reject optional cookies</strong><small>Keep only what the site requires.</small></span></label>
-      <label class="choice"><input type="radio" name="mode" value="dismiss"><span><strong>Just dismiss the banner</strong><small>Try rejecting first. Accept if needed.<br>Skip suspicious or sensitive pages.<br>This can allow tracking cookies.</small></span></label>
+      <label class="choice"><input type="radio" name="mode" value="dismiss"><span><strong>Allow acceptance if needed</strong><small>Try rejecting first, then accept.<br>This can allow tracking cookies.</small></span></label>
     </fieldset>
     <p id="feedback" class="feedback" aria-live="polite"></p>
-    <details><summary>A banner still showing?</summary><p>Some sites use forms we do not recognize. Handle those once, or try the acceptance fallback.</p><p>For an already open tab, reload the page after installation. Pausing stops new clicks. It does not undo a saved choice.</p><p>To change a saved choice, use the website’s cookie settings.</p></details>
+    <details><summary>What gets handled?</summary><p>Supported promotional, app, notification, and chat prompts close or minimize automatically in both modes.</p><p>Prompts without a recognized category and close control, active forms, and paid-access restrictions stay in place. Scam signals stop clicks; sensitive pages block promotional actions and cookie acceptance.</p><p>Reload open tabs after installation. Pausing stops new actions and restores items hidden by Cookie Calm. To change saved consent, use the website’s cookie settings.</p></details>
   </main>
   <footer>Runs on your device. No account. No telemetry.<br><a href="about.html" target="_blank">Coverage, privacy & credits</a></footer>
 </body>

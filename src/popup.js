@@ -19,7 +19,10 @@ async function render() {
     $('#status').textContent = state.reason || 'Automatic acceptance is paused on this page.';
     return;
   }
-  $('#status').textContent = !settings.enabled ? 'Paused everywhere.' : !host ? 'Open a website to use Cookie Calm.' : paused ? 'You handle cookie banners here.' : state?.host === host && state.status === 'dismissed' ? (state.accepted ? 'Banner dismissed with acceptance.' : 'Banner dismissed after a rejection attempt.') : state?.host === host && state.status === 'needs-help' ? 'This banner may need your help.' : 'Ready for supported cookie banners.';
+  const current = state?.host === host ? state : null;
+  const promotionStatus = current?.promotionsDismissed ? `${current.promotionsDismissed} ${current.promotionsDismissed === 1 ? 'prompt' : 'prompts'} ${current.lastPromotionAction === 'collapsed' ? 'handled (last minimized)' : 'handled'}.` : '';
+  const consentStatus = current?.status === 'dismissed' ? (current.accepted ? 'Cookie banner dismissed with acceptance.' : 'Cookie banner dismissed after a rejection attempt.') : current?.status === 'needs-help' ? 'This cookie banner may need your help.' : '';
+  $('#status').textContent = !settings.enabled ? 'Paused everywhere.' : !host ? 'Open a website to use Cookie Calm.' : paused ? 'You handle banners and pop-ups here.' : [consentStatus, promotionStatus].filter(Boolean).join(' ') || 'Ready for supported cookies and pop-ups.';
 }
 
 function save(change) {
@@ -29,7 +32,7 @@ function save(change) {
     await chrome.storage.local.set({ settings });
     await render();
     $('#feedback').dataset.error = 'false';
-    feedback('Saved. Applies to new consent choices.');
+    feedback('Saved. Applies to new automatic actions.');
   }).catch(() => {
     $('#feedback').dataset.error = 'true';
     feedback('Could not save. Reopen Cookie Calm and try again.');

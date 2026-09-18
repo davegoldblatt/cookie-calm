@@ -1,18 +1,18 @@
 # Cookie Calm privacy policy
 
-Effective September 16, 2026.
+Effective September 18, 2026.
 
-Cookie Calm automates cookie consent controls in Chrome. Dave Goldblatt maintains the project. Contact: dave@davegoldblatt.com.
+Cookie Calm handles cookie consent and supported website interruptions in Chrome. Dave Goldblatt maintains the project. Contact: dave@davegoldblatt.com.
 
 ## Information processed on your device
 
-The extension examines website addresses, page text, element attributes, and consent-control states to identify banners and decide whether to act.
+The extension examines website addresses, page text, element attributes, and control states to identify banners and promotional prompts and decide whether to act.
 
 This processing can include personal information that appears in page text. Text stays in transient memory and is not retained by the extension.
 
 The extension uses page signals to avoid some suspicious clicks. It inspects field types and names, but does not read password or payment-field values.
 
-It also reads labels and values on consent buttons and the checked state of consent switches.
+It reads button labels and consent switch states. It observes interaction events to preserve forms, chats, and media that you use. No typed characters or field values are recorded.
 
 The extension processes the current tab address to apply site-specific pauses and to coordinate embedded frames. It does not use Chrome's browsing-history API.
 
@@ -20,7 +20,7 @@ The extension processes the current tab address to apply site-specific pauses an
 
 Local Chrome extension storage contains your selected mode, enabled state, and hostnames where you paused automation.
 
-Session storage contains temporary tab status: hostname, rule name, action outcome, and a generic reason if a guard stops automation.
+Session storage contains temporary tab status: hostname, rule name, action outcome, promotion category and count, and a generic guard reason.
 
 Tab status clears on navigation, tab closure, settings changes, or browser-session termination. Preferences remain until you change them or remove the extension.
 
@@ -32,7 +32,7 @@ The extension has no analytics, telemetry, advertising service, account system, 
 
 It does not send page text, addresses, or settings to the maintainer or third-party services.
 
-Automatic clicks use the website's normal consent controls. Those controls can send consent requests to the website or its consent provider.
+Automatic clicks use the website's normal consent, close, decline, or minimize controls. Those controls can send requests to the website or its providers.
 
 The website's own privacy policy governs those requests and any cookies that it sets. Acceptance mode can permit optional cookies and tracking.
 
@@ -50,7 +50,7 @@ You can request deletion of a support email through the contact address. GitHub 
 
 ## Your choices
 
-You can pause automation globally or for an exact hostname. Pausing stops new actions but does not undo a consent choice already saved by a website.
+You can pause automation globally or for an exact hostname. Pausing stops new actions and restores elements hidden by Cookie Calm. It does not undo choices saved by website controls.
 
 You can remove Cookie Calm through Chrome's extensions page. Removal deletes its local extension settings and temporary status.
 
@@ -58,7 +58,7 @@ The website retains its own cookies and saved choices. You can manage them throu
 
 ## Limited use
 
-Cookie Calm uses locally processed data only for its disclosed cookie-consent features. It does not sell data or use it for advertising or credit decisions.
+Cookie Calm uses locally processed data only for its disclosed consent and interruption-handling features. It does not sell data or use it for advertising or credit decisions.
 
 Its handling of user data follows the Chrome Web Store User Data Policy, including the Limited Use requirements.
 

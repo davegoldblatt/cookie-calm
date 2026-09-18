@@ -6,7 +6,7 @@ Cookie Calm
 
 ## Summary
 
-Automatically reject optional cookies on supported sites. Optional acceptance fallback and per-site pause. Works locally.
+Reject optional cookies and automatically dismiss supported promotional popups. Local rules, protected forms, and per-site pause.
 
 ## Category and language
 
@@ -14,27 +14,33 @@ Privacy & Security. English.
 
 ## Description
 
-Spend less time on cookie banners.
+Spend less time on cookie banners and unwanted popups.
 
 Cookie Calm automatically rejects optional cookies on supported websites. It uses recognized controls and bundled Consent-O-Matic rules to apply your choice.
 
-Choose how it works:
+Promotional dismissal works automatically in both cookie modes. Supported newsletter, donation, subscription, discount, survey, app, notification, and chat prompts close or minimize. The Guardian support banner uses its native collapse control.
+
+Cookie preferences:
 
 - Reject optional cookies: the default. Unknown forms stay visible.
-- Just dismiss the banner: try rejection first, then allow a recognized acceptance action if needed. This can permit tracking cookies.
-- Pause on a site, or pause everywhere, from the extension popup.
+- Allow acceptance if needed: try rejection first, then allow a recognized acceptance action if needed. This can permit tracking cookies.
+- Pause on a site, or pause everywhere, from the extension popup. Pausing restores elements hidden by Cookie Calm.
 
 Conservative local checks stop clicks on certain suspicious prompts. Password, payment, wallet, and software-download signals prevent the acceptance fallback.
 
 These checks can miss scams or stop on legitimate pages. Cookie Calm does not certify that a website is safe.
 
-All consent rules ship with the extension. There is no account, telemetry, remote AI, or background rule download.
+Recognized user-opened prompts and protected forms stay available. Rules handle supported inactive floating video prompts. Playing or previously played media stays available. Chat handling covers proactive greetings without a conversation or composer.
 
-Cookie Calm processes website addresses, page text, and consent-control states on your device. It stores preferences locally and temporary tab status in session storage.
+All rules ship with the extension. There is no account, telemetry, remote AI, or background rule download.
 
-Website access lets the extension find banners and use their consent controls. Those website controls can send normal consent requests to their providers.
+Cookie Calm processes website addresses, page text, and control states on your device. It observes interaction events without recording typed values. It stores preferences locally and temporary tab status in session storage.
 
-Some banners still need manual handling. Cookie Calm does not block trackers, erase cookies, undo saved consent, or bypass paywalls.
+Website access lets the extension find consent forms and promotional prompts. Website controls can send their normal requests to their providers.
+
+Some prompts still need manual handling. Generic promotion labels currently use English. Paid-only content still requires access, and Chrome permission prompts remain outside this release.
+
+Cookie Calm does not block trackers, erase cookies, or undo choices saved by website controls.
 
 Open source under the MIT license. Built on Consent-O-Matic's MIT-licensed interpreter and rules, with attribution included.
 
@@ -51,5 +57,6 @@ Open source under the MIT license. Built on Consent-O-Matic's MIT-licensed inter
 - Small promotional tile: `assets/promo-440x280.png`
 - Screenshot 1: `assets/screenshot-1.png`
 - Screenshot 2: `assets/screenshot-2.png`
+- Screenshot 3: `assets/screenshot-3.png`
 
 The screenshots use the actual extension popup with controlled demonstration pages.

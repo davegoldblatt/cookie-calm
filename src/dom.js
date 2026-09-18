@@ -39,7 +39,25 @@ const CANDIDATES = [
 ].join(',');
 const COOKIE_CONTEXT = /\bcookies?\b|\btracking technologies\b|\btracking consent\b|\bdatenschutz\b|\bconfidentialite\b|\bdataskydd\b/;
 
+let cachedRoots;
+export function invalidateRoots() { cachedRoots = null; }
+export function discoverRoots(nodes) {
+  if (!cachedRoots) return;
+  const visit = root => {
+    const inspect = node => {
+      if (!(node instanceof HTMLElement)) return;
+      const shadow = node.shadowRoot || chrome.dom?.openOrClosedShadowRoot?.(node);
+      if (shadow && cachedRoots.length < 60 && !cachedRoots.includes(shadow)) { cachedRoots.push(shadow); visit(shadow); }
+    };
+    inspect(root);
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+    let node;
+    while ((node = walker.nextNode())) inspect(node);
+  };
+  for (const node of nodes) if (node instanceof Element && node.isConnected) visit(node);
+}
 export function roots() {
+  if (cachedRoots) return cachedRoots.filter(root => root === document || root.host.isConnected);
   const result = [document];
   // Traverse open roots and Chromium's extension-only closed-root accessor.
   for (let index = 0; index < result.length && index < 60; index++) {
@@ -50,6 +68,7 @@ export function roots() {
       if (shadow) result.push(shadow);
     }
   }
+  cachedRoots = result;
   return result;
 }
 
