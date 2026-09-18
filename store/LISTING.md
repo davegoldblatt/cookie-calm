@@ -26,7 +26,7 @@ Cookie preferences:
 - Allow acceptance if needed: try rejection first, then allow a recognized acceptance action if needed. This can permit tracking cookies.
 - Pause on a site, or pause everywhere, from the extension popup. Pausing restores elements hidden by Cookie Calm.
 
-Conservative local checks stop clicks on certain suspicious prompts. Password, payment, wallet, and software-download signals prevent the acceptance fallback.
+Conservative local checks stop clicks on certain suspicious prompts. Password, payment, and wallet signals stop promotional actions and the acceptance fallback. Software-download signals stop the acceptance fallback.
 
 These checks can miss scams or stop on legitimate pages. Cookie Calm does not certify that a website is safe.
 
