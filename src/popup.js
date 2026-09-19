@@ -15,13 +15,20 @@ async function render() {
   $('#pause').disabled = !host || !settings.enabled;
   $('#pause').textContent = paused ? 'Resume on this site' : 'Pause on this site';
   const state = tabId != null ? (await chrome.storage.session.get(`tab:${tabId}`))[`tab:${tabId}`] : null;
+  const names={'sourcepoint-us':'Sourcepoint','cookieyes-legacy':'CookieYes',cookiebot:'Cookiebot',promotion:'Website prompt'};
+  const results={saved:'privacy choices recorded',closed:'closed',unsupported:'unrecognized controls',blocked:'action stopped',unconfirmed:'result unconfirmed'};
+  const records=state?.host===host?(state.diagnostics || []):[];
+  $('#diagnostics').textContent=`Version ${chrome.runtime.getManifest().version}. `+(records.length?
+    records.slice(-5).map(r=>`${names[r.provider] || 'Prompt'}: ${results[r.outcome] || 'unconfirmed'}.`).join(' '):'No supported prompt recorded in this tab yet.');
   if (settings.enabled && !paused && state?.host === host && state.status === 'blocked') {
     $('#status').textContent = state.reason || 'Automatic acceptance is paused on this page.';
     return;
   }
   const current = state?.host === host ? state : null;
   const promotionStatus = current?.promotionsDismissed ? `${current.promotionsDismissed} ${current.promotionsDismissed === 1 ? 'prompt' : 'prompts'} ${current.lastPromotionAction === 'collapsed' ? 'handled (last minimized)' : 'handled'}.` : '';
-  const consentStatus = current?.status === 'dismissed' ? (current.accepted ? 'Cookie banner dismissed with acceptance.' : 'Cookie banner dismissed after a rejection attempt.') : current?.status === 'needs-help' ? 'This cookie banner may need your help.' : '';
+  const outcomes={saved:'The site recorded your privacy choices.',closed:'Cookie panel closed. Saved choices could not be verified.',
+    unconfirmed:'The consent action could not be confirmed.',unsupported:'This consent form has controls we do not recognize.',blocked:'The consent action was stopped.'};
+  const consentStatus = outcomes[current?.consentOutcome] || (current?.status === 'dismissed' ? (current.accepted ? 'Cookie banner dismissed with acceptance.' : 'Cookie banner dismissed after a rejection attempt.') : current?.status === 'needs-help' ? 'This cookie banner may need your help.' : '');
   $('#status').textContent = !settings.enabled ? 'Paused everywhere.' : !host ? 'Open a website to use Cookie Calm.' : paused ? 'You handle banners and pop-ups here.' : [consentStatus, promotionStatus].filter(Boolean).join(' ') || 'Ready for supported cookies and pop-ups.';
 }
 

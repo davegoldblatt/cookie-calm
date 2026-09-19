@@ -19,6 +19,9 @@ It adds promotional dismissal, a compact popup, local rules, site pauses, and ch
 - Stops automatic clicks when local checks find certain suspicious instructions.
 - Blocks acceptance around password, payment, wallet, and software download prompts.
 - Supports delayed banners, embedded frames, and shadow DOM.
+- Finds supported promotional overlays from their controls and layout, including unfamiliar class names.
+- Uses one guarded action engine for three consent providers and native promotional dismissal.
+- Shows recent local results, with separate states for a closed panel and a recorded privacy choice.
 - Preserves protected forms and recognized user-opened prompts.
 - Restores extension-hidden app banners when paused.
 - Runs locally without telemetry, accounts, remote AI, or automatic rule downloads.
@@ -27,7 +30,7 @@ The popup includes a global switch and an exact-hostname pause control. Pauses a
 
 ## Install
 
-Version 1.1.2 adds Sourcepoint US opt-out handling, including the privacy manager reported on Futurism. Download the latest package from GitHub below. Chrome Web Store updates require a separate review; see the [submission status](store/SUBMISSION.md).
+Version 1.2.0 adds a shared prompt engine, broader promotional detection, and clearer result reporting. Download the latest package from GitHub below. Chrome Web Store updates require a separate review; see the [submission status](store/SUBMISSION.md).
 
 1. Download the extension ZIP from [Releases](https://github.com/davegoldblatt/cookie-calm/releases/latest).
 2. Extract the ZIP to a permanent folder.
@@ -51,6 +54,8 @@ Public HTTP pages and internationalized domains cannot use the acceptance fallba
 
 A checkmark means that a supported banner disappeared or a collapse state changed after an action. It does not prove that the site stored or honors the choice.
 
+The popup reports a recorded choice only when a supported receipt changes after the action. Sourcepoint US supports this check. CookieYes and Cookiebot currently report closure without claiming a saved choice. No receipt proves that a website honors consent downstream.
+
 Settings apply to new consent choices. They do not undo previous consent. The extension does not delete cookies or block trackers.
 
 Promotional dismissal operates in both cookie modes. Dismissible subscription prompts use their close or minimize controls. Paid-only articles still require access.
@@ -62,6 +67,7 @@ Generic promotion matching currently uses English labels. Prompts without a reco
 Pausing restores elements hidden with extension-owned styles. Native website close actions can save preferences that Cookie Calm cannot undo.
 
 See [adding prompt categories](docs/ADDING-PROMPT-CATEGORIES.md) for the shared detection, safety, action, and verification pipeline.
+The [shared engine design](docs/SHARED-PROMPT-ENGINE.md) explains provider adapters, permission polarity, and unsupported controls.
 
 The bundled rules need release updates as websites change. Unpacked installations require manual updates.
 

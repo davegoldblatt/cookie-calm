@@ -1,4 +1,6 @@
 import { RuleEngine } from './rule-engine.js';
+import { runPrompt } from './prompt-engine.js';
+import { ConsentReceipts } from './consent-receipts.js';
 import { roots, invalidateRoots, discoverRoots, banners, findChoice, visible } from './dom.js';
 import { isEnabled } from './settings.js';
 import { assessPage, invalidateAssessment } from './page-guard.js';
@@ -12,7 +14,8 @@ let timer, interval, inFlight, dirty = false, fallbacks = [], configQueue = Prom
 let clicked = new WeakSet(), lastUrl = location.href, lastScan = 0;
 const interactions = new Interactions();
 const promotions = new Promotions(interactions);
-const RELEVANT = `${CANDIDATES},[id*="cookie" i],[class*="cookie" i],[id*="consent" i],[class*="consent" i]`;
+const receipts = new ConsentReceipts(()=>contextAlive() && enabled,result=>send({type:'prompt-outcome',...result}));
+const RELEVANT = `${CANDIDATES},button,[role="button"],[id*="cookie" i],[class*="cookie" i],[id*="consent" i],[class*="consent" i]`;
 let changedScopes = new Set(), fullScan = true;
 const observer = new MutationObserver(records => {
   if (!contextAlive()) return;
@@ -65,6 +68,7 @@ function processMutations(records) {
 }
 
 function stopInvalidatedContext() {
+  receipts.clear();
   if (invalidated) return;
   invalidated = true; enabled = false; generation++;
   engine?.cancel(); observer.disconnect(); interactions.disconnect();
@@ -170,22 +174,39 @@ async function scan() {
     if (decision.protectedPromotions?.includes(promotion.category)) interactions.protect(promotion.container, promotion.key);
     else if (decision.deferPromotions) fallbacks.push(setTimeout(() => {fullScan=true; schedule();},1500));
     else if (decision.stopPromotions) { /* Protected page context: no promotional action. */ }
-    else if (promotions.act(promotion)) {
-      // Arm retry before verification so navigation cannot strand an attempt.
-      fallbacks.push(setTimeout(() => {fullScan=true; schedule();}, 4300));
-      let finished = false;
-      for (let attempt=0; attempt<10; attempt++) {
-        await sleep(200);
-        if (!enabled || generation !== revision || location.href !== scanUrl) return;
-        if (promotions.finished(promotion, roots())) { finished = true; break; }
+    else {
+      fallbacks.push(setTimeout(() => {fullScan=true; schedule();},4300));
+      let finished=false;
+      if (promotion.action==='hidden') {
+        if (promotions.act(promotion)) {
+          for(let attempt=0;attempt<10;attempt++) {
+            await sleep(200);
+            if(!enabled || generation!==revision || location.href!==scanUrl) return;
+            if(promotions.finished(promotion,roots())) {finished=true;break;}
+          }
+        }
+      } else {
+        const adapter=promotions.prompt(promotion);
+        const result=await runPrompt(adapter,{
+          assertActive:()=>{if(!contextAlive() || !enabled || generation!==revision || location.href!==scanUrl) throw new Error('Prompt cancelled');},
+          beforeClick:async()=>{
+            const state=await guard();
+            if(state.protectedPromotions?.includes(promotion.category)) interactions.protect(promotion.container,promotion.key);
+            if(state.stopAll || state.stopPromotions)throw new Error('Automatic clicks blocked');
+            if(state.deferPromotions)throw new Error('User interaction deferred');
+          },onActivate:adapter.activated
+        });
+        finished=result.outcome==='closed';
+        await send({type:'prompt-outcome',...result});
       }
-      if (finished) {
+      if(finished) {
         promotions.succeeded(promotion);
-        await send({ type: 'promotion-dismissed', action: promotion.action, category: promotion.category });
+        await send({type:'promotion-dismissed',action:promotion.action,category:promotion.category});
       }
-      dirty = true; fullScan = true;
+      dirty=true;fullScan=true;
     }
   }
+
   if (interactions.recent()) fallbacks.push(setTimeout(() => {fullScan=true; schedule();},1500));
   const containers = banners(searchRoots);
   const reject = !engine.exclusive && (findChoice(containers, 'reject', clicked) || findChoice(containers, 'acknowledge', clicked));
@@ -209,6 +230,10 @@ async function scan() {
     const result = await engine.runNext();
     if (!result) break;
     if (generation !== revision || location.href !== scanUrl) return;
+    if (result.outcome) {
+      await send({type:'prompt-outcome',...result});
+      if (!result.submitted && engine.receiptToken) await send({type:'cancel-consent-watch',token:engine.receiptToken});
+    }
     if (result.dismissed) {
       await send({ type: 'status', status: 'dismissed', provider: result.name });
       return;
@@ -243,6 +268,7 @@ async function scan() {
 function configure() {
   if (!contextAlive()) return;
   const revision = ++generation;
+  receipts.clear();
   enabled = false;
   engine?.cancel();
   observer.disconnect();
@@ -266,6 +292,14 @@ function configure() {
     invalidateRoots(); invalidateAssessment();
     engine = new RuleEngine(data.rules, data.host);
     engine.beforeClick = beforeClick;
+    engine.beforeCommit = async (provider,receipt,flow)=>{
+      await send({type:'prompt-outcome',provider,flow,category:'consent',outcome:'unconfirmed',reason:'save-unconfirmed'});
+      if(provider==='sourcepoint-us' && receipt?.kind==='sourcepoint-us') {
+        if(engine.receiptToken)await send({type:'cancel-consent-watch',token:engine.receiptToken});
+        engine.receiptToken=flow;
+        await send({type:'watch-consent',token:engine.receiptToken});
+      }
+    };
     clicked = new WeakSet();
     // Keep action budgets and user interactions across setting changes.
     // This interval only compares the address; unchanged pages do no DOM work.
@@ -283,6 +317,8 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'local' && changes.settings) configure();
 });
 chrome.runtime.onMessage.addListener((request, sender, reply) => {
+  if(request?.type==='watch-consent') {reply({ok:receipts.watch(request)});return;}
+  if(request?.type==='cancel-consent-watch') {receipts.cancel(request.token);reply({ok:true});return;}
   if (request?.type === 'assess-page') {
     try { reply(assessment()); }
     catch { reply({ stopAll: true, stopAccept: true, reason: 'The page could not be checked.' }); }
@@ -293,6 +329,7 @@ window.addEventListener('load', () => { invalidateAssessment(); fullScan=true; s
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { invalidateAssessment(); fullScan=true; schedule(50); } });
 window.addEventListener('pageshow', event => { if (event.persisted) configure(); });
 window.addEventListener('pagehide', () => {
+  receipts.clear();
   enabled = false;
   engine?.cancel();
   observer.disconnect();

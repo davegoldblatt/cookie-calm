@@ -6,7 +6,10 @@ export function visible(element) {
 }
 
 export function label(element) {
-  return (element.getAttribute('aria-label') || element.innerText || element.value || element.textContent || '')
+  const root=element.getRootNode();
+  const labelled=(element.getAttribute('aria-labelledby') || '').trim().split(/\s+/).slice(0,8)
+    .map(id=>root.getElementById?.(id)?.textContent || '').join(' ').trim();
+  return (element.getAttribute('aria-label') || labelled || element.innerText || element.value || element.getAttribute('title') || element.textContent || '')
     .normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim().replace(/[.!»]+$/, '').trim();
 }
 
@@ -30,6 +33,27 @@ export function clickable(element) {
     if (href && !href.startsWith('#') && !href.startsWith('javascript:')) return false;
   }
   return true;
+}
+
+// Bounded discovery around controls. Classification and action authorization are
+// separate; a fixed container or a Close label alone never permits dismissal.
+export function structuralContainers(root) {
+  const found=new Set(),walked=new Set();
+  const selector='button,[role="button"]';
+  const controls=[...(root.matches?.(selector)?[root]:[]),...root.querySelectorAll(selector)].slice(0,160);
+  for(const control of controls) {
+    if(!/close|dismiss|minimi[sz]e|collapse|hide|no[, ]+thank|not now|later|skip|[×✕✖]/i.test(label(control)))continue;
+    if(!visible(control))continue;
+    for(let node=control.parentElement,depth=0;node && depth<6;node=node.parentElement,depth++) {
+      if(walked.has(node))break;
+      walked.add(node);
+      if(node.matches('html,body,main,article,nav,header,footer'))break;
+      if(node.matches('dialog[open],[role="dialog"],[role="alertdialog"],[aria-modal="true"]') ||
+          ['fixed','sticky'].includes(getComputedStyle(node).position)) {found.add(node);break;}
+    }
+    if(found.size>=40)break;
+  }
+  return [...found];
 }
 
 const CANDIDATES = [

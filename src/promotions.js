@@ -1,4 +1,4 @@
-import { clickable, label, visible } from './dom.js';
+import { clickable, label, visible, roots, structuralContainers } from './dom.js';
 import { RULES, CATEGORIES, CANDIDATES } from './annoyance-rules.js';
 import { isRegistrationPrompt, REGISTRATION_INTENT } from './registration-prompts.js';
 
@@ -28,18 +28,28 @@ function overlay(container) {
   }
   return false;
 }
-function classify(container, rule) {
+function promptText(container) {
+  const walker=document.createTreeWalker(container,NodeFilter.SHOW_TEXT);
+  let text='',node,count=0;
+  while((node=walker.nextNode()) && count++<300 && text.length<10000) {
+    if(!node.parentElement?.closest('a,button,[role="button"],nav,[role="navigation"],[role="menu"],aside,header,footer,script,style'))text+=' '+node.textContent;
+  }
+  return text;
+}
+function classify(container, rule, structural=false) {
   if (!container.isConnected || !panelVisible(container) || container.matches('html,body,main,article,header,footer,nav,button,a,input,label,span,p')) return '';
   const text = (container.innerText || container.textContent || '').trim();
   if (text.length > 10000 || CONSENT.test(text) || PROTECTED.test(text) || protectedForm(container)) return '';
-  const registration = !rule && isRegistrationPrompt(container, text, overlay(container));
+  if(structural && container.closest('nav,[role="navigation"],[role="menu"],aside'))return '';
+  const evidence=structural?promptText(container):text;
+  const registration = !rule && isRegistrationPrompt(container, evidence, overlay(container));
   if (REGISTRATION_INTENT.test(text) && !registration) return '';
   if ([...container.querySelectorAll('video,audio')].some(media => !media.paused || media.currentTime > 0)) return '';
   if (rule) return (!rule.required || container.querySelector(rule.required)) && rule.context.test(text) ? rule.category : '';
   if (registration) return 'registration';
   if (!overlay(container)) return '';
   if (container.matches('.jw-flag-floating,[class*="floating-video" i],[id*="floating-video" i]') && container.querySelector('video')) return 'video';
-  const category = CATEGORIES.find(([,pattern]) => pattern.test(text))?.[0] || '';
+  const category = CATEGORIES.find(([,pattern]) => pattern.test(evidence))?.[0] || '';
   if (category === 'registration') return ''; // Invitation evidence above is mandatory.
   // A restored conversation or composer is useful even without a click on this page.
   if (category === 'chat' && container.querySelector('[role="log"],textarea,[contenteditable],input:not([type="hidden"]),[aria-live="polite"], [aria-live="assertive"]')) return '';
@@ -67,7 +77,7 @@ function fingerprint(container, category, rule) {
 
 export class Promotions {
   constructor(interactions) {
-    this.interactions = interactions; this.hidden = new Map(); this.reset();
+    this.interactions = interactions; this.hidden = new Map(); this.structural=new WeakSet(); this.reset();
   }
   reset() {
     this.restore(); this.attempts = new Map(); this.categories = new Map(); this.done = new Set(); this.total = 0;
@@ -105,11 +115,16 @@ export class Promotions {
         if (++inspected > 100) break;
         if (!candidates.has(container)) candidates.set(container, null);
       }
+      for(const container of structuralContainers(root)) {
+        if(!candidates.has(container) && !this.interactions.openedByUser(container)) {
+          candidates.set(container,null);this.structural.add(container);
+        }
+      }
     }
     for (const [container, rule] of candidates) {
       if (!rule && [...candidates].some(([known, matched]) => matched && (known.contains(container) || container.contains(known)))) continue;
       if (rule?.id === 'guardian-support' && container.hasAttribute('data-island-status') && container.getAttribute('data-island-status') !== 'hydrated') continue;
-      const category = classify(container, rule);
+      const category = classify(container, rule, this.structural.has(container));
       if (!category) continue;
       const key = fingerprint(container, category, rule);
       if (!this.interactions.permits(container, key, category) || !this.available(key, category)) continue;
@@ -133,24 +148,38 @@ export class Promotions {
   }
   eligible(choice) {
     const {container, category, rule, button, action, key} = choice;
-    return classify(container, rule) === category && this.interactions.permits(container, key, category) && this.available(key, category) &&
+    return classify(container, rule, this.structural.has(container)) === category && this.interactions.permits(container, key, category) && this.available(key, category) &&
       (action === 'hidden' ? rule?.hide && ['fixed','sticky'].includes(getComputedStyle(container).position) :
         container.contains(button) && actionKind(button) === action && (!rule?.controlLabel || rule.controlLabel.test(label(button))));
   }
   act(choice) {
-    if (!this.eligible(choice)) return false;
-    const {container, key, category, action, button} = choice;
+    if (choice.action!=='hidden' || !this.eligible(choice)) return false;
+    const {container, key, category} = choice;
     const state = this.attempts.get(key);
     this.attempts.set(key, {count: (state?.count || 0) + 1, at: Date.now()});
     this.categories.set(category, (this.categories.get(category) || 0) + 1); this.total++;
-    if (action === 'hidden') {
-      this.hidden.set(container, {key, category, value: container.style.getPropertyValue('display'), priority: container.style.getPropertyPriority('display')});
-      container.style.setProperty('display', 'none', 'important');
-    } else {
-      choice.expandBefore = new Set([...container.querySelectorAll(CONTROLS)].filter(control => clickable(control) && /^expand\b/.test(label(control))));
-      button.click();
-    }
+    this.hidden.set(container, {key, category, value: container.style.getPropertyValue('display'), priority: container.style.getPropertyPriority('display')});
+    container.style.setProperty('display', 'none', 'important');
     return true;
+  }
+  prompt(choice) {
+    let activated=false;
+    return {
+      id:'promotion', category:choice.category,
+      observe:()=>{
+        if (activated) return {stage:this.finished(choice,roots())?'absent':'pending'};
+        if (!this.eligible(choice)) return {stage:'blocked'};
+        return {stage:'dismiss',root:choice.container,dismiss:{element:choice.button,target:choice.button}};
+      },
+      activated:()=>{
+        const {key,category,container}=choice;
+        const state=this.attempts.get(key);
+        this.attempts.set(key,{count:(state?.count||0)+1,at:Date.now()});
+        this.categories.set(category,(this.categories.get(category)||0)+1);this.total++;
+        choice.expandBefore=new Set([...container.querySelectorAll(CONTROLS)].filter(control=>clickable(control)&&/^expand\b/.test(label(control))));
+        activated=true;
+      }
+    };
   }
   finished(choice, searchRoots) {
     const {button, container, action, key, category, rule} = choice;
@@ -162,8 +191,8 @@ export class Promotions {
         (button.getAttribute('aria-expanded') === 'false' || [...container.querySelectorAll(CONTROLS)].some(control => !choice.expandBefore.has(control) && clickable(control) && /^expand( (this|the))?( banner|popup|pop-up|chat)?$/.test(label(control))))) return true;
     if (container.isConnected && panelVisible(container)) return false;
     for (const root of searchRoots) {
-      for (const next of elements(root, rule?.container || CANDIDATES)) {
-        if (classify(next, rule) === category && fingerprint(next, category, rule) === key) return false;
+      for (const next of new Set([...elements(root, rule?.container || CANDIDATES),...(!rule?structuralContainers(root):[])])) {
+        if (classify(next, rule, this.structural.has(container)) === category && fingerprint(next, category, rule) === key) return false;
       }
     }
     return true;

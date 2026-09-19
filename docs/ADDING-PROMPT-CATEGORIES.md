@@ -9,7 +9,8 @@ Cookie Calm uses a shared pipeline:
 5. Verify the result before recording success.
 
 A detector identifies a category. It does not click controls or change the article.
-The executor in `src/promotions.js` owns those actions and checks.
+The runner in `src/prompt-engine.js` owns native actions, waits, and repeated safety checks.
+`src/promotions.js` supplies category detection, interaction checks, budgets, and result observations.
 `src/interactions.js` protects prompts that the user opens or touches.
 
 ## Extend a common category first
@@ -39,6 +40,41 @@ The Guardian support adapter, for example, uses the banner's collapse and expand
 Use this path when a site's control differs from a common category.
 Keep any exception narrow, and include a source for the observed structure.
 
+## Add a consent provider
+
+Sourcepoint US, CookieYes legacy, and Cookiebot use the same semantic planner and runner.
+Other bundled providers retain the Consent-O-Matic interpreter.
+
+1. Add an observation adapter to `src/consent-adapters.js` or a separate module.
+2. Identify the provider through its visible structure or verified frame origin and path.
+3. Describe each preference with an ID, purpose, current value, and `grantsWhen` value.
+4. Describe the activation as `toggle` or `set` with an explicit target value.
+5. Identify the settings, reject, and save controls that the provider actually exposes.
+6. Register the adapter and add browser fixtures for its variants and refusal cases.
+
+The planner rejects optional permissions. An opt-out switch therefore turns on, while an analytics permission switch turns off.
+Adapters observe controls. They do not click, wait, retry, or bypass the page guard.
+The runner reads the controls again after the guard and before each click.
+Unknown preferences stop the flow. Existing recipes cannot take over an attempted flow.
+Hidden provider leftovers do not own unrelated consent banners.
+
+CookieYes retains one scoped exception for its stale `aria-hidden` flag.
+Cookiebot permits verified settings links with local fragment targets. The runner prevents their default navigation and activates their event handlers. Other navigation links remain unavailable.
+Provider-specific exceptions need positive and negative fixtures.
+
+A panel that disappears receives the `closed` result.
+A submitted action without observed completion receives `unconfirmed`.
+Only a supported, changed receipt can establish `saved`.
+Category cookies that change before Save do not establish a completed save.
+The Sourcepoint reader watches its named receipt for eight seconds and cancels on pause or navigation.
+
+## Discover unfamiliar layouts
+
+Structural discovery examines labelled close controls and their fixed or sticky containers.
+It supplements selectors for promotional prompts. It does not widen cookie acceptance detection.
+Category evidence excludes navigation and control text. Protected forms and user-opened prompts still prevent action.
+Discovery is bounded per search root. Large pages, unfamiliar languages, and unlabelled controls can remain unsupported.
+
 ## Verify the boundary
 
 Tests must load the actual extension and prove that it ran.
@@ -48,7 +84,7 @@ For common categories, include multiple hostnames and different markup.
 
 Live checks must identify the profile and extension version.
 A missing extension, old version, blocked page, or absent prompt is not a failed product test.
-A synthetic fixture proves behavior for its markup; it does not prove live coverage of that domain.
+A synthetic fixture proves behavior for its markup. It does not prove live coverage of that domain.
 
 The extension ships local rules. New rules require a reviewed package update.
 It does not download code or send page content to an AI service.

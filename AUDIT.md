@@ -1,5 +1,27 @@
 # Independent audits
 
+## Version 1.2.0
+
+Claude reviewed the [plan](docs/audits/1.2.0-plan.md), [implementation](docs/audits/1.2.0-initial.md), and three follow-ups through its authenticated CLI. Reviews used read-only snapshots. The auditor could not execute commands, edit files, or test websites.
+
+The reviews led to these corrections:
+
+- Structural discovery applies to promotional dismissal only. It does not widen cookie acceptance.
+- CookieYes category cookies no longer count as proof of a completed save.
+- Hidden or absent provider panels do not block unrelated consent flows.
+- Unknown visible preferences still prevent fallback actions.
+- Older settings controls, selected-save buttons, and fragment links retain guarded compatibility.
+- Public HTTP pages use an available random-ID API for rejection flows.
+- Guard stops retain their status and reason. Delayed receipt evidence belongs to its original action.
+- Navigation and control text cannot supply the evidence for an unfamiliar registration invitation.
+- Duplicate provider roots prevent actions and generic fallback.
+
+The [follow-up](docs/audits/1.2.0-follow-up.md) and [final review](docs/audits/1.2.0-final.md) record the intermediate findings. The [last correction review](docs/audits/1.2.0-links.md) found no blocking issues. Its suggested diagnostic assertion was added to the duplicate-root test.
+
+A later live Cookiebot visit exposed a shared attempt-key collision during hydration. The [hydration review](docs/audits/1.2.0-hydration.md) found no blocker in the correction. Its optional reverse-order hardening was applied: semantic handling retires the matching legacy recipe. Two regression cases cover both ordering directions.
+
+These reviews do not certify security or establish live coverage. Generic detection has bounded scans and English category patterns. Some provider variants remain unsupported. Fragment controls that depend on default hash navigation can remain open. See [validation](VALIDATION.md) for separate browser evidence.
+
 ## Version 1.1.2
 
 Claude reviewed the Sourcepoint US provider adapter in three read-only passes. The [initial review](docs/audits/1.1.2-audit.md) identified a fallback risk: an older GDPR rule could act after the US adapter refused a panel. The implementation now owns the US manager frame exclusively, checks preferences across the document, and requires the shared click guard.

@@ -1,5 +1,43 @@
 # Validation
 
+## Release 1.2.0 — September 19, 2026
+
+### Automated checks
+
+The full local suite passed **111 tests in 7.4 minutes**. A subsequent live Cookiebot visit exposed a hydration race. A controlled fixture reproduced the miss before the correction. Separating legacy and semantic attempt keys fixed it.
+
+After that correction, **37 focused browser tests passed in 2.3 minutes**. The final reverse-order safeguard passed both hydration tests in **5.4 seconds**. The current complete suite contains **113 tests**. The GitHub Actions run for the release commit supplies its final full-suite result.
+
+All browser tests load the real extension in disposable Chromium profiles. Coverage includes preference polarity, changing controls, failed saves, retained ownership, startup timing, protected flows, fragment links, duplicate roots, public HTTP rejection, and lifecycle cancellation.
+
+### Comparison and live checks
+
+The frozen 1.1.2 comparison handled zero of six unfamiliar controlled layouts. The new discovery handled five. Neither build clicked the eight protected examples. The French newsletter remained unsupported. These fixtures do not establish web-wide coverage.
+
+An eight-page live sample found remaining misses. Longer Smithsonian repeats showed Close in both builds, so the initial apparent improvement was discarded. Popular Science and Lifehacker privacy notices remained open. wikiHow dismissal stayed unconfirmed. ScienceAlert returned HTTP 403 and was excluded. See the [evaluation report](docs/EVALUATION-1.2.0.md).
+
+Futurism checks in both cookie modes recorded Options, On, and Save and Close. Sourcepoint stored sellStatus=false and shareStatus=false. Both reloads had no visible manager. The new popup reported the changed saved receipt after the iframe disappeared. No extension errors were observed in those visits.
+
+E4E Africa opened Cookie Settings and used SAVE & ACCEPT after the preference checks. Cookiebot used Deny in both repeat visits after the hydration correction. These adapters report closure without claiming receipt proof. A stored Sourcepoint choice does not prove downstream tracker compliance.
+
+### Installed profile and package
+
+Chrome independently identified the personal profile as Default. The extension card showed **1.2.0 enabled**. The previous acceptance-fallback preference remained selected. The Mission Control profile was not modified.
+
+A controlled page in that personal Chrome profile recorded three automatic clicks: newsletter Close, analytics checkbox, and Save choices. Both panels disappeared, analytics saved as false, and the article remained. These were extension actions; the diagnostic script did not click the controls.
+
+All 18 Desktop extension files match the packaged files. The ZIP has a root manifest and passed integrity checks. SHA-256: `4671a03c7b8536b37ed4903f19463d3d5fe94d82ca239b06c0eab724171d4e2c`.
+
+### Performance and audit limits
+
+A 52-second idle trace on Smithsonian attributed 783.9 ms to extension callbacks, with a 10.5 ms maximum. Futurism attributed 226.8 ms, with a 29.6 ms maximum. Neither trace recorded an attributed callback above 50 ms. These measurements preceded the final attempt-key corrections. They exclude some microtasks and do not measure total page CPU.
+
+The initial profiling tool could not serialize a large whole-page trace. The revised tool retains the same extension-attributed callbacks during collection. That instrumentation failure was not counted as a product failure.
+
+Claude reviewed the plan, implementation, and corrections. Its final targeted reviews found no blocking issue. Review findings and applied safeguards appear in [AUDIT.md](AUDIT.md). The reviews are separate from browser validation.
+
+The Web Store dashboard still required Google account verification on September 19. Version 1.2.0 has not been uploaded there. The last verified review state was September 18: 1.0.1 published and 1.1.0 pending. No pending submission was withdrawn.
+
 ## Release 1.1.2 — September 19, 2026
 
 All **90 Playwright tests passed in one run on the final code** (6.4 minutes), including 11 new Sourcepoint US cases. The suite loads the actual extension in isolated Chromium profiles.

@@ -1,6 +1,6 @@
 # Cookie Calm privacy policy
 
-Effective September 18, 2026.
+Effective September 19, 2026.
 
 Cookie Calm handles cookie consent and supported website interruptions in Chrome. Dave Goldblatt maintains the project. Contact: dave@davegoldblatt.com.
 
@@ -16,11 +16,15 @@ It reads button labels and consent switch states. It observes interaction events
 
 The extension processes the current tab address to apply site-specific pauses and to coordinate embedded frames. It does not use Chrome's browsing-history API.
 
+For supported Sourcepoint consent flows, it temporarily reads the site's named local consent receipt to check the saved opt-out. The raw value stays in transient memory and expires within eight seconds. The extension does not copy or transmit it.
+
 ## Information stored on your device
 
 Local Chrome extension storage contains your selected mode, enabled state, and hostnames where you paused automation.
 
 Session storage contains temporary tab status: hostname, rule name, action outcome, promotion category and count, and a generic guard reason.
+
+It also contains up to 12 recent provider results and an opaque action ID. Results contain fixed outcome and reason codes. They exclude page text, full addresses, form values, and consent receipt values.
 
 Tab status clears on navigation, tab closure, settings changes, or browser-session termination. Preferences remain until you change them or remove the extension.
 

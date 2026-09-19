@@ -30,6 +30,8 @@ Web history/browsing activity: addresses and hostnames of current pages. The ext
 
 User activity: consent settings, temporary action status, and interaction events used to preserve active forms and user-opened prompts. No typed values or general interaction history are recorded.
 
+Supported Sourcepoint flows temporarily read a named local consent receipt to check the saved opt-out. Raw receipt values stay in memory for at most eight seconds. Session storage holds up to 12 fixed result records and an opaque action ID. These records contain no page text, full addresses, or receipt values.
+
 Page text can incidentally include personal information or communications. It is processed transiently, not extracted into separate records or sent elsewhere.
 
 Do not claim that the extension handles no user data merely because processing stays local.
