@@ -10,6 +10,7 @@ It adds promotional dismissal, a compact popup, local rules, site pauses, and ch
 ## What it does
 
 - Rejects optional cookies by default through recognized controls and provider rules.
+- Turns on the supported Sourcepoint US sale/sharing opt-out before saving the choice.
 - Automatically closes or minimizes supported newsletter, subscription, donation, discount, survey, app, notification, and chat prompts.
 - Dismisses recognized optional registration invitations through safe close controls across sites.
 - Collapses the Guardian support banner through its native control.
@@ -26,7 +27,7 @@ The popup includes a global switch and an exact-hostname pause control. Pauses a
 
 ## Install
 
-Version 1.1.1 adds a shared registration-prompt detector and clean shutdown after extension reloads. The earlier release is [published in the Chrome Web Store](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd). The 1.1.0 store update is pending review. The newer 1.1.1 package is a separate release.
+Version 1.1.2 adds Sourcepoint US opt-out handling, including the privacy manager reported on Futurism. Download the latest package from GitHub below. Chrome Web Store updates require a separate review; see the [submission status](store/SUBMISSION.md).
 
 1. Download the extension ZIP from [Releases](https://github.com/davegoldblatt/cookie-calm/releases/latest).
 2. Extract the ZIP to a permanent folder.

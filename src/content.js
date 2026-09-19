@@ -188,7 +188,7 @@ async function scan() {
   }
   if (interactions.recent()) fallbacks.push(setTimeout(() => {fullScan=true; schedule();},1500));
   const containers = banners(searchRoots);
-  const reject = findChoice(containers, 'reject', clicked) || findChoice(containers, 'acknowledge', clicked);
+  const reject = !engine.exclusive && (findChoice(containers, 'reject', clicked) || findChoice(containers, 'acknowledge', clicked));
   if (reject) {
     const decision = await guard();
     if (!enabled || generation !== revision || location.href !== scanUrl || decision.stopAll || !visible(reject.button)) return;
@@ -218,7 +218,7 @@ async function scan() {
 
   const remaining = banners(roots());
   // A separate pass makes acceptance an explicit opt-in after rejection rules finish.
-  if (settings.mode === 'dismiss') {
+  if (settings.mode === 'dismiss' && !engine.exclusive) {
     const accept = findChoice(remaining, 'accept', clicked);
     if (accept && enabled && generation === revision) {
       const acceptanceGuard = await guard();

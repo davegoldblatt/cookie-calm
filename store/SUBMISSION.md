@@ -1,6 +1,8 @@
 # Submit Cookie Calm to the Chrome Web Store
 
-The repository and release package are public. Version 1.0.1 was submitted on September 16, 2026. The dashboard showed **Published - public** on September 18. Version 1.1.0 was submitted and is pending review. The dashboard disables new uploads during this review. Version 1.1.1 is prepared as the next update.
+The repository and release package are public. Version 1.1.2 fixes the Sourcepoint US privacy manager reported on Futurism. It is packaged separately and has not been uploaded to the Chrome Web Store.
+
+The last verified dashboard state, September 18, showed 1.0.1 published and 1.1.0 pending review, with new uploads disabled. On September 19, the dashboard required Google account re-verification. Its current review status could not be checked. The pending submission has not been withdrawn.
 
 Extension ID: `mlcplepgfaafffckbjbaekaekpphjccd`. The earlier release is live. This does not establish approval of the 1.1.0 update. The steps below remain useful for future submissions.
 
@@ -17,7 +19,7 @@ The account owner must complete payment and account declarations directly. The e
 ## Upload
 
 1. Open the existing Cookie Calm item. Check its current review status before changing the submission.
-2. If the dashboard permits an update, upload `cookie-calm-1.1.1-chrome-web-store.zip` from the release assets.
+2. If the dashboard permits an update, upload `cookie-calm-1.1.2-chrome-web-store.zip` from the release assets.
 3. Enter the copy and links in [LISTING.md](LISTING.md).
 4. Upload the 128-pixel icon and the images under `assets/`.
 5. Complete the privacy fields using [PRIVACY-DISCLOSURES.md](PRIVACY-DISCLOSURES.md).

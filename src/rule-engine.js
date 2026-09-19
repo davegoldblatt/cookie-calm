@@ -4,6 +4,7 @@ import Tools from '../vendor/consent-o-matic/Tools.js';
 import Consent from '../vendor/consent-o-matic/Consent.js';
 import Bridge from '../vendor/consent-o-matic/ConsentEngine.js';
 import { clickable, grantsAll } from './dom.js';
+import { SourcepointUS, isSourcepointUSManager } from './sourcepoint-us.js';
 
 const NONE = Object.freeze({ A: false, B: false, D: false, E: false, F: false, X: false });
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -97,7 +98,7 @@ Action.prototype.waitTimeout = function(ms) { return Bridge.singleton.wait(ms); 
 export class RuleEngine {
   constructor(rules, host) {
     Bridge.topFrameUrl = host;
-    this.cmps = Object.entries(rules).map(([name, config]) => new CMP(name, config));
+    this.cmps = [new SourcepointUS(this), ...Object.entries(rules).map(([name, config]) => new CMP(name, config))];
     this.tried = new Set();
     this.cancelled = false;
     this.numClicks = 0;
@@ -118,11 +119,14 @@ export class RuleEngine {
   registerClick() { this.numClicks++; }
   getClicksSoFar() { return this.numClicks; }
   currentMethodDone() {}
+  // GDPR rules and generic fallbacks cannot take over an inverse opt-out panel.
+  get exclusive() { return isSourcepointUSManager(); }
   showing(cmp) {
     try { return cmp.detect() && cmp.isShowing(); } catch { return false; }
   }
   async runNext() {
-    const cmp = this.cmps.find(candidate => !this.tried.has(candidate.name) && this.showing(candidate));
+    const cmp = this.cmps.find(candidate => (!this.exclusive || candidate instanceof SourcepointUS) &&
+      !this.tried.has(candidate.name) && this.showing(candidate));
     if (!cmp) return null;
     this.tried.add(cmp.name);
     Bridge.singleton = this;

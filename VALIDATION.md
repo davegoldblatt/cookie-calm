@@ -1,5 +1,31 @@
 # Validation
 
+## Release 1.1.2 — September 19, 2026
+
+All **90 Playwright tests passed in one run on the final code** (6.4 minutes), including 11 new Sourcepoint US cases. The suite loads the actual extension in isolated Chromium profiles.
+
+The Futurism report reproduced with a fresh, service-worker-verified 1.1.1 installation. Cookie Calm opened Options, then left Sourcepoint's US privacy manager visible. The older rules did not handle its inverse opt-out switch or Save and Close control.
+
+The new provider adapter handles this Sourcepoint US panel across publisher hosts. It clicks the native On segment, verifies aria-checked=true, and saves through the native control. It refuses unknown labels, stuck switches, extra preferences, forms, and inaccessible controls. Parent-page scam checks, site pause, and cancellation apply before each click. Older provider rules and generic fallbacks cannot take over a refused US manager.
+
+Eleven regression tests cover both cookie modes, multiple publisher hosts, already-on preferences, asynchronous changes, failed or unsafe controls, hidden sibling preferences, parent guards, cancellation, no-op saves, provider origin/path checks, and the initial notice-to-manager flow. A pre-fix run failed the successful opt-out test as expected.
+
+### Live and installed verification
+
+Two fresh profiles loaded the final 1.1.2 build, one for each cookie mode. Both recorded Options, On, and Save and Close in that order. The opt-out was on when Save ran. Sourcepoint's stored consent reported sellStatus=false, shareStatus=false, rejectedAny=true, and consentedToAll=false. The manager was absent after reload. No extension errors were observed. These records show a saved site preference, not proof of downstream tracker behavior.
+
+The personal Gmail Chrome profile was independently verified as Default, with Cookie Calm enabled. After the update, its existing Futurism tab closed the manager and stored the opt-out. The acceptance-fallback setting remained unchanged. The Mission Control profile was not changed. Chrome confirmed the installed extension as 1.1.2.
+
+When Sourcepoint removes its iframe during Save, the frame's content script ends before its success report. The popup can therefore stay on Ready despite the successful saved choice. The fix does not claim success for a modal that remains visible.
+
+The Desktop install matches the release package. ZIP SHA-256: `d978b4cb08a4a6a438b27b94140b373b4d6b0bc6eb83f86a8e397657fcfb9def`.
+
+### Audit and store
+
+Claude reviewed the initial implementation and two follow-ups. The reviews led to exclusive ownership of US manager frames, frame-wide preference checks, mandatory click guards, and protection when manager controls appear under a notice URL. The final review found no new actionable blocker. See [AUDIT.md](AUDIT.md).
+
+The Chrome Web Store dashboard required Google account re-verification on September 19. The 1.1.2 package has not been uploaded. The last verified state, September 18, was 1.1.0 pending review and 1.0.1 published. No pending submission was withdrawn.
+
 ## Release 1.1.1 — September 18, 2026
 
 All **79 Playwright tests passed in one run on the final code** (5.5 minutes). The suite loads the actual unpacked extension in isolated Chromium profiles. It includes all 64 previous cases, nine registration tests, three delayed-intent cases, and three lifecycle tests.

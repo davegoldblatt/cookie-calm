@@ -1,5 +1,15 @@
 # Independent audits
 
+## Version 1.1.2
+
+Claude reviewed the Sourcepoint US provider adapter in three read-only passes. The [initial review](docs/audits/1.1.2-audit.md) identified a fallback risk: an older GDPR rule could act after the US adapter refused a panel. The implementation now owns the US manager frame exclusively, checks preferences across the document, and requires the shared click guard.
+
+The [follow-up](docs/audits/1.1.2-followup.md) found no remaining blocker. Its notice-frame hardening suggestion was also implemented: manager controls trigger exclusive handling even under a notice URL. The [final delta review](docs/audits/1.1.2-delta.md) found no new actionable blocker.
+
+The adapter uses provider markup and explicit opt-out semantics, with no Futurism-specific hostname rule. Tests cover refusal, cancellation, inherited guards, provider identity, and the notice-to-manager transition. Live tests separately verified the native On segment, saved sale/sharing opt-out, and persistence after reload in both cookie modes. See [validation](VALIDATION.md).
+
+The auditor read code only. It did not run browser checks or certify security. Unrecognized provider variants remain unsupported. Sourcepoint iframe removal can prevent a success badge update even when the choice was saved.
+
 ## Version 1.1.1
 
 Claude reviewed the registration plan, implementation, and corrections through the authenticated CLI in read-only snapshots. It found and helped resolve four concrete issues:
