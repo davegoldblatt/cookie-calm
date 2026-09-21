@@ -1,4 +1,5 @@
 import {visible} from './dom.js';
+import {opaqueID} from './identity.js';
 
 export const HIDE_ATTRIBUTE='data-cookie-calm-hide';
 export const UNLOCK_ATTRIBUTE='data-cookie-calm-unlock';
@@ -63,7 +64,7 @@ function pageObstructed(surface, content) {
 
 export class Presentation {
   constructor(prepare) {
-    this.token=crypto.randomUUID();this.prepare=prepare;this.ready=false;this.current=null;
+    this.token=opaqueID();this.prepare=prepare;this.ready=false;this.current=null;
     this.observer=new MutationObserver(()=>this.release(true));
     this.changedState=()=>this.changed();
   }

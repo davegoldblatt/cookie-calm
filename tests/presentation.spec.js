@@ -4,14 +4,22 @@ const panel=`<div id="surface" style="position:fixed;inset:0;background:#0009;z-
   <div style="margin:30px;padding:30px;background:white"><h2>Disable your adblocker</h2>
   <p>Please support our journalism by allowing ads.</p><a id="decline" onclick="document.querySelectorAll('.missing-close').forEach(el=>el.click())">Continue without support</a>
   <button type="button">Allow ads</button><button type="button">Sign in</button></div></div>`;
-async function visit(page,script='',extra='',surface=panel) {
-  await page.route(host,r=>r.fulfill({contentType:'text/html',body:`<!doctype html><html style="overflow:hidden!important"><head><style>body{margin:0}main{min-height:4000px}[hidden]{display:none!important}</style></head><body style="overflow:hidden!important">
+async function visit(page,script='',extra='',surface=panel,url=host) {
+  await page.route(url,r=>r.fulfill({contentType:'text/html',body:`<!doctype html><html style="overflow:hidden!important"><head><style>body{margin:0}main{min-height:4000px}[hidden]{display:none!important}</style></head><body style="overflow:hidden!important">
   <main><article><h1>Keep this article</h1><p id="text">The original story stays unchanged.</p><button id="useful" type="button">Useful action</button></article></main>
   ${surface}${extra}<script>window.clicks=0;document.querySelector('#decline')?.addEventListener('click',()=>clicks++);${script}</script></body></html>`}));
-  await page.goto(host);
+  await page.goto(url);
 }
 async function hidden(page) {await expect(page.locator('#surface')).toBeHidden({timeout:10000});}
 async function results(worker) {return worker.evaluate(async()=>Object.values(await chrome.storage.session.get(null)).flatMap(s=>s.diagnostics||[]));}
+
+test('presentation recovery starts and applies bundled CSS on a public HTTP origin',async({extension:{page,worker}})=>{
+  await visit(page,'','',panel,'http://presentation.example/article');await hidden(page);
+  expect(await page.evaluate(()=>window.isSecureContext)).toBe(false);
+  await expect.poll(async()=>(await results(worker)).some(r=>r.outcome==='hidden')).toBe(true);
+  expect(await page.evaluate(()=>clicks)).toBe(1);
+  expect(await page.evaluate(()=>getComputedStyle(document.documentElement).overflowY)).toBe('auto');
+});
 
 test('broken optional decline hides backdrop, preserves CSS/content and allows trusted wheel scrolling',async({extension:{page,worker}})=>{
   await visit(page);await hidden(page);
