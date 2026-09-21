@@ -143,6 +143,11 @@ Verify the correct Chrome profile and report which distribution channel contains
 Recheck publisher authentication and current review status before changing a Store submission.
 Historical approval or a successful local build does not establish a new publication.
 
+Keep the user's Chrome Web Store installation enabled as the everyday copy. Test unreleased builds in a separate disposable profile.
+Disabling the Store copy to replace it with an unpacked build creates a misleading turned-off warning on the public listing.
+If the user enables the Store copy, disable only the redundant development copy after confirming the Store copy is active.
+Do not switch the user back to an unpacked release during later testing. A newer local build does not override their choice of automatic Store updates.
+
 Evidence: [package script](../scripts/package.py), [validation history](../VALIDATION.md), [Store workflow](../store/SUBMISSION.md).
 
 ## Maintain this document

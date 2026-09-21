@@ -6,13 +6,14 @@ Verified September 21, 2026.
 | --- | --- | --- |
 | GitHub source | 1.2.2 | PR #2 merged; all 142 browser tests passed locally and in CI |
 | GitHub release | 1.2.2 | Release package and SHA-256 checksum published |
-| Personal Chrome / Desktop | 1.2.2 | Enabled unpacked install; package files and local recovery checked |
+| Personal Chrome | 1.2.0 | Store installation enabled as the everyday copy |
+| Desktop development copy | 1.2.2 | Files verified; unpacked extension disabled to avoid duplicate actions |
 | Chrome Web Store update | 1.2.2 | Submitted for review September 21 at 2:55 p.m. Pacific; automatic publication selected |
 | Chrome Web Store public version | 1.2.0 | Remains published while Google reviews the update |
 
 The dashboard confirmed “Your extension was submitted for review.” This is not approval or publication of 1.2.2.
 The submission includes the updated description, test instructions, and justification for the new `scripting` permission.
-The work Chrome profile was not changed.
+The work Chrome profile was not changed. After the user enabled the Store installation, the redundant unpacked copy was disabled. Future development checks use a separate test profile.
 
 Extension ID: `mlcplepgfaafffckbjbaekaekpphjccd`.
 [Store listing](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd) · [GitHub release](https://github.com/davegoldblatt/cookie-calm/releases/tag/v1.2.2)

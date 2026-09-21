@@ -16,7 +16,8 @@ The final package only changes the privacy policy's effective date after the pas
 ### Installed build
 
 The regular Chrome process and personal Default profile were independently verified.
-The Desktop unpacked extension is **1.2.2, enabled, in reject mode**. The duplicate Store installation remains disabled at 1.2.0.
+During validation, the Desktop unpacked extension was **1.2.2, enabled, in reject mode**, and the duplicate Store installation was disabled at 1.2.0.
+Afterward, the user enabled the Store copy for everyday use. The development duplicate was then disabled; see [current distribution status](store/SUBMISSION.md).
 The work profile was not changed. All 18 installed files match the release ZIP.
 
 In that installed browser, a controlled broken-decline prompt recorded one native attempt, then became hidden.
