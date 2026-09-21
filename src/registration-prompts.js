@@ -9,7 +9,7 @@ export const REGISTRATION_CONTAINERS = [
 ].join(',');
 export const REGISTRATION_INTENT = /\b(sign[ -]?in|log[ -]?in|register|create (a |an |your )?(free )?account)\b/i;
 const INVITATION = /\bthis is not a paywall\b|\b(sign[ -]?in|log[ -]?in|register|create (a |an |your )?(free )?account|enter (your )?email)\b.{0,100}\b((continue|keep) reading|read (on|more|the (full |rest of )?(article|story))|for free|free account)\b/i;
-const REQUIRED_AUTH = /\b(session|expired|timed out|signed out|logged out|sign[ -]?in again|re-?authenticat\w*|verify (it'?s )?you|confirm your identity)\b/i;
+export const REQUIRED_AUTH = /\b(session|expired|timed out|signed out|logged out|sign[ -]?in again|re-?authenticat\w*|verify (it'?s )?you|confirm your identity)\b/i;
 const PAID_ACCESS = /\b(subscrib\w*|paid access|purchase|payment|paywall)\b/i;
 const SIGN_IN_CONTROL = /^(sign[ -]?in|log[ -]?in|register|create (a |an |your )?(free )?account)\b/i;
 const FIELDS = 'form,input,textarea,select,[contenteditable],iframe';

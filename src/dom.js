@@ -1,3 +1,5 @@
+import { PROMOTION_CONTROLS, CLOSE, DECLINE } from './promotion-controls.js';
+
 export function visible(element) {
   if (!element?.isConnected || element.closest('[inert], [aria-hidden="true"]')) return false;
   const style = getComputedStyle(element);
@@ -38,15 +40,13 @@ export function clickable(element) {
 // Bounded discovery around controls. Classification and action authorization are
 // separate; a fixed container or a Close label alone never permits dismissal.
 export function structuralContainers(root) {
-  const found=new Set(),walked=new Set();
-  const selector='button,[role="button"]';
+  const found=new Set();
+  const selector=PROMOTION_CONTROLS;
   const controls=[...(root.matches?.(selector)?[root]:[]),...root.querySelectorAll(selector)].slice(0,160);
   for(const control of controls) {
-    if(!/close|dismiss|minimi[sz]e|collapse|hide|no[, ]+thank|not now|later|skip|[×✕✖]/i.test(label(control)))continue;
+    if(!CLOSE.test(label(control)) && !DECLINE.test(label(control)))continue;
     if(!visible(control))continue;
-    for(let node=control.parentElement,depth=0;node && depth<6;node=node.parentElement,depth++) {
-      if(walked.has(node))break;
-      walked.add(node);
+    for(let node=control.parentElement,depth=0;node && depth<10;node=node.parentElement,depth++) {
       if(node.matches('html,body,main,article,nav,header,footer'))break;
       if(node.matches('dialog[open],[role="dialog"],[role="alertdialog"],[aria-modal="true"]') ||
           ['fixed','sticky'].includes(getComputedStyle(node).position)) {found.add(node);break;}

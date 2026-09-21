@@ -34,7 +34,7 @@ export class Interactions {
     if (event.type === 'focusin' && !this.recent()) return; // Website autofocus is not user intent.
     if (event.type === 'keydown' && !['Enter', ' ', 'Tab','k','m'].includes(event.key) && !event.target.matches?.('input,textarea,[contenteditable]')) return;
     const path = event.composedPath().filter(node => node instanceof Element);
-    const control = path.find(node => node.matches('button,a[href],input,textarea,select,[role="button"],[contenteditable],video,audio'));
+    const control = path.find(node => node.matches('button,a,input,textarea,select,[role="button"],[contenteditable],video,audio'));
     if (control) {
       this.gestureAt = Date.now();
       for (const attribute of ['aria-controls','aria-owns','data-target','data-bs-target','href']) {
@@ -42,7 +42,7 @@ export class Interactions {
         if (attribute === 'href' && !value.startsWith('#')) continue;
         for (const id of value.replace(/^#/, '').split(/\s+/)) if (/^[\w-]+$/.test(id)) this.targets.add(id);
       }
-      if (control.matches('button,a[href],[role="button"]')) {
+      if (control.matches('button,a,[role="button"]')) {
         const text = control.getAttribute('aria-label') || control.textContent || '';
         for (const [category,pattern] of CATEGORIES) if (pattern.test(text)) this.categories.add(category);
       }
@@ -57,7 +57,7 @@ export class Interactions {
   permits(container, key, category) {
     // Save, comment, and similar controls can open authentication without
     // mentioning it. Keep the resulting prompt protected beyond the short defer.
-    if (category === 'registration' && (Date.now() - this.gestureAt < 10000 || this.openedByUser(container))) {
+    if (['registration','adblock'].includes(category) && (Date.now() - this.gestureAt < 10000 || this.openedByUser(container))) {
       this.protect(container, key); return false;
     }
     const controlled = [...this.targets].some(id => {

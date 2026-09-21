@@ -1,12 +1,11 @@
 import { clickable, label, visible, roots, structuralContainers } from './dom.js';
 import { RULES, CATEGORIES, CANDIDATES } from './annoyance-rules.js';
-import { isRegistrationPrompt, REGISTRATION_INTENT } from './registration-prompts.js';
+import { isRegistrationPrompt, REGISTRATION_INTENT, REQUIRED_AUTH } from './registration-prompts.js';
+import { PROMOTION_CONTROLS, CLOSE, DECLINE, ADBLOCK_REQUEST } from './promotion-controls.js';
 
 const CONSENT = /\bcookies?\b|\bconsent\b|\btracking technologies\b/i;
 const PROTECTED = /\b(checkout|shopping cart|your cart|payment|billing|card number|password|passcode|verification code|two.factor|captcha|unsaved (work|changes)|delete (your |my )?account|verify your email|subscription (expired|expires|cancelled|canceled)|renewal failed|account suspended)\b/i;
-const CLOSE = /^(close|dismiss|minimi[sz]e|collapse)( (this|the))?( (banner|popup|pop-up|dialog|modal|offer|promotion|newsletter|subscription prompt|sign-in gate|registration (prompt|wall|dialog)|chat|messenger|video|player|survey|window))?$|^hide (this |the )?(banner|popup|pop-up|offer|chat)$|^[×✕✖]$/;
-const DECLINE = /^(no[, ]+thanks|no[, ]+thank you|not now|maybe later|continue without (subscribing|signing up)|skip (this |the )?(offer|signup|sign-up|survey))$/;
-const CONTROLS = 'button, [role="button"], a[href]';
+const CONTROLS = PROMOTION_CONTROLS;
 const elements = (root, selector) => [...(root.matches?.(selector) ? [root] : []), ...root.querySelectorAll(selector)];
 function panelVisible(container) {
   return visible(container) || (getComputedStyle(container).display === 'contents' && [...container.querySelectorAll(CONTROLS)].some(visible));
@@ -28,13 +27,36 @@ function overlay(container) {
   }
   return false;
 }
-function promptText(container) {
+function promptText(container, visibleOnly=false) {
   const walker=document.createTreeWalker(container,NodeFilter.SHOW_TEXT);
   let text='',node,count=0;
   while((node=walker.nextNode()) && count++<300 && text.length<10000) {
+    if(visibleOnly && !visible(node.parentElement))continue;
     if(!node.parentElement?.closest('a,button,[role="button"],nav,[role="navigation"],[role="menu"],aside,header,footer,script,style'))text+=' '+node.textContent;
   }
   return text;
+}
+function adblockAuthRequest(container) {
+  const shortSignIn=/^(sign[ -]?in|log[ -]?in|register)$/i;
+  const walker=document.createTreeWalker(container,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{
+    acceptNode(node) {
+      if(node instanceof Element) {
+        // Only the incidental short control is exempt. Keep longer instructions,
+        // landmarks and hidden text in the veto, regardless of their position.
+        if(node.matches('a,button,[role="button"]') && shortSignIn.test(label(node)) &&
+            shortSignIn.test((node.textContent || '').trim()))return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_SKIP;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  let text='',node,count=0;
+  while((node=walker.nextNode())) {
+    // Exhaustion blocks authorization rather than silently dropping late text.
+    if(++count>1000 || text.length>6000)return true;
+    text+=' '+node.textContent;
+  }
+  return REGISTRATION_INTENT.test(text.replace(/\s+/g,' '));
 }
 function classify(container, rule, structural=false) {
   if (!container.isConnected || !panelVisible(container) || container.matches('html,body,main,article,header,footer,nav,button,a,input,label,span,p')) return '';
@@ -42,15 +64,24 @@ function classify(container, rule, structural=false) {
   if (text.length > 10000 || CONSENT.test(text) || PROTECTED.test(text) || protectedForm(container)) return '';
   if(structural && container.closest('nav,[role="navigation"],[role="menu"],aside'))return '';
   const evidence=structural?promptText(container):text;
+  // An optional ad-support request can include a secondary Sign in control.
+  // Require independent request text and refuse actual forms or authentication.
+  const requestText=!rule && ADBLOCK_REQUEST.test(text)?promptText(container,true):'';
+  const adblockRequest=!rule && ADBLOCK_REQUEST.test(requestText);
+  const optionalAdblock=adblockRequest && text.length<3000 &&
+    !adblockAuthRequest(container) && !REQUIRED_AUTH.test(container.textContent || '') &&
+    !container.closest('form') && !container.querySelector('form,input,textarea,select,[contenteditable],iframe');
+  if (adblockRequest && !optionalAdblock) return '';
   const registration = !rule && isRegistrationPrompt(container, evidence, overlay(container));
-  if (REGISTRATION_INTENT.test(text) && !registration) return '';
+  if (REGISTRATION_INTENT.test(text) && !registration && !optionalAdblock) return '';
   if ([...container.querySelectorAll('video,audio')].some(media => !media.paused || media.currentTime > 0)) return '';
   if (rule) return (!rule.required || container.querySelector(rule.required)) && rule.context.test(text) ? rule.category : '';
   if (registration) return 'registration';
   if (!overlay(container)) return '';
+  if (optionalAdblock) return 'adblock';
   if (container.matches('.jw-flag-floating,[class*="floating-video" i],[id*="floating-video" i]') && container.querySelector('video')) return 'video';
   const category = CATEGORIES.find(([,pattern]) => pattern.test(evidence))?.[0] || '';
-  if (category === 'registration') return ''; // Invitation evidence above is mandatory.
+  if (['registration','adblock'].includes(category)) return ''; // Independent invitation/request evidence is mandatory.
   // A restored conversation or composer is useful even without a click on this page.
   if (category === 'chat' && container.querySelector('[role="log"],textarea,[contenteditable],input:not([type="hidden"]),[aria-live="polite"], [aria-live="assertive"]')) return '';
   return category;
@@ -68,6 +99,18 @@ function actionKind(button) {
     return 'dismissed';
   }
   return DECLINE.test(text) ? 'dismissed' : '';
+}
+function adblockControl(container, control) {
+  // A nested dialog or section owns its controls. Its dismissal cannot serve as
+  // the outer request's dismissal without independent request evidence there.
+  const boundary=control.closest('dialog,[role="dialog"],[role="alertdialog"],[aria-modal="true"],section,article,aside,nav,form');
+  return !boundary || !container.contains(boundary) || boundary===container || ADBLOCK_REQUEST.test(promptText(boundary,true));
+}
+function adblockChoice(container) {
+  const safe=[...container.querySelectorAll(CONTROLS)].filter(control=>adblockControl(container,control) && actionKind(control));
+  const declines=safe.filter(control=>DECLINE.test(label(control)));
+  const choices=declines.length?declines:safe.filter(control=>CLOSE.test(label(control)));
+  return choices.length===1?choices[0]:null;
 }
 function fingerprint(container, category, rule) {
   if (rule) return rule.id;
@@ -134,6 +177,12 @@ export class Promotions {
         if (button) return {button, container, category, key, rule, action: rule.action};
         continue;
       }
+      if (category==='adblock') {
+        // Prefer the explicit refusal to an unrelated Close. Ambiguity stops.
+        const button=adblockChoice(container);
+        if(button)return {button,container,category,key,rule,action:actionKind(button)};
+        continue;
+      }
       for (const pattern of [CLOSE, DECLINE]) {
         const button = controls.find(control => pattern.test(label(control)) && actionKind(control));
         if (button) return {button, container, category, key, rule, action: actionKind(button)};
@@ -149,6 +198,7 @@ export class Promotions {
   eligible(choice) {
     const {container, category, rule, button, action, key} = choice;
     return classify(container, rule, this.structural.has(container)) === category && this.interactions.permits(container, key, category) && this.available(key, category) &&
+      (category!=='adblock' || adblockChoice(container)===button) &&
       (action === 'hidden' ? rule?.hide && ['fixed','sticky'].includes(getComputedStyle(container).position) :
         container.contains(button) && actionKind(button) === action && (!rule?.controlLabel || rule.controlLabel.test(label(button))));
   }

@@ -26,7 +26,7 @@ async function message(request, sender) {
     const reasons=['','unrecognized-controls','protected','no-settings-control','unknown-preferences','preferences-changed',
       'no-save-control','state-did-not-change','unsafe-control','unknown-activation','save-unconfirmed','unstable-controls','page-guard','cancelled-or-unavailable','user-interaction'];
     const key=`tab:${sender.tab.id}`,previous=(await chrome.storage.session.get(key))[key] || {host,status:'watching'};
-    const categories=['consent','newsletter','registration','support','subscription','offer','survey','app','notifications','chat','video'];
+    const categories=['consent','newsletter','registration','support','subscription','offer','survey','app','notifications','chat','video','adblock'];
     const record={provider:request.provider,category:categories.includes(request.category)?request.category:'consent',outcome:request.outcome,reason:reasons.includes(request.reason)?request.reason:''};
     const diagnostics=[...(previous.diagnostics || []),record].slice(-12);
     const consent=request.provider!=='promotion';

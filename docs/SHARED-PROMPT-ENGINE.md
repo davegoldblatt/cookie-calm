@@ -47,6 +47,8 @@ never grants permission to click: category, user intent, and safe-control checks
 apply. Ordinary articles and navigation must not become prompt candidates.
 Structural discovery applies only to promotional dismissal. It does not expand
 cookie acceptance. Discovery examines up to 160 controls and 40 containers per root.
+It searches up to ten ancestors per control. Discovery and action selection share exact close and decline labels.
+Anchors without `href` can act as native controls. Anchors with navigation targets remain excluded from promotional actions.
 
 Keep disappearance, submission, and stored preference evidence distinct. Only a
 provider-specific receipt can establish a saved choice. An iframe disappearing alone
