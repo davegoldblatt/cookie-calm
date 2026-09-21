@@ -41,7 +41,7 @@ function evaluatePage() {
         return { stopAll: false, stopAccept: true, stopPromotions: true, reason: 'Embedded payment form. Automatic acceptance is paused.' };
       }
     }
-    for (const link of root.querySelectorAll('a[href], [role="button"], button')) {
+    for (const link of root.querySelectorAll('a, [role="button"], button')) {
       if (!visible(link)) continue;
       if (link.hasAttribute('download') || /\.(exe|msi|dmg|pkg|apk|crx)([?#]|$)/i.test(link.getAttribute('href') || '') || /^download\b|^install\b/i.test((link.innerText || link.textContent || '').trim())) {
         return { stopAll: false, stopAccept: true, stopPromotions: protectedPath, reason: 'Software download prompt. Automatic acceptance is paused.' };

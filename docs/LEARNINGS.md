@@ -1,0 +1,130 @@
+# Cookie Calm learnings
+
+This file records recurring failures and the rules they established.
+Tests enforce behavior. This document explains the decisions behind those tests.
+It is not a transcript, release checklist, or claim of universal coverage.
+
+## 1. A reported miss needs a valid browser observation
+
+Multiple Chrome profiles, duplicate installs, old versions, and stale content scripts can obscure the cause.
+Confirm the affected profile, extension ID, enabled state, version, and actual prompt before diagnosing detection.
+An absent prompt, blocked website, or incorrect installation provides no evidence of a product failure.
+After an extension update, refresh the affected page.
+
+Evidence: [live evaluation limits](EVALUATION-1.2.0.md), [installation and live checks](../VALIDATION.md).
+
+## 2. Separate discovery, meaning, action, and verification
+
+A popup can fail at any of these stages. Adding its hostname does not necessarily fix the underlying problem.
+First identify whether the scanner missed the container, misunderstood the request, refused a control, or failed to verify completion.
+Extend a shared category or provider adapter when the same structure or meaning appears across sites.
+Use site adapters only for controls with behavior unique to that site.
+
+Evidence: [category guide](ADDING-PROMPT-CATEGORIES.md), [shared engine](SHARED-PROMPT-ENGINE.md), [structural discovery tests](../tests/shared-engine.spec.js).
+
+## 3. Rejecting consent differs from hiding a notice
+
+A hidden banner does not establish rejection. Consent controls can also use opposite switch meanings.
+For example, an analytics switch grants permission when on. A “Do not sell” switch removes permission when on.
+Represent the permission and switch polarity separately, then verify the resulting state before Save.
+Unknown categories, changed preference sets, or stuck switches prevent submission.
+
+Evidence: [permission planner](../src/prompt-model.js), [Sourcepoint tests](../tests/sourcepoint-us.spec.js), [shared-engine tests](../tests/shared-engine.spec.js).
+
+## 4. Upstream coverage does not replace our policy
+
+Bundled consent recipes can contain acceptance fallbacks. A reject-first product must guard those actions explicitly.
+Acceptance remains a separate user-selected fallback. A refused or partially completed semantic flow must not fall through to a more permissive recipe.
+Keep ownership and attempt tracking explicit. Namespace attempts when separate engines share provider names.
+Test both startup orders to catch hydration races.
+
+Evidence: [acceptance safeguards](../tests/extension.spec.js), [ownership and hydration tests](../tests/shared-engine.spec.js), [1.2.0 audit](../AUDIT.md).
+
+## 5. Optional dismissal differs from paid-access removal
+
+The Guardian supplied native dismissal controls for optional invitations. The observed Athletic subscription wall supplied only checkout choices.
+Use the website's recognized refusal, close, or collapse control. Do not infer that removing a wall grants article access.
+Preserve payment flows, required authentication, and prompts without a safe native action.
+
+Evidence: [promotion tests](../tests/promotions.spec.js), [registration tests](../tests/registration.spec.js), [product limits](../README.md#choices-and-limits).
+
+## 6. A control's appearance does not determine its semantics
+
+Vox's Admiral prompt used an anchor without `href` for “Continue without support.” Its handler activated a hidden native Close button.
+The original scanner omitted this control type, phrase, and ancestor depth.
+Share exact dismissal labels between discovery and action selection. Support native anchors without navigation targets.
+Do not activate hidden controls directly or treat every “Continue” label as refusal.
+Recheck the control immediately before activation.
+
+A later live Vox visit retained the decline link but omitted its referenced Close target.
+Recognizing a control cannot repair a broken website handler. Treat the action as unconfirmed and retain the prompt after bounded attempts.
+Do not substitute a hidden Read or Allow ads control whose effect is different.
+
+Evidence: [shared control vocabulary](../src/promotion-controls.js), [observed handler and cross-publisher fixtures](../tests/adblock-prompts.spec.js).
+
+## 7. Positive evidence must be independent and visible
+
+Words in links, navigation, or hidden steps can describe unrelated actions.
+An adblock request needs visible request text outside its controls. Generic wording such as “Allow ads” is insufficient.
+A secondary Sign in button does not make the entire request an authentication flow.
+The exception still excludes actual authentication requests, forms, fields, and embedded frames.
+Authorization can use a bounded sample. A veto must not silently discard late instructions or instructions inside headers, footers, and longer links.
+If a veto scan exceeds its budget, refuse the action.
+Prefer one explicit refusal, exclude unrelated nested panels, and stop when eligible refusals are ambiguous.
+
+Evidence: [classifier](../src/promotions.js), [false-positive and nested-control tests](../tests/adblock-prompts.spec.js), [independent reviews](../AUDIT.md).
+
+## 8. Preserve user intent across delayed rendering
+
+Save, Comment, Play, and similar controls can open useful dialogs without naming their category.
+A short delay alone cannot distinguish those dialogs from unsolicited prompts.
+Record relevant trusted interactions and mutation-time relationships. Preserve those markers through delayed hydration and route changes.
+Do not mark the entire document as user-opened because its body class changed.
+Existing conversations, edited forms, and active media also require protection.
+
+Evidence: [interaction model](../src/interactions.js), [delayed-intent tests](../tests/registration-intent.spec.js), [promotion tests](../tests/promotions.spec.js), [adblock tests](../tests/adblock-prompts.spec.js).
+
+## 9. A click is not a successful result
+
+Native handlers can do nothing, animate slowly, replace the prompt, or fail to save.
+Verify disappearance or the expected collapse transition before counting a dismissal.
+Distinguish `closed`, `saved`, `unconfirmed`, `unsupported`, and `blocked` results.
+Only a supported changed receipt can establish a recorded privacy choice. It cannot prove downstream compliance by the website.
+Bound retries and cancel active work on pause, navigation, or extension unload.
+
+Evidence: [runner](../src/prompt-engine.js), [receipt tests](../tests/shared-engine.spec.js), [lifecycle tests](../tests/lifecycle.spec.js).
+
+## 10. Negative tests need evidence that automation ran
+
+A prompt staying visible can mean either correct refusal or a scanner that never started.
+Load the actual extension and use a successful cookie rejection as a scan witness where practical.
+Use observed markup and handlers for reported cases, then vary domains and layout.
+Pair successful cases with protected forms, user actions, ambiguous controls, failed handlers, and unchanged article content.
+Fixtures establish behavior for their inputs. Verify the installed build separately on the live page.
+
+Evidence: [test fixture](../tests/fixtures.js), [adblock regression suite](../tests/adblock-prompts.spec.js), [validation record](../VALIDATION.md).
+
+## 11. An independent audit supplies findings, not certification
+
+Claude's reviews exposed missed guards and weak test assumptions, including invisible evidence and delayed user intent.
+Assess each finding against the code and observed behavior. Turn confirmed risks into safeguards and regression tests.
+Retain the original report and explain the resolution. Distinguish static review from executed tests and live verification.
+
+Evidence: [audit history](../AUDIT.md), [raw reports](audits/).
+
+## 12. Packaging, installation, and publication are separate facts
+
+A GitHub release, Desktop build, enabled extension, and Chrome Store listing can contain different versions.
+Compare package contents and hashes with the installed files. Preserve existing settings during updates.
+Verify the correct Chrome profile and report which distribution channel contains the fix.
+Recheck publisher authentication and current review status before changing a Store submission.
+Historical approval or a successful local build does not establish a new publication.
+
+Evidence: [package script](../scripts/package.py), [validation history](../VALIDATION.md), [Store workflow](../store/SUBMISSION.md).
+
+## Maintain this document
+
+For a new durable lesson, record the observed failure, general rule, remaining boundary, and regression or evidence link.
+Update an existing lesson when it already covers the failure class. Keep temporary status and raw debugging output elsewhere.
+Use sanitized fixtures. Exclude gift-link tokens, private query strings, entered field values, and unrelated page content from public records.
+Bounded scans, English labels, site changes, and unknown controls remain coverage limits. A successful sample does not remove those limits.

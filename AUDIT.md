@@ -1,5 +1,28 @@
 # Independent audits
 
+## Version 1.2.1
+
+Claude reviewed the optional adblock prompt change through its authenticated CLI, with tools disabled.
+The [initial review](docs/audits/1.2.1-initial.md) led to these corrections:
+
+- Visible text must identify an ad blocker. Generic phrases such as “Allow ads” cannot authorize the category.
+- Forms and authentication requests remain protected. Incidental Sign in controls do not prevent a recognized refusal.
+- One explicit decline takes priority over Close. Unrelated nested panels and ambiguous refusals remain untouched.
+- Named adblock dialogs retain indirect user intent, including delayed prompts after Play or similar controls.
+- Discovery uses a shared label vocabulary and includes native anchors without `href`.
+- Bounded ancestor searches no longer share incomplete traversal results.
+
+The observed Vox fixture includes its native anchor handler, which activates the site's hidden Close control.
+Negative fixtures wait for a successful cookie rejection as evidence that the extension scanned the page.
+Audits remain separate from browser tests and live verification.
+
+The [follow-up](docs/audits/1.2.1-followup.md) found that authentication instructions in landmarks or after the text sample could escape the veto.
+The corrected veto scans the full prompt, exempts only exact short sign-in controls, and refuses action when its budget expires.
+Regression cases include footers, headers, asides, longer links, late instructions, and words split across text nodes.
+The [final targeted review](docs/audits/1.2.1-final.md) cleared this correction, conditional on the final browser suite.
+Its uncertainty about the authentication regex was checked against the source: ordinary “Sign in to continue” does not match `REQUIRED_AUTH`.
+Those fixtures therefore exercise the new veto. A final whitespace normalization also preserves instructions split across text nodes.
+
 ## Version 1.2.0
 
 Claude reviewed the [plan](docs/audits/1.2.0-plan.md), [implementation](docs/audits/1.2.0-initial.md), and three follow-ups through its authenticated CLI. Reviews used read-only snapshots. The auditor could not execute commands, edit files, or test websites.

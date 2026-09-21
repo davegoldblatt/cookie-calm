@@ -1,5 +1,48 @@
 # Validation
 
+## Candidate 1.2.1 — September 21, 2026
+
+### Automated checks
+
+The original 1.2.0 build failed the new cross-publisher adblock dismissal fixture.
+An early candidate passed all 125 browser tests in 4.5 minutes with two workers.
+Claude then identified an authentication-text veto gap. The correction includes landmark, longer-link, late-text, and split-text fixtures.
+
+The final build's three-worker run passed 123 tests and timed out on two scan witnesses.
+Both failures occurred while waiting for the sentinel cookie rejection, before their behavior assertions.
+Both tests passed unchanged with the configured single-worker setup in 8.5 seconds.
+The cause of those parallel-run timeouts remains unconfirmed. This is not a clean single-run pass of the final suite.
+
+All 125 cases therefore passed on the final build across the run and targeted recheck.
+The no-op fixture also reproduces a native decline handler whose referenced Close target is absent.
+The matched-target fixture checks the observed anchor-to-hidden-Close handler and its native event order.
+These fixtures establish supported behavior, not a guarantee that the live publisher supplies a working handler.
+
+### Installed build and live Vox result
+
+The affected Chrome profile was independently identified as Default.
+The unpacked installation at `~/Desktop/Cookie Calm/extension` now contains 1.2.1 and remains enabled in reject mode.
+The duplicate Store copy, 1.2.0, was disabled in that profile. The work profile was not changed.
+All 18 installed extension files match the tested package. Permissions are unchanged.
+ZIP SHA-256: `4f58bf953d718d2d66ede61cd311f0022aec9ddcb91d4fc4a60e0f2128c292f6`.
+
+The original live prompt contained a visible “Continue without support” anchor without `href` and a hidden native Close control.
+The updated detector recognized its category and selected the visible anchor without a hostname-specific rule.
+After the installed update and reload, the prompt appeared after a delay.
+The decline link remained, but the Close selector in its handler matched no element.
+Cookie Calm recorded two unconfirmed attempts. The prompt remained visible and scrolling remained locked.
+An earlier observation before the delayed prompt appeared was not evidence of successful dismissal.
+
+**The current live Vox case remains unresolved.** Recognition is corrected, but the observed website handler has no target.
+The extension does not substitute Allow ads, activate the hidden Read control, or hide the wall to claim success.
+The local record is under `evidence/vox-adblock-2026-09-21/`, without the gift-link token.
+
+### Audit and distribution
+
+Claude reviewed the design, implementation, and corrections in three static passes. See [AUDIT.md](AUDIT.md).
+The final targeted review cleared the veto correction subject to browser validation.
+Version 1.2.1 is a local candidate and prepared package. It has not been submitted to the Chrome Web Store.
+
 ## Release 1.2.0 — September 19, 2026
 
 ### Automated checks

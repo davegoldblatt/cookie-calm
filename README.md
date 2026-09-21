@@ -13,6 +13,7 @@ It adds promotional dismissal, a compact popup, local rules, site pauses, and ch
 - Turns on the supported Sourcepoint US sale/sharing opt-out before saving the choice.
 - Automatically closes or minimizes supported newsletter, subscription, donation, discount, survey, app, notification, and chat prompts.
 - Dismisses recognized optional registration invitations through safe close controls across sites.
+- Dismisses supported adblock requests through native decline controls, including “Continue without support.”
 - Collapses the Guardian support banner through its native control.
 - Closes recognized inactive floating video prompts. Playing or previously played media stays available.
 - Offers an optional acceptance fallback for cookies after rejection attempts fail.
@@ -60,6 +61,8 @@ Settings apply to new consent choices. They do not undo previous consent. The ex
 
 Promotional dismissal operates in both cookie modes. Dismissible subscription prompts use their close or minimize controls. Paid-only articles still require access.
 
+Adblock requests need a recognized decline or close control. Cookie Calm does not enable ads or change other extensions.
+
 In-page notification requests differ from Chrome permission prompts. Chrome notification and location prompts remain outside this release.
 
 Generic promotion matching currently uses English labels. Prompts without a recognized category and safe close control stay visible. Site changes, delayed user flows without identifiable controls, and unusual embedded widgets can limit coverage. Chat handling is limited to proactive greetings without a composer or conversation. Promotion actions do not run in foreign-host frames.
@@ -68,6 +71,7 @@ Pausing restores elements hidden with extension-owned styles. Native website clo
 
 See [adding prompt categories](docs/ADDING-PROMPT-CATEGORIES.md) for the shared detection, safety, action, and verification pipeline.
 The [shared engine design](docs/SHARED-PROMPT-ENGINE.md) explains provider adapters, permission polarity, and unsupported controls.
+The [project learnings](docs/LEARNINGS.md) record recurring failures, implementation rules, and regression evidence.
 
 The bundled rules need release updates as websites change. Unpacked installations require manual updates.
 

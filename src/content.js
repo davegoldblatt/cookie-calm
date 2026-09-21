@@ -7,6 +7,7 @@ import { assessPage, invalidateAssessment } from './page-guard.js';
 import { Promotions } from './promotions.js';
 import { Interactions } from './interactions.js';
 import { CANDIDATES } from './annoyance-rules.js';
+import { PROMOTION_CONTROLS } from './promotion-controls.js';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let engine, settings, enabled = false, promotionAllowed = false, generation = 0, reportedError = false, invalidated = false;
@@ -15,7 +16,7 @@ let clicked = new WeakSet(), lastUrl = location.href, lastScan = 0;
 const interactions = new Interactions();
 const promotions = new Promotions(interactions);
 const receipts = new ConsentReceipts(()=>contextAlive() && enabled,result=>send({type:'prompt-outcome',...result}));
-const RELEVANT = `${CANDIDATES},button,[role="button"],[id*="cookie" i],[class*="cookie" i],[id*="consent" i],[class*="consent" i]`;
+const RELEVANT = `${CANDIDATES},${PROMOTION_CONTROLS},[id*="cookie" i],[class*="cookie" i],[id*="consent" i],[class*="consent" i]`;
 let changedScopes = new Set(), fullScan = true;
 const observer = new MutationObserver(records => {
   if (!contextAlive()) return;

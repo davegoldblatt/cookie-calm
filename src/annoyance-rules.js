@@ -1,4 +1,5 @@
 import { REGISTRATION_CONTAINERS, REGISTRATION_INTENT } from './registration-prompts.js';
+import { ADBLOCK_REQUEST } from './promotion-controls.js';
 
 // Original rules based on public DOM structure. No third-party filter list is bundled.
 export const RULES = [
@@ -16,6 +17,7 @@ export const RULES = [
   }
 ];
 export const CATEGORIES = [
+  ['adblock', ADBLOCK_REQUEST],
   ['registration', REGISTRATION_INTENT],
   ['newsletter', /\bnewsletters?\b|\b(sign up|subscribe|get updates)\b.{0,60}\b(email|inbox|updates|news)\b/i],
   ['support', /\b(donat(?:e|ion|ions)|contribut(?:e|ion|ions))\b|\bsupport (us|our|the guardian|independent|journalism)\b/i],

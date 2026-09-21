@@ -75,6 +75,16 @@ It supplements selectors for promotional prompts. It does not widen cookie accep
 Category evidence excludes navigation and control text. Protected forms and user-opened prompts still prevent action.
 Discovery is bounded per search root. Large pages, unfamiliar languages, and unlabelled controls can remain unsupported.
 
+`src/promotion-controls.js` supplies the same labels and control types to discovery and action selection.
+Buttons and anchors without `href` can expose native dismissal handlers. Navigating anchors remain excluded.
+Discovery examines up to ten ancestors for each recognized control.
+
+The `adblock` category requires a visible request to disable an ad blocker, outside links, buttons, and navigation text.
+It permits an incidental Sign in button only when the prompt contains no authentication request, form, field, or embedded frame.
+It prefers one explicit decline control and excludes unrelated nested panels. Multiple eligible refusals prevent action.
+The shared engine checks this choice again before activation and verifies disappearance. It never selects Allow ads.
+Indirect user actions also protect named adblock dialogs after their initial appearance.
+
 ## Verify the boundary
 
 Tests must load the actual extension and prove that it ran.
