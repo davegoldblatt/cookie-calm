@@ -93,13 +93,13 @@ test('user-opened adblock requests and per-site pause stay protected',async({ext
   await page.waitForTimeout(1100);await expect(page.locator('#x71')).toBeVisible();expect(await page.evaluate(()=>actions)).toEqual([]);
 });
 
-test('a no-op decline never reports successful dismissal',async({extension:{page,worker}})=>{
+test('a broken optional decline uses a distinct presentation fallback once',async({extension:{page,worker}})=>{
   const broken='<a id="decline" onclick="document.querySelectorAll(\'.missing-close\').forEach(el=>el.click())">Continue without support</a>';
   await visit(page,prompt(broken));
-  await expect.poll(()=>page.evaluate(()=>actions.length),{timeout:11000}).toBe(2);
-  await page.waitForTimeout(4500);
-  await expect(page.locator('#x71')).toBeVisible();expect(await count(worker)).toBe(0);
-  expect(await page.evaluate(()=>actions)).toEqual(['decline','decline']);
+  await expect(page.locator('#x71')).toBeHidden();
+  await expect.poll(()=>count(worker)).toBe(1);
+  expect(await page.evaluate(()=>actions)).toEqual(['decline']);
+  expect(Object.values(await state(worker)).some(s=>s.diagnostics?.some(r=>r.category==='adblock'&&r.outcome==='hidden'))).toBe(true);
 });
 
 test('observed Vox decline handler activates its hidden native Close',async({extension:{page,worker}})=>{

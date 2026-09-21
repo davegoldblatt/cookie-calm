@@ -1,5 +1,6 @@
 import { getSettings, hostname, isEnabled } from './settings.js';
 import { addressGuard } from './page-guard.js';
+import { presentationCSS } from './presentation.js';
 
 const rules = fetch(chrome.runtime.getURL('rules.json')).then(response => {
   if (!response.ok) throw new Error('Bundled rules could not load');
@@ -8,6 +9,17 @@ const rules = fetch(chrome.runtime.getURL('rules.json')).then(response => {
 let queue = Promise.resolve();
 
 async function message(request, sender) {
+  if(request?.type==='presentation-css') {
+    // Only fixed CSS, for the requesting top-level document. Never accept CSS,
+    // selectors, URLs or tab IDs supplied by a page/content message.
+    if(sender.frameId!==0 || !sender.tab?.id || !sender.documentId ||
+      !/^https?:/.test(sender.url || '') || !/^[a-f0-9-]{36}$/.test(request.token || '') ||
+      !isEnabled(await getSettings(),hostname(sender.tab.url)))return {ok:false};
+    try {
+      await chrome.scripting.insertCSS({target:{tabId:sender.tab.id,documentIds:[sender.documentId]},origin:'USER',css:presentationCSS(request.token)});
+      return {ok:true};
+    } catch {return {ok:false};}
+  }
   if (['watch-consent','cancel-consent-watch'].includes(request?.type) && sender.tab?.id!=null) {
     const settings=await getSettings();
     if(!isEnabled(settings,hostname(sender.tab.url)))return {ok:false};
@@ -22,8 +34,9 @@ async function message(request, sender) {
     const settings=await getSettings(),host=hostname(sender.tab.url);
     if(!isEnabled(settings,host))return {ok:false};
     if(!['sourcepoint-us','cookieyes-legacy','cookiebot','promotion'].includes(request.provider) ||
-       !['closed','saved','unconfirmed','unsupported','blocked'].includes(request.outcome))return {ok:false};
-    const reasons=['','unrecognized-controls','protected','no-settings-control','unknown-preferences','preferences-changed',
+       !['closed','saved','hidden','unconfirmed','unsupported','blocked'].includes(request.outcome) ||
+       request.outcome==='hidden' && request.provider!=='promotion')return {ok:false};
+    const reasons=['','presentation-reverted','unrecognized-controls','protected','no-settings-control','unknown-preferences','preferences-changed',
       'no-save-control','state-did-not-change','unsafe-control','unknown-activation','save-unconfirmed','unstable-controls','page-guard','cancelled-or-unavailable','user-interaction'];
     const key=`tab:${sender.tab.id}`,previous=(await chrome.storage.session.get(key))[key] || {host,status:'watching'};
     const categories=['consent','newsletter','registration','support','subscription','offer','survey','app','notifications','chat','video','adblock'];

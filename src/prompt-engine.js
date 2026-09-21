@@ -76,7 +76,20 @@ export async function runPrompt(adapter, hooks) {
         if (action.type === 'set-preference' && after.stage === 'preferences' && after.preferences.find(p=>p.id===action.id)?.value === action.goal) { changed=true; break; }
         if (after.stage === 'blocked') return result('blocked','protected');
       }
-      if (!changed) return result('unconfirmed',submitted?'save-unconfirmed':'state-did-not-change');
+      if (!changed) {
+        if(action.type==='dismiss' && adapter.recovery && hooks.presentation && adapter.recovery()) {
+          if(await hooks.presentation.ensureStyle()) {
+            await hooks.beforeClick();
+            active();
+            const recovery=adapter.recovery();
+            if(recovery && hooks.presentation.apply(recovery)) {
+              adapter.recovered?.();
+              return result('hidden');
+            }
+          }
+        }
+        return result('unconfirmed',submitted?'save-unconfirmed':'state-did-not-change');
+      }
     }
     return result('unconfirmed','unstable-controls');
   } catch (error) {

@@ -10,6 +10,8 @@ Automatically handle repetitive website interruptions through the user's cookie 
 
 `storage`: save the selected mode, enabled state, and site pauses locally. Store temporary per-tab outcomes and guard reasons in session storage.
 
+`scripting`: insert bundled, fixed CSS in the requesting page with user-origin priority. This permits reversible hiding and scroll recovery for supported optional prompts whose decline control fails. It preserves the website's own styles and runs no remote code.
+
 HTTP and HTTPS host access: recognize consent forms and promotional interruptions and use their controls across visited websites and frames. Read the current hostname for site pauses.
 
 The extension runs automatically across supported sites. Access to only the active tab after a click would not provide this behavior.

@@ -16,7 +16,7 @@ async function render() {
   $('#pause').textContent = paused ? 'Resume on this site' : 'Pause on this site';
   const state = tabId != null ? (await chrome.storage.session.get(`tab:${tabId}`))[`tab:${tabId}`] : null;
   const names={'sourcepoint-us':'Sourcepoint','cookieyes-legacy':'CookieYes',cookiebot:'Cookiebot',promotion:'Website prompt'};
-  const results={saved:'privacy choices recorded',closed:'closed',unsupported:'unrecognized controls',blocked:'action stopped',unconfirmed:'result unconfirmed'};
+  const results={saved:'privacy choices recorded',closed:'closed',hidden:'hidden',unsupported:'unrecognized controls',blocked:'action stopped',unconfirmed:'result unconfirmed'};
   const records=state?.host===host?(state.diagnostics || []):[];
   $('#diagnostics').textContent=`Version ${chrome.runtime.getManifest().version}. `+(records.length?
     records.slice(-5).map(r=>`${names[r.provider] || 'Prompt'}: ${results[r.outcome] || 'unconfirmed'}.`).join(' '):'No supported prompt recorded in this tab yet.');

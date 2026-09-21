@@ -7,7 +7,8 @@ It is not a transcript, release checklist, or claim of universal coverage.
 ## 1. A reported miss needs a valid browser observation
 
 Multiple Chrome profiles, duplicate installs, old versions, and stale content scripts can obscure the cause.
-Confirm the affected profile, extension ID, enabled state, version, and actual prompt before diagnosing detection.
+Confirm the affected browser process, profile, extension ID, enabled state, version, and actual prompt before diagnosing detection.
+Application-name automation can target a separate headless Chrome process. Bind the intended process ID and verify the profile path.
 An absent prompt, blocked website, or incorrect installation provides no evidence of a product failure.
 After an extension update, refresh the affected page.
 
@@ -43,8 +44,8 @@ Evidence: [acceptance safeguards](../tests/extension.spec.js), [ownership and hy
 ## 5. Optional dismissal differs from paid-access removal
 
 The Guardian supplied native dismissal controls for optional invitations. The observed Athletic subscription wall supplied only checkout choices.
-Use the website's recognized refusal, close, or collapse control. Do not infer that removing a wall grants article access.
-Preserve payment flows, required authentication, and prompts without a safe native action.
+Prefer the website's recognized refusal, close, or collapse control. Do not infer that removing a wall grants article access.
+Preserve payment flows and required authentication. Cosmetic recovery needs separate evidence about the request and its effects.
 
 Evidence: [promotion tests](../tests/promotions.spec.js), [registration tests](../tests/registration.spec.js), [product limits](../README.md#choices-and-limits).
 
@@ -57,7 +58,9 @@ Do not activate hidden controls directly or treat every “Continue” label as 
 Recheck the control immediately before activation.
 
 A later live Vox visit retained the decline link but omitted its referenced Close target.
-Recognizing a control cannot repair a broken website handler. Treat the action as unconfirmed and retain the prompt after bounded attempts.
+Recognizing a control cannot repair a broken website handler. That limits the native strategy, not the possible user outcome.
+For a clearly optional request, consider a separately guarded, reversible presentation strategy after an unconfirmed native attempt.
+Do not promote a past implementation boundary into an immutable product rule.
 Do not substitute a hidden Read or Allow ads control whose effect is different.
 
 Evidence: [shared control vocabulary](../src/promotion-controls.js), [observed handler and cross-publisher fixtures](../tests/adblock-prompts.spec.js).
@@ -89,10 +92,22 @@ Evidence: [interaction model](../src/interactions.js), [delayed-intent tests](..
 Native handlers can do nothing, animate slowly, replace the prompt, or fail to save.
 Verify disappearance or the expected collapse transition before counting a dismissal.
 Distinguish `closed`, `saved`, `unconfirmed`, `unsupported`, and `blocked` results.
+The separate `hidden` result records a presentation override, not a saved preference or verified browser input behavior.
 Only a supported changed receipt can establish a recorded privacy choice. It cannot prove downstream compliance by the website.
 Bound retries and cancel active work on pause, navigation, or extension unload.
 
 Evidence: [runner](../src/prompt-engine.js), [receipt tests](../tests/shared-engine.spec.js), [lifecycle tests](../tests/lifecycle.spec.js).
+
+## 9a. Own the override, not the website's styles
+
+An obstruction can include a panel, backdrop, scroll lock, and focus state. Hiding a box alone can leave the page unusable.
+Restoring saved inline styles can overwrite later website changes. A separate user-origin stylesheet avoids that ownership problem.
+Scope it to exact elements with document-specific attributes. Removing those attributes exposes the website's current styles.
+Keep native dialog state, competing overlays, content suppression, and shared portal roots in the verification model.
+A programmatic scroll can succeed under `overflow:hidden`; test real wheel input before claiming scrolling works.
+Do not claim runtime proof of trusted input or arbitrary event listeners from an isolated content script.
+
+Evidence: [research and decision](PRESENTATION-RECOVERY.md), [presentation tests](../tests/presentation.spec.js), [plan audit](audits/1.2.2-plan.md).
 
 ## 10. Negative tests need evidence that automation ran
 

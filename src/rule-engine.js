@@ -1,3 +1,4 @@
+import {opaqueID} from './identity.js';
 import CMP from '../vendor/consent-o-matic/CMP.js';
 import Action from '../vendor/consent-o-matic/Action.js';
 import Tools from '../vendor/consent-o-matic/Tools.js';
@@ -9,13 +10,6 @@ import { runPrompt } from './prompt-engine.js';
 
 const NONE = Object.freeze({ A: false, B: false, D: false, E: false, F: false, X: false });
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-function flowID() {
-  // Unlike randomUUID(), getRandomValues is available on public HTTP pages.
-  const bytes=crypto.getRandomValues(new Uint8Array(16));
-  bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;
-  const hex=[...bytes].map(n=>n.toString(16).padStart(2,'0')).join('');
-  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
-}
 
 
 const setConsent = Consent.prototype.setEnabled;
@@ -119,7 +113,7 @@ export class RuleEngine {
       this.tried.add(attemptKey);
       this.tried.add(owner.id); // Semantic handling also retires a matching legacy recipe.
       this.deadline=Date.now()+18000; this.numClicks=0; this.cancelled=false;
-      const flow=flowID();
+      const flow=opaqueID();
       const result=await runPrompt(owner,{
         history:claimConsent(owner),
         assertActive:()=>this.assertActive(), beforeClick:()=>this.beforeClick(),
