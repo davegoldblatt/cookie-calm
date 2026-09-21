@@ -6,7 +6,11 @@ Claude Opus reviewed a read-only plan snapshot through the authenticated local C
 
 The [implementation review](docs/audits/1.2.2-implementation.md) found concrete lifecycle and overflow bugs. Revisions now resume scrolling after a modal closes, preserve body overflow propagation and sticky headers, prefer primary content over related articles, detect document pseudo-element dimmers, release on surface mutations, and refuse shadow-containing surfaces. Site reversion receives an unconfirmed diagnostic. Mutation work is coalesced. The matching extension tests exercise these counterexamples.
 
-The final delta review and complete validation are recorded below when finished. Reviews are static; they do not certify live-site coverage.
+The [delta review](docs/audits/1.2.2-followup.md) confirmed the earlier changes and found a missing wake-up after fullscreen exit. The implementation now listens for fullscreen, close, and cancel events while an override is active. A real fullscreen enter/exit test and a native dialog close test pass. The existing content observer already watched the dialog open attribute, so that part of the finding was a test gap rather than an unhandled mutation.
+
+A shadow-password test expected an unconfirmed result, but the page guard correctly prevented even the native action. It now uses a shadow email field to exercise the later scope refusal. That corrected test passes.
+
+Reviews are static; they do not certify live-site coverage. Complete measured results are in VALIDATION.md.
 
 ---
 

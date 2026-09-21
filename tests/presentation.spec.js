@@ -148,7 +148,9 @@ test('blurred main with a clear related article and pseudo-element backdrops ref
 });
 
 test('shadow forms refuse recovery and post-commit surface mutations release with a truthful outcome',async({extension:{page,worker}})=>{
-  await visit(page,`const host=document.createElement('div');document.querySelector('#surface').append(host);host.attachShadow({mode:'closed'}).innerHTML='<input type="password">';`);
+  // Passwords already stop promotions in the page guard. An email field
+  // exercises the presentation scope check itself, after a native attempt.
+  await visit(page,`const host=document.createElement('div');document.querySelector('#surface').append(host);host.attachShadow({mode:'closed'}).innerHTML='<input type="email">';`);
   await expect.poll(async()=>(await results(worker)).some(r=>r.outcome==='unconfirmed'),{timeout:9000}).toBe(true);
   await expect(page.locator('#surface')).toBeVisible();
   for(const change of [
@@ -159,4 +161,20 @@ test('shadow forms refuse recovery and post-commit surface mutations release wit
     await expect(page.locator('#surface')).toBeVisible();
     await expect.poll(async()=>(await results(worker)).some(r=>r.reason==='presentation-reverted')).toBe(true);
   }
+});
+
+test('native modal close and fullscreen exit wake scroll recovery without unrelated mutations',async({extension:{page}})=>{
+  await visit(page);await hidden(page);
+  await page.evaluate(()=>{const dialog=document.createElement('dialog');dialog.id='native';dialog.textContent='Useful dialog';document.body.append(dialog);dialog.showModal();});
+  await expect.poll(()=>page.evaluate(()=>getComputedStyle(document.documentElement).overflowY)).toBe('hidden');
+  await page.evaluate(()=>document.querySelector('#native').close());
+  await expect.poll(()=>page.evaluate(()=>getComputedStyle(document.documentElement).overflowY)).toBe('auto');
+  await page.evaluate(()=>{const button=document.createElement('button');button.id='fullscreen';button.textContent='Fullscreen';button.onclick=()=>document.querySelector('article').requestFullscreen();document.querySelector('article').append(button);});
+  await page.locator('#fullscreen').click();
+  await expect.poll(()=>page.evaluate(()=>Boolean(document.fullscreenElement))).toBe(true);
+  await expect.poll(()=>page.evaluate(()=>getComputedStyle(document.documentElement).overflowY)).toBe('hidden');
+  await page.evaluate(()=>document.exitFullscreen());
+  await expect.poll(()=>page.evaluate(()=>getComputedStyle(document.documentElement).overflowY)).toBe('auto');
+  await page.mouse.move(500,350);await page.mouse.wheel(0,700);
+  await expect.poll(()=>page.evaluate(()=>scrollY)).toBeGreaterThan(100);
 });

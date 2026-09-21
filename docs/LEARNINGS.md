@@ -7,7 +7,8 @@ It is not a transcript, release checklist, or claim of universal coverage.
 ## 1. A reported miss needs a valid browser observation
 
 Multiple Chrome profiles, duplicate installs, old versions, and stale content scripts can obscure the cause.
-Confirm the affected profile, extension ID, enabled state, version, and actual prompt before diagnosing detection.
+Confirm the affected browser process, profile, extension ID, enabled state, version, and actual prompt before diagnosing detection.
+Application-name automation can target a separate headless Chrome process. Bind the intended process ID and verify the profile path.
 An absent prompt, blocked website, or incorrect installation provides no evidence of a product failure.
 After an extension update, refresh the affected page.
 

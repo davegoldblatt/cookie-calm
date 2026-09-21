@@ -65,6 +65,7 @@ export class Presentation {
   constructor(prepare) {
     this.token=crypto.randomUUID();this.prepare=prepare;this.ready=false;this.current=null;
     this.observer=new MutationObserver(()=>this.release(true));
+    this.changedState=()=>this.changed();
   }
   async ensureStyle() {
     if(!this.ready)this.ready=Boolean(await this.prepare(this.token));
@@ -104,6 +105,7 @@ export class Presentation {
     }
     this.current={surface,content,text:surface.textContent};
     this.observer.observe(surface,{attributes:true,childList:true,characterData:true,subtree:true});
+    for(const event of ['fullscreenchange','close','cancel'])document.addEventListener(event,this.changedState,true);
     return true;
   }
   removeAttributes(surface) {
@@ -148,6 +150,7 @@ export class Presentation {
   release(reverted=false) {
     clearTimeout(this.timer);this.timer=null;
     this.observer.disconnect();
+    for(const event of ['fullscreenchange','close','cancel'])document.removeEventListener(event,this.changedState,true);
     if(this.current)this.removeAttributes(this.current.surface);
     const previous=this.current;this.current=null;
     if(previous && reverted)this.onRevert?.();
