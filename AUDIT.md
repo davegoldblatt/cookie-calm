@@ -1,4 +1,4 @@
-# Candidate 1.2.2 independent review
+# Release 1.2.2 independent review
 
 The user requested broader research and a first-principles review before implementation. The [decision record](docs/PRESENTATION-RECOVERY.md) compares native actions, cosmetic recovery, provider APIs, network prevention, lists, and remote models.
 
@@ -9,6 +9,8 @@ The [implementation review](docs/audits/1.2.2-implementation.md) found concrete 
 The [delta review](docs/audits/1.2.2-followup.md) confirmed the earlier changes and found a missing wake-up after fullscreen exit. The implementation now listens for fullscreen, close, and cancel events while an override is active. A real fullscreen enter/exit test and a native dialog close test pass. The existing content observer already watched the dialog open attribute, so that part of the finding was a test gap rather than an unhandled mutation.
 
 A shadow-password test expected an unconfirmed result, but the page guard correctly prevented even the native action. It now uses a shadow email field to exercise the later scope refusal. That corrected test passes.
+
+The full browser suite then exposed a public-HTTP startup regression: the new constructor used secure-context-only `randomUUID`. The fix reuses the existing `getRandomValues` identifier code through a shared helper. Tests cover both provider rejection and the new presentation fallback on public HTTP origins. This was a product regression, not an incorrect browser observation.
 
 Reviews are static; they do not certify live-site coverage. Complete measured results are in VALIDATION.md.
 

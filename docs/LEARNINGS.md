@@ -119,6 +119,14 @@ Fixtures establish behavior for their inputs. Verify the installed build separat
 
 Evidence: [test fixture](../tests/fixtures.js), [adblock regression suite](../tests/adblock-prompts.spec.js), [validation record](../VALIDATION.md).
 
+## 10a. Startup code must work on every declared origin
+
+Chrome content scripts also run on public HTTP pages. Secure-context-only APIs can stop the entire scanner before any guarded action.
+Reuse the shared `opaqueID` helper, which uses `getRandomValues`, instead of `randomUUID` in content-script startup.
+Test both rejection and presentation recovery on a public HTTP origin. A localhost test is insufficient because localhost is a secure context.
+
+Evidence: [shared identifier](../src/identity.js), [HTTP rejection tests](../tests/shared-engine.spec.js), [HTTP presentation test](../tests/presentation.spec.js).
+
 ## 11. An independent audit supplies findings, not certification
 
 Claude's reviews exposed missed guards and weak test assumptions, including invisible evidence and delayed user intent.

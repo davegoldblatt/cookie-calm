@@ -1,6 +1,6 @@
 # Recovering from failed optional dismissal
 
-Status: candidate implementation, with independent plan review. This supersedes the assumption that native controls are the only permissible strategy.
+Status: implemented in 1.2.2, with independent plan and code reviews. This supersedes the assumption that native controls are the only permissible strategy.
 
 ## What the user wants
 

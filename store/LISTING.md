@@ -20,6 +20,8 @@ Cookie Calm automatically rejects optional cookies on supported websites. It use
 
 Promotional dismissal works automatically in both cookie modes. Supported newsletter, donation, subscription, discount, survey, app, notification, and chat prompts close or minimize. The Guardian support banner uses its native collapse control. Recognized optional registration invitations use safe close controls across sites. Actual sign-in forms and session-expiry warnings stay available.
 
+Supported optional adblock requests use their visible decline controls. If an explicit decline fails and the obstruction can be isolated, Cookie Calm can reversibly hide it and restore CSS scrolling. This result is reported as hidden. It does not enable ads or change other extensions.
+
 Cookie preferences:
 
 - Reject optional cookies: the default. Unknown forms stay visible.

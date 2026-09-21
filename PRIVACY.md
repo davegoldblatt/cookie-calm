@@ -1,6 +1,6 @@
 # Cookie Calm privacy policy
 
-Effective September 19, 2026.
+Effective September 21, 2026.
 
 Cookie Calm handles cookie consent and supported website interruptions in Chrome. Dave Goldblatt maintains the project. Contact: dave@davegoldblatt.com.
 

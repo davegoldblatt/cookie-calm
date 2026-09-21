@@ -1,5 +1,43 @@
 # Validation
 
+## Release 1.2.2 — September 21, 2026
+
+### Automated and independent checks
+
+All **142 browser tests passed in one local run (10.0 minutes)** on code commit `4d1909e`.
+Both [push CI](https://github.com/davegoldblatt/cookie-calm/actions/runs/35658636034) and [PR CI](https://github.com/davegoldblatt/cookie-calm/actions/runs/35658640978) passed on that commit.
+The suite includes 17 presentation tests covering broken native handlers, public HTTP startup, trusted wheel scrolling, body overflow propagation, sticky headers, focus, pause, route changes, surface replacement, competing dialogs, and fullscreen transitions.
+Claude reviewed the plan, implementation, and corrections. See [AUDIT.md](AUDIT.md) and the [decision record](docs/PRESENTATION-RECOVERY.md).
+
+An earlier complete-suite attempt exposed a real public-HTTP startup regression and was stopped.
+The new constructor used `randomUUID`, which is unavailable on those origins. The final code reuses the existing HTTP-safe identifier function.
+The final package only changes the privacy policy's effective date after the passing run. Its executable files are unchanged.
+
+### Installed build
+
+The regular Chrome process and personal Default profile were independently verified.
+The Desktop unpacked extension is **1.2.2, enabled, in reject mode**. The duplicate Store installation remains disabled at 1.2.0.
+The work profile was not changed. All 18 installed files match the release ZIP.
+
+In that installed browser, a controlled broken-decline prompt recorded one native attempt, then became hidden.
+The document's vertical overflow changed from hidden to auto; body overflow became visible. Article text remained present.
+The popup reported “Version 1.2.2. Website prompt: hidden.”
+A real back navigation loaded a new document and recovered again. It did not restore from BFCache, so BFCache preservation remains unverified.
+Trusted wheel input is covered by the automated browser suite, separately from these installed DOM checks.
+
+ZIP SHA-256: `1ff8e0e1ac831bebc75835e3fe17ef5dd61e377c5d88131ec59449034dfe68ee`.
+
+### Live coverage boundary
+
+Clean live Vox visits returned HTTP 200 with and without Cookie Calm, but neither showed the original adblock prompt.
+That absence is neither a successful dismissal nor a product failure. The observed broken handler is reproduced by a fixture.
+This release fixes the native-only strategy limitation; a live recurrence of the original publisher variant has not been verified.
+Presentation recovery is restricted to supported optional adblock requests with an explicit decline. It does not establish saved consent or paid-content access.
+
+### Distribution
+
+PR #2 is merged. Current GitHub, Desktop, and Chrome Store status is recorded in [store/SUBMISSION.md](store/SUBMISSION.md).
+
 ## Candidate 1.2.1 — September 21, 2026
 
 ### Automated checks
@@ -33,7 +71,7 @@ The decline link remained, but the Close selector in its handler matched no elem
 Cookie Calm recorded two unconfirmed attempts. The prompt remained visible and scrolling remained locked.
 An earlier observation before the delayed prompt appeared was not evidence of successful dismissal.
 
-**The current live Vox case remains unresolved.** Recognition is corrected, but the observed website handler has no target.
+**Historical 1.2.1 result: the live Vox case remained unresolved.** Recognition is corrected, but the observed website handler has no target.
 The extension does not substitute Allow ads, activate the hidden Read control, or hide the wall to claim success.
 The local record is under `evidence/vox-adblock-2026-09-21/`, without the gift-link token.
 

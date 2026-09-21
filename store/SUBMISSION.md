@@ -1,10 +1,26 @@
-# Submit Cookie Calm to the Chrome Web Store
+# Cookie Calm distribution status
 
-The repository and release package are public. Version 1.2.0 adds the shared prompt engine, broader promotional discovery, and local result details. It is packaged separately and has not been uploaded to the Chrome Web Store.
+Verified September 21, 2026.
 
-The last verified dashboard state, September 18, showed 1.0.1 published and 1.1.0 pending review, with new uploads disabled. On September 19, the dashboard required Google account re-verification. Its current review status could not be checked. The pending submission has not been withdrawn.
+| Channel | Version | State |
+| --- | --- | --- |
+| GitHub source | 1.2.2 | PR #2 merged; all 142 browser tests passed locally and in CI |
+| GitHub release | 1.2.2 | Release package and SHA-256 checksum published |
+| Personal Chrome / Desktop | 1.2.2 | Enabled unpacked install; package files and local recovery checked |
+| Chrome Web Store update | 1.2.2 | Submitted for review September 21 at 2:55 p.m. Pacific; automatic publication selected |
+| Chrome Web Store public version | 1.2.0 | Remains published while Google reviews the update |
 
-Extension ID: `mlcplepgfaafffckbjbaekaekpphjccd`. The earlier release is live. This does not establish approval of the 1.1.0 update. The steps below remain useful for future submissions.
+The dashboard confirmed “Your extension was submitted for review.” This is not approval or publication of 1.2.2.
+The submission includes the updated description, test instructions, and justification for the new `scripting` permission.
+The work Chrome profile was not changed.
+
+Extension ID: `mlcplepgfaafffckbjbaekaekpphjccd`.
+[Store listing](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd) · [GitHub release](https://github.com/davegoldblatt/cookie-calm/releases/tag/v1.2.2)
+
+Package: `cookie-calm-1.2.2-chrome-web-store.zip`.
+SHA-256: `1ff8e0e1ac831bebc75835e3fe17ef5dd61e377c5d88131ec59449034dfe68ee`.
+
+The following steps remain available for later releases.
 
 ## Register the publisher account
 
@@ -19,7 +35,7 @@ The account owner must complete payment and account declarations directly. The e
 ## Upload
 
 1. Open the existing Cookie Calm item. Check its current review status before changing the submission.
-2. If the dashboard permits an update, upload `cookie-calm-1.2.0-chrome-web-store.zip` from the release assets.
+2. If the dashboard permits an update, upload `cookie-calm-1.2.2-chrome-web-store.zip` from the release assets.
 3. Enter the copy and links in [LISTING.md](LISTING.md).
 4. Upload the 128-pixel icon and the images under `assets/`.
 5. Complete the privacy fields using [PRIVACY-DISCLOSURES.md](PRIVACY-DISCLOSURES.md).
@@ -34,7 +50,7 @@ The store ZIP has `manifest.json` at its root. It is different from the older de
 
 ## After approval
 
-Add the real store URL to the repository README and project website. Do not advertise a store listing before it is live.
+Verify the newly published version on the public listing. Update this status record only after confirming it.
 
 For future releases, increase the manifest version and upload a newly tested package.
 

@@ -26,14 +26,14 @@ It adds promotional dismissal, a compact popup, local rules, site pauses, and ch
 - Reports cosmetic hiding separately from native closure and recorded privacy choices.
 - Shows recent local results, with separate states for a closed panel and a recorded privacy choice.
 - Preserves protected forms and recognized user-opened prompts.
-- Restores extension-hidden app banners when paused.
+- Restores extension-hidden prompts when paused.
 - Runs locally without telemetry, accounts, remote AI, or automatic rule downloads.
 
 The popup includes a global switch and an exact-hostname pause control. Pauses also apply to embedded consent frames.
 
 ## Install
 
-Version 1.2.0 adds a shared prompt engine, broader promotional detection, and clearer result reporting. Download the latest package from GitHub below. Chrome Web Store updates require a separate review; see the [submission status](store/SUBMISSION.md).
+Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd), or use the latest GitHub package below. Version 1.2.2 adds recovery for supported optional adblock prompts with broken decline controls. Store updates require a separate review; see the [submission status](store/SUBMISSION.md).
 
 1. Download the extension ZIP from [Releases](https://github.com/davegoldblatt/cookie-calm/releases/latest).
 2. Extract the ZIP to a permanent folder.
