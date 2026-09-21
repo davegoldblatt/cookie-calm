@@ -8,6 +8,7 @@ import { Promotions } from './promotions.js';
 import { Interactions } from './interactions.js';
 import { CANDIDATES } from './annoyance-rules.js';
 import { PROMOTION_CONTROLS } from './promotion-controls.js';
+import { Presentation } from './presentation.js';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let engine, settings, enabled = false, promotionAllowed = false, generation = 0, reportedError = false, invalidated = false;
@@ -15,6 +16,9 @@ let timer, interval, inFlight, dirty = false, fallbacks = [], configQueue = Prom
 let clicked = new WeakSet(), lastUrl = location.href, lastScan = 0;
 const interactions = new Interactions();
 const promotions = new Promotions(interactions);
+const presentation = new Presentation(async token=>(await send({type:'presentation-css',token}))?.ok);
+promotions.presentation=presentation;
+presentation.onRevert=()=>send({type:'prompt-outcome',provider:'promotion',category:'adblock',outcome:'unconfirmed',reason:'presentation-reverted'});
 const receipts = new ConsentReceipts(()=>contextAlive() && enabled,result=>send({type:'prompt-outcome',...result}));
 const RELEVANT = `${CANDIDATES},${PROMOTION_CONTROLS},[id*="cookie" i],[class*="cookie" i],[id*="consent" i],[class*="consent" i]`;
 let changedScopes = new Set(), fullScan = true;
@@ -23,6 +27,7 @@ const observer = new MutationObserver(records => {
   try { processMutations(records); } catch (error) { reportError(error); }
 });
 function processMutations(records) {
+  presentation.changed();
   invalidateAssessment();
   const rootCount = roots().length;
   let relevant = false;
@@ -189,6 +194,7 @@ async function scan() {
       } else {
         const adapter=promotions.prompt(promotion);
         const result=await runPrompt(adapter,{
+          presentation,
           assertActive:()=>{if(!contextAlive() || !enabled || generation!==revision || location.href!==scanUrl) throw new Error('Prompt cancelled');},
           beforeClick:async()=>{
             const state=await guard();
@@ -197,7 +203,8 @@ async function scan() {
             if(state.deferPromotions)throw new Error('User interaction deferred');
           },onActivate:adapter.activated
         });
-        finished=result.outcome==='closed';
+        finished=['closed','hidden'].includes(result.outcome);
+        if(result.outcome==='hidden')promotion.action='hidden';
         await send({type:'prompt-outcome',...result});
       }
       if(finished) {

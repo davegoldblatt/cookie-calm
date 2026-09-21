@@ -37,7 +37,10 @@ less coverage than the older, more permissive recipes.
 
 Promotions use the same runner through a dismissal observation. Existing category
 detection, interaction protection, document budgets, and native outcome verification
-remain authoritative. Cosmetic changes remain limited to existing supported rules.
+remain authoritative. After an unchanged, explicit optional adblock refusal fails,
+the runner can apply a reversible presentation override. The adapter describes its
+scope; `presentation.js` owns CSS activation, verification, and release.
+See [the research and decision](PRESENTATION-RECOVERY.md) for effect boundaries.
 
 ## Discovery and outcomes
 
@@ -60,7 +63,8 @@ choice. CookieYes and Cookiebot currently report closure without receipt proof.
 
 Temporary local diagnostics contain up to 12 results with enums and provider IDs.
 They contain no page text, form values, cookie values, or full URLs.
-Results distinguish unsupported, blocked, closed, saved, and unconfirmed actions.
+Results distinguish unsupported, blocked, closed, saved, hidden, and unconfirmed actions.
+`hidden` is restricted to promotional presentation. It cannot establish consent.
 An opaque action ID correlates late receipt evidence with its original action.
 No report is sent automatically. An absent prompt creates no failure record.
 

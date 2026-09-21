@@ -38,6 +38,8 @@ It does not send page text, addresses, or settings to the maintainer or third-pa
 
 Automatic clicks use the website's normal consent, close, decline, or minimize controls. Those controls can send requests to the website or its providers.
 
+When a supported optional prompt's decline fails, the extension can apply a reversible local stylesheet to hide it and release its CSS scroll obstruction. This does not record a consent choice or send a request.
+
 The website's own privacy policy governs those requests and any cookies that it sets. Acceptance mode can permit optional cookies and tracking.
 
 If you open a project link, your browser makes a normal request to that external website.

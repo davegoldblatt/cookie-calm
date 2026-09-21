@@ -1,6 +1,6 @@
 {
   "name": "cookie-calm",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Reject optional cookies and automatically dismiss supported promotional popups. Local rules, protected forms, and per-site pause.",
   "license": "MIT",
   "repository": "https://github.com/davegoldblatt/cookie-calm",

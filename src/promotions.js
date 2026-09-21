@@ -112,6 +112,22 @@ function adblockChoice(container) {
   const choices=declines.length?declines:safe.filter(control=>CLOSE.test(label(control)));
   return choices.length===1?choices[0]:null;
 }
+function ownsSurface(surface, button) {
+  let panel=button.parentElement;
+  while(panel && panel!==surface && !ADBLOCK_REQUEST.test(promptText(panel,true)))panel=panel.parentElement;
+  if(!panel)return false;
+  const walker=document.createTreeWalker(surface,NodeFilter.SHOW_TEXT);
+  let node,other='',count=0;
+  while((node=walker.nextNode())) {
+    if(++count>1000)return false;
+    if(!panel.contains(node) && visible(node.parentElement))other+=' '+node.textContent;
+  }
+  // Branding can sit under a panel. A toast, chat or second invitation cannot.
+  other=other.replace(/\s+/g,' ').trim();
+  if(other && !/^powered by(?: [\w .-]{1,60})?$/i.test(other))return false;
+  return ![...surface.querySelectorAll('section,aside,[role="dialog"],[role="alertdialog"]')]
+    .some(node=>node!==panel && !node.contains(panel) && visible(node) && !ADBLOCK_REQUEST.test(promptText(node,true)));
+}
 function fingerprint(container, category, rule) {
   if (rule) return rule.id;
   const title = container.querySelector('h1,h2,h3,[role="heading"]');
@@ -126,6 +142,7 @@ export class Promotions {
     this.restore(); this.attempts = new Map(); this.categories = new Map(); this.done = new Set(); this.total = 0;
   }
   restore() {
+    this.presentation?.release();
     for (const [element, previous] of this.hidden) {
       if (element.style.getPropertyValue('display') === 'none' && element.style.getPropertyPriority('display') === 'important') {
         if (previous.value) element.style.setProperty('display', previous.value, previous.priority);
@@ -214,8 +231,28 @@ export class Promotions {
   }
   prompt(choice) {
     let activated=false;
+    const originalText=choice.container.textContent;
     return {
       id:'promotion', category:choice.category,
+      recovery:()=>{
+        // Stronger effects need fresh purpose, intent and scope evidence. An X
+        // alone doesn't establish that a broken request is optional.
+        const {container,button,category,key,rule}=choice;
+        if(!activated || category!=='adblock' || rule || choice.action!=='dismissed' ||
+          container.textContent!==originalText || !DECLINE.test(label(button)) ||
+          classify(container,null,this.structural.has(container))!==category || adblockChoice(container)!==button ||
+          !this.interactions.permits(container,key,category))return null;
+        for(let surface=container,depth=0;surface && depth<3;surface=surface.parentElement,depth++) {
+          if(surface.matches('html,body,main,article,nav,header,footer'))break;
+          if(getComputedStyle(surface).position!=='fixed')continue;
+          // Do not take over a shared portal that contains another text-bearing
+          // component. Text-free backdrop wrappers can belong to this surface.
+          if(classify(surface,null,true)!==category || adblockChoice(surface)!==button || !ownsSurface(surface,button))return null;
+          return this.presentation?.describe(surface);
+        }
+        return null;
+      },
+      recovered:()=>{this.done.add(choice.key);},
       observe:()=>{
         if (activated) return {stage:this.finished(choice,roots())?'absent':'pending'};
         if (!this.eligible(choice)) return {stage:'blocked'};

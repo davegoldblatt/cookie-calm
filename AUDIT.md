@@ -1,3 +1,15 @@
+# Candidate 1.2.2 independent review
+
+The user requested broader research and a first-principles review before implementation. The [decision record](docs/PRESENTATION-RECOVERY.md) compares native actions, cosmetic recovery, provider APIs, network prevention, lists, and remote models.
+
+Claude Opus reviewed a read-only plan snapshot through the authenticated local CLI. Its [plan review](docs/audits/1.2.2-plan.md) rejected saved inline-style restoration and recommended user-origin CSS. The implementation adopted that mechanism and retained the shared guarded runner.
+
+The [implementation review](docs/audits/1.2.2-implementation.md) found concrete lifecycle and overflow bugs. Revisions now resume scrolling after a modal closes, preserve body overflow propagation and sticky headers, prefer primary content over related articles, detect document pseudo-element dimmers, release on surface mutations, and refuse shadow-containing surfaces. Site reversion receives an unconfirmed diagnostic. Mutation work is coalesced. The matching extension tests exercise these counterexamples.
+
+The final delta review and complete validation are recorded below when finished. Reviews are static; they do not certify live-site coverage.
+
+---
+
 # Independent audits
 
 ## Version 1.2.1

@@ -14,6 +14,7 @@ It adds promotional dismissal, a compact popup, local rules, site pauses, and ch
 - Automatically closes or minimizes supported newsletter, subscription, donation, discount, survey, app, notification, and chat prompts.
 - Dismisses recognized optional registration invitations through safe close controls across sites.
 - Dismisses supported adblock requests through native decline controls, including “Continue without support.”
+- Can reversibly hide a supported optional adblock prompt when its explicit decline fails, and release its CSS scroll obstruction.
 - Collapses the Guardian support banner through its native control.
 - Closes recognized inactive floating video prompts. Playing or previously played media stays available.
 - Offers an optional acceptance fallback for cookies after rejection attempts fail.
@@ -22,6 +23,7 @@ It adds promotional dismissal, a compact popup, local rules, site pauses, and ch
 - Supports delayed banners, embedded frames, and shadow DOM.
 - Finds supported promotional overlays from their controls and layout, including unfamiliar class names.
 - Uses one guarded action engine for three consent providers and native promotional dismissal.
+- Reports cosmetic hiding separately from native closure and recorded privacy choices.
 - Shows recent local results, with separate states for a closed panel and a recorded privacy choice.
 - Preserves protected forms and recognized user-opened prompts.
 - Restores extension-hidden app banners when paused.
@@ -71,6 +73,7 @@ Pausing restores elements hidden with extension-owned styles. Native website clo
 
 See [adding prompt categories](docs/ADDING-PROMPT-CATEGORIES.md) for the shared detection, safety, action, and verification pipeline.
 The [shared engine design](docs/SHARED-PROMPT-ENGINE.md) explains provider adapters, permission polarity, and unsupported controls.
+The [presentation recovery decision](docs/PRESENTATION-RECOVERY.md) compares strategies and explains reversible overrides.
 The [project learnings](docs/LEARNINGS.md) record recurring failures, implementation rules, and regression evidence.
 
 The bundled rules need release updates as websites change. Unpacked installations require manual updates.

@@ -5,11 +5,13 @@ Cookie Calm uses a shared pipeline:
 1. Find a candidate container.
 2. Classify the prompt from its structure and text.
 3. Check page safety, user intent, site pause, frame scope, and attempt limits.
-4. Use a safe native close or collapse control.
+4. Prefer a safe native close or collapse control. A stronger fallback needs independent evidence and effect verification.
 5. Verify the result before recording success.
 
 A detector identifies a category. It does not click controls or change the article.
-The runner in `src/prompt-engine.js` owns native actions, waits, and repeated safety checks.
+The runner in `src/prompt-engine.js` owns native actions, waits, repeated safety checks, and entry to presentation recovery.
+Use the reusable primitive in `src/presentation.js` for an authorized cosmetic effect. Do not add category-specific style-reset loops.
+See [presentation recovery](PRESENTATION-RECOVERY.md) before extending that capability to another category.
 `src/promotions.js` supplies category detection, interaction checks, budgets, and result observations.
 `src/interactions.js` protects prompts that the user opens or touches.
 
