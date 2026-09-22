@@ -7,6 +7,7 @@ const PMC_BODY = normalized(`This website is now part of PMX Global, LLC, a subs
 const PMC_CONTAINER = 'aside.duet--navigation--pmc-privacy-banner';
 
 function pmcNotice(container) {
+  if (!chrome.dom?.openOrClosedShadowRoot || chrome.dom.openOrClosedShadowRoot(container)) return false;
   if (window.top !== window || container.getAttribute('aria-modal') === 'true' || !container.matches(PMC_CONTAINER) || !['fixed','sticky'].includes(getComputedStyle(container).position) ||
       container.closest('form') || container.querySelector('form,input,textarea,select,iframe,[contenteditable],dialog,[role="dialog"],[role="alertdialog"],[aria-modal="true"],summary')) return false;
   // Unreviewed custom elements, shadow controls and focusable additions stop.
@@ -21,7 +22,7 @@ function pmcNotice(container) {
   if (headings.length !== 1 || bodies.length !== 1 || controls.length !== 1) return false;
   const [heading] = headings, [body] = bodies, [close] = controls;
   if (!visible(heading) || !visible(body) || !close.matches('button[type="button"][aria-label="Dismiss privacy notice"]') ||
-      label(close) !== 'dismiss privacy notice' || normalized(heading.textContent) !== 'Terms of Use/Your Privacy Rights' ||
+      label(close) !== 'dismiss privacy notice' || !['','Close'].includes(normalized(close.textContent)) || normalized(heading.textContent) !== 'Terms of Use/Your Privacy Rights' ||
       normalized(body.textContent) !== PMC_BODY) return false;
   // Extra instructions anywhere in the component invalidate the reviewed copy.
   const copy = container.cloneNode(true);

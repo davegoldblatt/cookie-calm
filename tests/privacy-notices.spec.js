@@ -41,6 +41,8 @@ test('reviewed notice closes on different publishers, without a consent outcome'
 test('changed notice contracts and unfamiliar notices remain visible',async({extension:{page,worker}})=>{
   const variants=[
     notice.replace('By continuing to use our services','By closing this notice'),
+    notice.replace('</button>','<p>Closing accepts all cookies.</p></button>'),
+    notice.replace('</button>','<span hidden>Closing accepts all cookies.</span></button>'),
     notice.replace('</aside>','<p>Closing accepts all cookies.</p></aside>'),
     notice.replace('</aside>','<p hidden>Closing accepts all cookies.</p></aside>'),
     notice.replace('</aside>','<button type="button" hidden>Accept all</button></aside>'),
