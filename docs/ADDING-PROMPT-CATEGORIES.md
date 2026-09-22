@@ -42,6 +42,16 @@ The Guardian support adapter, for example, uses the banner's collapse and expand
 Use this path when a site's control differs from a common category.
 Keep any exception narrow, and include a source for the observed structure.
 
+## Add a reviewed informational notice
+
+A privacy notice requires handler evidence before its Close control can receive automatic activation.
+Use `src/privacy-notices.js` for a reviewed contract, then register it through `PRIVACY_NOTICE_RULES`.
+Keep the contract separate from generic promotional classification and consent preference handling.
+Require the reviewed component, copy, controls, and link destinations. Refuse changed instructions or unknown controls.
+Use the shared runner and report closure without a consent claim.
+Do not enable cosmetic recovery for an unresolved notice.
+See [provider evidence and limits](PRIVACY-NOTICES.md).
+
 ## Add a consent provider
 
 Sourcepoint US, CookieYes legacy, and Cookiebot use the same semantic planner and runner.

@@ -1,3 +1,27 @@
+# Release 1.2.3 independent review
+
+Claude Opus reviewed the plan and implementation through the authenticated CLI with tools disabled.
+The [plan review](docs/audits/1.2.3-plan.md) requested stronger source evidence, control checks, and attempt limits.
+The implementation includes matching source hashes across three publishers, rejects unknown and shadow controls, and permits one native attempt.
+The [decision record](docs/PRIVACY-NOTICES.md) explains the remaining handler-change limit and rejected proposals.
+
+The first implementation request returned tool-call text without findings. It does not count as a completed audit.
+The [completed implementation review](docs/audits/1.2.3-implementation.md) found a real gap in the button text check.
+An unchanged aria-label could conceal new consent instructions inside that button. The adapter now requires the reviewed button text too.
+Visible and hidden instruction regressions cover this change.
+The adapter also refuses action if the closed-shadow inspection API is unavailable.
+
+Two reported uncertainties concern code outside the audit snapshot. The content runner connects the activation callback, and the page guard protects sibling password fields.
+Executed tests cover both paths. The review confirms fresh classification after the asynchronous guard and the separate notice outcome.
+
+Three other findings concern existing generic promotion behavior: replacement classification, app-banner revalidation, and lifetime attempt accounting.
+They remain follow-up investigation items, not verified regressions from this notice adapter.
+The notice path checks every visible replacement directly, has no cosmetic fallback, and deliberately retains its attempt limit.
+
+Reviews are static. Browser tests and live observations appear in VALIDATION.md.
+
+---
+
 # Release 1.2.2 independent review
 
 The user requested broader research and a first-principles review before implementation. The [decision record](docs/PRESENTATION-RECOVERY.md) compares native actions, cosmetic recovery, provider APIs, network prevention, lists, and remote models.

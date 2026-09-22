@@ -61,7 +61,9 @@ function adblockAuthRequest(container) {
 function classify(container, rule, structural=false) {
   if (!container.isConnected || !panelVisible(container) || container.matches('html,body,main,article,header,footer,nav,button,a,input,label,span,p')) return '';
   const text = (container.innerText || container.textContent || '').trim();
-  if (text.length > 10000 || CONSENT.test(text) || PROTECTED.test(text) || protectedForm(container)) return '';
+  if (text.length > 10000 || PROTECTED.test(text) || protectedForm(container)) return '';
+  if (rule?.reviewedNotice) return rule.reviewedNotice(container) ? rule.category : '';
+  if (CONSENT.test(text)) return '';
   if(structural && container.closest('nav,[role="navigation"],[role="menu"],aside'))return '';
   const evidence=structural?promptText(container):text;
   // An optional ad-support request can include a secondary Sign in control.
@@ -86,7 +88,7 @@ function classify(container, rule, structural=false) {
   if (category === 'chat' && container.querySelector('[role="log"],textarea,[contenteditable],input:not([type="hidden"]),[aria-live="polite"], [aria-live="assertive"]')) return '';
   return category;
 }
-function actionKind(button) {
+function actionKind(button, rule) {
   if (!clickable(button) || button.hasAttribute('formaction') || button.hasAttribute('download')) return '';
   if (button.closest('a[href],label,summary')) return '';
   if (button.closest('form') && !button.matches('button[type="button"]')) return '';
@@ -94,6 +96,7 @@ function actionKind(button) {
   if (enclosingButton?.form && enclosingButton.type !== 'button') return '';
   if (button.matches('button') && button.form && button.type !== 'button') return '';
   const text = label(button);
+  if (rule?.reviewedNotice && rule.controlLabel.test(text)) return 'dismissed';
   if (CLOSE.test(text)) {
     if (/^(collapse|minimi[sz]e|hide)/.test(text)) return button.getAttribute('aria-expanded') === 'false' ? '' : 'collapsed';
     return 'dismissed';
@@ -187,10 +190,11 @@ export class Promotions {
       const category = classify(container, rule, this.structural.has(container));
       if (!category) continue;
       const key = fingerprint(container, category, rule);
-      if (!this.interactions.permits(container, key, category) || !this.available(key, category)) continue;
+      if (!this.interactions.permits(container, key, category) || !this.available(key, category) ||
+          (rule?.reviewedNotice && this.attempts.has(key))) continue;
       const controls = [...container.querySelectorAll(CONTROLS)];
       if (rule?.control) {
-        const button = [...container.querySelectorAll(rule.control)].find(control => rule.controlLabel.test(label(control)) && actionKind(control) === rule.action);
+        const button = [...container.querySelectorAll(rule.control)].find(control => rule.controlLabel.test(label(control)) && actionKind(control, rule) === rule.action);
         if (button) return {button, container, category, key, rule, action: rule.action};
         continue;
       }
@@ -214,10 +218,10 @@ export class Promotions {
   }
   eligible(choice) {
     const {container, category, rule, button, action, key} = choice;
-    return classify(container, rule, this.structural.has(container)) === category && this.interactions.permits(container, key, category) && this.available(key, category) &&
+    return !(rule?.reviewedNotice && this.attempts.has(key)) && classify(container, rule, this.structural.has(container)) === category && this.interactions.permits(container, key, category) && this.available(key, category) &&
       (category!=='adblock' || adblockChoice(container)===button) &&
       (action === 'hidden' ? rule?.hide && ['fixed','sticky'].includes(getComputedStyle(container).position) :
-        container.contains(button) && actionKind(button) === action && (!rule?.controlLabel || rule.controlLabel.test(label(button))));
+        container.contains(button) && actionKind(button, rule) === action && (!rule?.controlLabel || rule.controlLabel.test(label(button))));
   }
   act(choice) {
     if (choice.action!=='hidden' || !this.eligible(choice)) return false;
@@ -279,6 +283,7 @@ export class Promotions {
     if (container.isConnected && panelVisible(container)) return false;
     for (const root of searchRoots) {
       for (const next of new Set([...elements(root, rule?.container || CANDIDATES),...(!rule?structuralContainers(root):[])])) {
+        if (rule?.reviewedNotice && panelVisible(next)) return false;
         if (classify(next, rule, this.structural.has(container)) === category && fingerprint(next, category, rule) === key) return false;
       }
     }

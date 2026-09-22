@@ -32,6 +32,13 @@ Unknown categories, changed preference sets, or stuck switches prevent submissio
 
 Evidence: [permission planner](../src/prompt-model.js), [Sourcepoint tests](../tests/sourcepoint-us.spec.js), [shared-engine tests](../tests/shared-engine.spec.js).
 
+A Close-only privacy notice needs separate handler evidence. Its X can dismiss information or grant consent.
+A reviewed notice adapter can authorize native closure without weakening the generic consent exclusion.
+Keep its result separate from rejection and saved consent. A marker named `accepted` does not explain its effects by itself.
+Exact copy and controls limit accidental matches, but cannot prove that a website kept the same handler.
+
+Evidence: [reviewed notice contracts](PRIVACY-NOTICES.md), [notice regressions](../tests/privacy-notices.spec.js).
+
 ## 4. Upstream coverage does not replace our policy
 
 Bundled consent recipes can contain acceptance fallbacks. A reject-first product must guard those actions explicitly.

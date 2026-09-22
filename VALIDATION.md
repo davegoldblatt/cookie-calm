@@ -1,5 +1,25 @@
 # Validation
 
+## Candidate 1.2.3 — September 22, 2026
+
+The personal Default profile has the Store extension enabled at 1.2.2.
+The duplicate unpacked 1.2.2 remains disabled. Neither installation changed during this work.
+The developer dashboard also reports 1.2.2 as Published - public.
+
+A fresh disposable Chromium profile reproduced the Big Blue View notice with 1.2.2 after 16 seconds.
+The display marker was absent, and no native Close activation occurred.
+With candidate 1.2.3 in a second disposable profile, the same live article closed its notice automatically.
+The page observed one native Close activation and its expected display-marker write.
+A separate disposable-profile visit also closed the live SB Nation homepage notice with one activation.
+Diagnostics recorded `promotion / privacy-notice / closed`. The consent outcome remained unset and acceptance remained false.
+The older `needs-help` tab status remained present alongside the notice result. Closure did not clear unrelated or earlier consent status.
+These observations establish notice closure. They do not establish cookie rejection or downstream tracking behavior.
+
+Eight focused extension tests passed in 47.4 seconds.
+They cover two hostnames, both consent modes, changed copy and controls, unsafe forms, no-op and replacement handlers, user intent, pause, shadow controls, and storage failure.
+The complete 150-test suite is in progress. This candidate has not yet been submitted to the Chrome Web Store.
+
+
 ## Release 1.2.2 — September 21, 2026
 
 ### Automated and independent checks
