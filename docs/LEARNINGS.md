@@ -21,6 +21,16 @@ First identify whether the scanner missed the container, misunderstood the reque
 Extend a shared category or provider adapter when the same structure or meaning appears across sites.
 Use site adapters only for controls with behavior unique to that site.
 
+A survey can lack the word “survey,” and a copied accessible label can name the wrong component.
+Epoch's website-rating invitation exposed both failures: unrecognized prose and an X labelled as a cookie popup.
+Use independent invitation/question and response-control evidence for the shared category.
+Do not widen generic cookie-close permission to compensate for a misleading label.
+A researched exception must retain ordinary consent vetoes and verify the observed component before acting.
+Its first-screen contract also prevents sending answers through a later Close handler.
+Protect indirect user-opened surveys on named and reviewed paths, not only structural discovery.
+
+Evidence: [survey research and boundaries](SURVEY-PROMPTS.md), [survey regressions](../tests/surveys.spec.js).
+
 Evidence: [category guide](ADDING-PROMPT-CATEGORIES.md), [shared engine](SHARED-PROMPT-ENGINE.md), [structural discovery tests](../tests/shared-engine.spec.js).
 
 ## 3. Rejecting consent differs from hiding a notice

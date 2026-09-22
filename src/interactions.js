@@ -65,7 +65,7 @@ export class Interactions {
   permits(container, key, category) {
     // Save, comment, and similar controls can open authentication without
     // mentioning it. Keep the resulting prompt protected beyond the short defer.
-    if (['registration','adblock','privacy-notice'].includes(category) && (Date.now() - this.gestureAt < 10000 || this.openedByUser(container))) {
+    if (['registration','adblock','privacy-notice','survey'].includes(category) && (Date.now() - this.gestureAt < 10000 || this.openedByUser(container))) {
       this.protect(container, key); return false;
     }
     const controlled = [...this.targets].some(id => {
