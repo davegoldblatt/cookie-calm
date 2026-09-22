@@ -1,3 +1,20 @@
+# Release 1.2.5 independent review
+
+Claude Opus reviewed the [research and plan](docs/audits/1.2.5-research-plan.md), [implementation](docs/audits/1.2.5-implementation.md), [follow-up](docs/audits/1.2.5-followup.md), and [header traversal](docs/audits/1.2.5-header.md) through the authenticated CLI with tools disabled.
+Full adjudications are in [the survey research record](docs/SURVEY-PROMPTS.md).
+
+Accepted findings led to persistent survey intent protection, preserved restored/unknown response widgets, independent promotion witnesses, tests beyond the gesture window, and a test that reveals a user-opened panel only after that window.
+The researched Epoch exception checks the container and descendants for contradictory attributes, unknown controls, shadow content, generated text, and changed first-screen copy. It cannot authorize later response screens.
+A semantic-header fixture exposed a shared discovery boundary. Traversal now reaches the enclosing overlay while refusing page layouts containing main/article/navigation landmarks. Sidebar/footer prose stays excluded.
+
+The live DOM and successful native dismissal disproved the audit's missing-Icon theory. The ordinary document space bar does not start the control gesture timer.
+Ambiguous control interactions intentionally preserve nearby surveys for the document. Unknown response widgets and decorative generated content can also reduce coverage. These conservative limits are documented, not treated as universal detection.
+The CSS veto was retained after successful live checks; an unknown generated-content value does not establish permission to activate a conflicting label.
+
+Reviews are static evidence, not certification. Final test, live, and distribution results are recorded in [VALIDATION.md](VALIDATION.md).
+
+---
+
 # Release 1.2.4 independent review
 
 Claude Opus reviewed research, then the implementation plan, through the authenticated CLI with tools disabled.

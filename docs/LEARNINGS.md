@@ -28,6 +28,8 @@ Do not widen generic cookie-close permission to compensate for a misleading labe
 A researched exception must retain ordinary consent vetoes and verify the observed component before acting.
 Its first-screen contract also prevents sending answers through a later Close handler.
 Protect indirect user-opened surveys on named and reviewed paths, not only structural discovery.
+A component header is a possible wrapper around Close, not necessarily a page boundary. Traverse toward the bounded enclosing overlay, but reject candidates that contain main, article, or navigation landmarks.
+For reviewed contracts, inspect the container's own semantic attributes as well as descendants. A root label can contradict otherwise unchanged copy.
 
 Evidence: [survey research and boundaries](SURVEY-PROMPTS.md), [survey regressions](../tests/surveys.spec.js).
 

@@ -13,7 +13,16 @@ Tests used separate disposable profiles, the reported article path, and the comp
 Local captures are under `evidence/epoch-survey-2026-09-22/`; raw public-site bundles are not part of the extension package.
 
 The initial 11 survey tests passed. A broader 72-test local regression run passed, covering promotions, the shared engine, and survey safeguards.
-Final additional guard checks and the complete hosted suite are recorded below when finished.
+The semantic-header fixture initially failed because discovery stopped at the header. After correction, 36 tests passed; a subsequent 37-test shared/survey run passed with the application-shell exclusion.
+Two live repeats were invalid: one navigation timed out, and one did not observe the prompt appear. Neither was counted as a product failure.
+The later repeat used a page-load observer to capture the naturally mounted survey before automatic dismissal and succeeded with the strict generated-text checks.
+The final code is `fc4b86d`. A fresh profile with that build enabled from page load again closed the naturally mounted Epoch survey with exactly one native X click and no selected answer.
+The final archive contains 18 files (118,583 bytes), and every entry matches the built extension. Its SHA-256 is `c347b53756642e60426c0c2ad8f4aac6dc0dd129720365fc2c438444a46df2df`.
+The Desktop ZIP is byte-identical. The existing Desktop extension directory was not replaced.
+A final Chrome check confirmed Store 1.2.2 enabled and unpacked 1.2.2 disabled. The dashboard still showed pending 1.2.3, published 1.2.2, and Upload new package disabled.
+All 15 final survey tests passed on `fc4b86d`, including delayed visibility after the ten-second gesture window. Both complete hosted runs passed all 210 tests (15.9 minutes each): [push](https://github.com/davegoldblatt/cookie-calm/actions/runs/35791092354) and [PR](https://github.com/davegoldblatt/cookie-calm/actions/runs/35791095842).
+PR #8 merged as `f6f1163`. [GitHub release v1.2.5](https://github.com/davegoldblatt/cookie-calm/releases/tag/v1.2.5) is published at that merge commit.
+The downloaded GitHub release ZIP matches the build and Desktop copy byte for byte. Subsequent status changes affect documentation only.
 
 ---
 
