@@ -10,6 +10,8 @@ The [completed implementation review](docs/audits/1.2.3-implementation.md) found
 An unchanged aria-label could conceal new consent instructions inside that button. The adapter now requires the reviewed button text too.
 Visible and hidden instruction regressions cover this change.
 The adapter also refuses action if the closed-shadow inspection API is unavailable.
+The [follow-up review](docs/audits/1.2.3-followup.md) confirms those corrections and reports no new blocker.
+It identifies remaining DOM-observation limits, including CSS-generated text. Image and SVG-use elements are already outside the adapter allowlist.
 
 Two reported uncertainties concern code outside the audit snapshot. The content runner connects the activation callback, and the page guard protects sibling password fields.
 Executed tests cover both paths. The review confirms fresh classification after the asynchronous guard and the separate notice outcome.

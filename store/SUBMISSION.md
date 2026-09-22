@@ -1,25 +1,26 @@
 # Cookie Calm distribution status
 
-Verified September 21, 2026.
+Verified September 22, 2026.
 
 | Channel | Version | State |
 | --- | --- | --- |
-| GitHub source | 1.2.2 | PR #2 merged; all 142 browser tests passed locally and in CI |
-| GitHub release | 1.2.2 | Release package and SHA-256 checksum published |
-| Personal Chrome | 1.2.0 | Store installation enabled as the everyday copy |
-| Desktop development copy | 1.2.2 | Files verified; unpacked extension disabled to avoid duplicate actions |
-| Chrome Web Store update | 1.2.2 | Submitted for review September 21 at 2:55 p.m. Pacific; automatic publication selected |
-| Chrome Web Store public version | 1.2.0 | Remains published while Google reviews the update |
+| GitHub source | 1.2.3 | PR #3 merged as `0383d5d`; both final CI runs passed all 150 browser tests |
+| GitHub release | 1.2.3 | Release ZIP and SHA-256 checksum published |
+| Personal Chrome | 1.2.2 | Store installation enabled as the everyday copy |
+| Desktop development installation | 1.2.2 | Unpacked extension remains disabled |
+| Desktop release ZIP | 1.2.3 | Copied and verified in the Cookie Calm folder |
+| Chrome Web Store update | 1.2.3 | Submitted September 22 at 12:26 p.m. Pacific; Pending review; automatic publication selected |
+| Chrome Web Store published version | 1.2.2 | Confirmed in the developer dashboard |
 
-The dashboard confirmed “Your extension was submitted for review.” This is not approval or publication of 1.2.2.
-The submission includes the updated description, test instructions, and justification for the new `scripting` permission.
-The work Chrome profile was not changed. After the user enabled the Store installation, the redundant unpacked copy was disabled. Future development checks use a separate test profile.
+The dashboard confirmed that the extension was submitted for review. This does not establish approval or publication of 1.2.3.
+The submission includes the updated description and test instructions. It adds no permissions.
+Development and live checks used disposable profiles. The everyday Store installation remained enabled. The work profile was not changed.
 
 Extension ID: `mlcplepgfaafffckbjbaekaekpphjccd`.
-[Store listing](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd) · [GitHub release](https://github.com/davegoldblatt/cookie-calm/releases/tag/v1.2.2)
+[Store listing](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd) · [GitHub releases](https://github.com/davegoldblatt/cookie-calm/releases)
 
-Package: `cookie-calm-1.2.2-chrome-web-store.zip`.
-SHA-256: `1ff8e0e1ac831bebc75835e3fe17ef5dd61e377c5d88131ec59449034dfe68ee`.
+Package: `cookie-calm-1.2.3-chrome-web-store.zip`.
+SHA-256: `d0ad45f4b7f9928cee71d6e5143b72c218f0f85362a68b1835ddaeeed3114613`.
 
 The following steps remain available for later releases.
 

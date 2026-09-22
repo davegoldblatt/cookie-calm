@@ -37,6 +37,22 @@ analytics.emit({event: 'footer_click', footer_click: {name: 'PMC Privacy Banner 
 Cookie Calm activates this native control. It does not write the marker or replace the handler.
 The fixture preserves the observed structure and reproduces the marker behavior without website analytics or article content.
 
+## General lesson
+
+Cookie-related words identify a subject. They do not identify the effect of a control.
+The missing category was an informational privacy notice, distinct from a consent decision.
+The existing guarded runner supports this distinction without a separate action loop for each website.
+
+| Prompt meaning | Authorized action | Evidence for the result |
+| --- | --- | --- |
+| Consent decision | Reject optional purposes, then save | Changed supported receipt, or closure with an explicit verification limit |
+| Reviewed informational notice | Native Close | Notice disappears, without a consent claim |
+| Optional promotional request | Native refusal or supported presentation recovery | Observed closure, collapse, or a separate hidden result |
+| Unknown or changed component | No automatic action | Unrecognized or unconfirmed result |
+
+A provider contract supplies meaning and control ownership. The runner supplies guards, bounded actions, and outcome verification.
+New providers can use the same contract interface. Their handlers still need independent evidence.
+
 ## Adapter boundary
 
 `src/privacy-notices.js` contains reviewed notice contracts. They feed the existing guarded action runner through the declarative rule registry.

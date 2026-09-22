@@ -22,6 +22,8 @@ Promotional dismissal works automatically in both cookie modes. Supported newsle
 
 Supported optional adblock requests use their visible decline controls. If an explicit decline fails and the obstruction can be isolated, Cookie Calm can reversibly hide it and restore CSS scrolling. This result is reported as hidden. It does not enable ads or change other extensions.
 
+Reviewed Duet/PMC privacy notices use their native Close control. The popup reports notice closure separately from cookie consent. Changed instructions or controls prevent automatic dismissal.
+
 Cookie preferences:
 
 - Reject optional cookies: the default. Unknown forms stay visible.

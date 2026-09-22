@@ -1,6 +1,6 @@
 # Validation
 
-## Candidate 1.2.3 — September 22, 2026
+## Release 1.2.3 — September 22, 2026
 
 The personal Default profile has the Store extension enabled at 1.2.2.
 The duplicate unpacked 1.2.2 remains disabled. Neither installation changed during this work.
@@ -17,8 +17,18 @@ These observations establish notice closure. They do not establish cookie reject
 
 Eight focused extension tests passed in 47.4 seconds.
 They cover two hostnames, both consent modes, changed copy and controls, unsafe forms, no-op and replacement handlers, user intent, pause, shadow controls, and storage failure.
-The complete 150-test suite is in progress. This candidate has not yet been submitted to the Chrome Web Store.
+The complete local suite passed all 150 tests in 11.1 minutes on the initial adapter build.
+The final audit revisions passed all eight focused tests in 49.9 seconds.
+A fresh 1.2.3 visit again closed the reported live Big Blue View notice with one native activation.
+Both GitHub checks passed on final code commit `6e139df`. The recorded complete run passed 150 tests in 11.0 minutes.
+PR #3 merged as `0383d5d`. No code changes followed those checks. Chrome Web Store submission completed September 22 at 12:26 p.m. Pacific, with automatic publication selected.
+The dashboard confirmed Pending review. The published and enabled everyday version remains 1.2.2.
 
+
+The 18-file Store ZIP matches the tested extension folder byte for byte.
+Package SHA-256: `d0ad45f4b7f9928cee71d6e5143b72c218f0f85362a68b1835ddaeeed3114613`.
+The GitHub v1.2.3 release contains this ZIP and its checksum.
+A matching ZIP is in the Desktop Cookie Calm folder. The disabled Desktop development installation remains 1.2.2.
 
 ## Release 1.2.2 — September 21, 2026
 
