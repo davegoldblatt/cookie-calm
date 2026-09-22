@@ -123,10 +123,11 @@ function assessment() {
   return {...assessPage(), deferPromotions: interactions.recent(), protectedPromotions: [...interactions.categories]};
 }
 
-async function beforeClick() {
+async function beforeClick(owner) {
   if (location.href !== lastUrl) throw new Error('Navigation interrupted an automatic action');
   const state = await guard();
   if (location.href !== lastUrl) throw new Error('Navigation interrupted an automatic action');
+  if(owner?.interactionRoots?.().some(root=>!interactions.permits(root,`consent:${owner.id}`,'consent')))throw new Error('User interaction deferred');
   if (state.stopAll) {
     await send({ type: 'status', status: 'blocked', reason: state.reason });
     throw new Error('Automatic clicks blocked on this page');
@@ -184,17 +185,19 @@ async function scan() {
       fallbacks.push(setTimeout(() => {fullScan=true; schedule();},4300));
       let finished=false;
       if (promotion.action==='hidden') {
-        if (promotions.act(promotion)) {
+        try { if (promotions.act(promotion)) {
           for(let attempt=0;attempt<10;attempt++) {
             await sleep(200);
             if(!enabled || generation!==revision || location.href!==scanUrl) return;
             if(promotions.finished(promotion,roots())) {finished=true;break;}
           }
-        }
+        } } finally { promotion.completion?.dispose(); }
       } else {
         const adapter=promotions.prompt(promotion);
         const result=await runPrompt(adapter,{
           presentation,
+          performAction:action=>interactions.automatic(action),
+          interactionRevision:()=>interactions.revision,
           assertActive:()=>{if(!contextAlive() || !enabled || generation!==revision || location.href!==scanUrl) throw new Error('Prompt cancelled');},
           beforeClick:async()=>{
             const state=await guard();
@@ -222,10 +225,11 @@ async function scan() {
     const decision = await guard();
     if (!enabled || generation !== revision || location.href !== scanUrl || decision.stopAll || !visible(reject.button)) return;
     clicked.add(reject.button);
-    reject.button.click();
+    const interactionRevision=interactions.revision;
+    interactions.automatic(()=>reject.button.click());
     await sleep(650);
     if (generation !== revision || location.href !== scanUrl) return;
-    if (!visible(reject.container)) {
+    if (interactions.revision===interactionRevision && !visible(reject.container)) {
       await send({ type: 'status', status: 'dismissed', provider: 'Recognized reject button' });
       return;
     }
@@ -261,10 +265,11 @@ async function scan() {
         return;
       }
       clicked.add(accept.button);
-      accept.button.click();
+      const interactionRevision=interactions.revision;
+      interactions.automatic(()=>accept.button.click());
       await sleep(650);
       if (generation !== revision || location.href !== scanUrl) return;
-      if (!visible(accept.container)) {
+      if (interactions.revision===interactionRevision && !visible(accept.container)) {
         await send({ type: 'status', status: 'dismissed', accepted: true, provider: 'Acceptance fallback' });
         return;
       }
@@ -299,6 +304,8 @@ function configure() {
     fullScan = true;
     invalidateRoots(); invalidateAssessment();
     engine = new RuleEngine(data.rules, data.host);
+    engine.performAction=action=>interactions.automatic(action);
+    engine.interactionRevision=()=>interactions.revision;
     engine.beforeClick = beforeClick;
     engine.beforeCommit = async (provider,receipt,flow)=>{
       await send({type:'prompt-outcome',provider,flow,category:'consent',outcome:'unconfirmed',reason:'save-unconfirmed'});

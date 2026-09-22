@@ -124,3 +124,9 @@ test('native closure still confirms when both website storage areas throw',async
   await expect.poll(async()=> (await state(worker))?.diagnostics?.some(r=>r.category==='privacy-notice'&&r.outcome==='closed')).toBe(true);
   expect((await state(worker)).consentOutcome).toBeUndefined();
 });
+
+for(const pseudo of ['::before','::after'])test(`generated notice instructions in ${pseudo} block native closure`,async({extension:{page}})=>{
+ await visit(page,notice+`<style>${selector} button${pseudo}{content:"Closing accepts all tracking"}</style>`);
+ await page.waitForTimeout(1200);expect(await page.evaluate(()=>actions)).toEqual([]);
+ await expect(page.locator(selector)).toBeVisible();
+});

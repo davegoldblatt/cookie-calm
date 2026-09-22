@@ -3,6 +3,39 @@ import {opaqueID} from './identity.js';
 
 export const HIDE_ATTRIBUTE='data-cookie-calm-hide';
 export const UNLOCK_ATTRIBUTE='data-cookie-calm-unlock';
+const SIMPLE_HIDE_ATTRIBUTE='data-cookie-calm-app-hide';
+
+// Small banners need no viewport recovery. Keep their ownership independent of
+// the full obstruction helper, including detached nodes awaiting restoration.
+export class CosmeticHides {
+  constructor() {this.token=opaqueID();this.elements=new Set();this.sheets=new Map();this.observers=new Map();}
+  hide(element) {
+    if(this.elements.size>=12 || element.hasAttribute(SIMPLE_HIDE_ATTRIBUTE))return false;
+    const root=element.getRootNode();
+    if(!('adoptedStyleSheets' in root))return false;
+    let sheet=this.sheets.get(root);
+    if(!sheet) {
+      sheet=new CSSStyleSheet();sheet.replaceSync(`[${SIMPLE_HIDE_ATTRIBUTE}="${this.token}"]{display:none!important}`);
+      root.adoptedStyleSheets=[...root.adoptedStyleSheets,sheet];this.sheets.set(root,sheet);
+    }
+    element.setAttribute(SIMPLE_HIDE_ATTRIBUTE,this.token);this.elements.add(element);
+    const observer=new MutationObserver(()=>this.releaseElement(element));
+    observer.observe(element,{subtree:true,attributes:true,childList:true,characterData:true});
+    this.observers.set(element,observer);
+    if(visible(element)) {this.releaseElement(element);return false;}
+    return true;
+  }
+  releaseElement(element) {
+    this.observers.get(element)?.disconnect();this.observers.delete(element);
+    if(element.getAttribute(SIMPLE_HIDE_ATTRIBUTE)===this.token)element.removeAttribute(SIMPLE_HIDE_ATTRIBUTE);
+    this.elements.delete(element);
+  }
+  release() {
+    for(const element of this.elements)this.releaseElement(element);
+    for(const [root,sheet] of this.sheets)root.adoptedStyleSheets=root.adoptedStyleSheets.filter(current=>current!==sheet);
+    this.sheets.clear();
+  }
+}
 const MODALS='dialog[open],[role="dialog"],[role="alertdialog"],[aria-modal="true"],[popover]:popover-open';
 const CONTENT='article,main,[role="main"]';
 const LOCKED=new Set(['hidden','clip']);

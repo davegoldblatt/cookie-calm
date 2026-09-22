@@ -1,5 +1,33 @@
 # Validation
 
+## Release 1.2.4 candidate — September 22, 2026
+
+Tracked in [GitHub #4](https://github.com/davegoldblatt/cookie-calm/issues/4).
+Research, plan, independent findings, and adjudications are linked from [AUDIT.md](AUDIT.md).
+The initial complete local run passed 181 of 183 tests. Both failures were investigated:
+- A lifecycle fixture used an incomplete Apple App Store URL. It now uses a valid app-ID path, matching the new destination contract.
+- A presentation assertion raced the existing 100 ms cleanup. It now polls the required removal instead of reading before scheduled cleanup.
+Both corrected cases passed in the subsequent 59-test focused run, alongside the first audit regressions.
+The second audit's final corrections have their own targeted tests. The final complete-suite result will be recorded after CI.
+
+Live research used fresh disposable profiles with verified extension versions.
+Baseline 1.2.3 missed the Close-labelled notices on Popular Science and Lifehacker.
+Native handler inspection showed that the visible Close-labelled acceptance button grants consent.
+The prose privacy-settings link provides a separate native path to the grouped preferences.
+Controlled research on both publishers turned exposed group values off and confirmed their stored values after reload.
+Publisher-locked functional permission stayed enabled. The implementation reports closure only; it has no receipt descriptor for this integration.
+
+The repeatable corpus is `node scripts/coverage-corpus.mjs extension evidence/coverage-corpus`.
+It records installed identity, before/after surfaces, actions, diagnostics, and inspection limits.
+Counts can include nested wrappers and empty widgets; they are not a coverage score.
+The baseline also closed the Big Blue View notice, E4E cookie panel, and Futurism's Sourcepoint panel.
+Guardian's captured widgets were empty, and Vox's adblock prompt did not appear. Those are not reproduced misses or verified fixes.
+Region was not independently verified. These observations do not establish cross-region coverage.
+
+The personal Default profile was verified at Store version 1.2.2, enabled. Its unpacked duplicate remained disabled.
+The developer dashboard still showed Pending review for the existing submission. No pending review was withdrawn.
+Development tests did not alter either everyday installation.
+
 ## Release 1.2.3 — September 22, 2026
 
 The personal Default profile has the Store extension enabled at 1.2.2.

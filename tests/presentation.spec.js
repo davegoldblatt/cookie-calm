@@ -55,7 +55,7 @@ test('a slow native close releases overrides after the website cleans up',async(
   await visit(page,`document.querySelector('#decline').addEventListener('click',()=>setTimeout(()=>{document.querySelector('#surface').remove();document.documentElement.style.overflow='visible';document.body.style.overflow='visible';},3400));`);
   await expect.poll(async()=>(await results(worker)).some(r=>r.outcome==='hidden')).toBe(true);
   await expect(page.locator('#surface')).toHaveCount(0,{timeout:7000});
-  expect(await page.evaluate(()=>document.querySelectorAll('[data-cookie-calm-unlock]').length)).toBe(0);
+  await expect.poll(()=>page.evaluate(()=>document.querySelectorAll('[data-cookie-calm-unlock]').length)).toBe(0);
   expect(await page.evaluate(()=>getComputedStyle(document.documentElement).overflowY)).toBe('visible');
 });
 

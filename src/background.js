@@ -33,10 +33,10 @@ async function message(request, sender) {
   if (request?.type==='prompt-outcome' && sender.tab?.id!=null) {
     const settings=await getSettings(),host=hostname(sender.tab.url);
     if(!isEnabled(settings,host))return {ok:false};
-    if(!['sourcepoint-us','cookieyes-legacy','cookiebot','promotion'].includes(request.provider) ||
+    if(!['sourcepoint-us','cookieyes-legacy','cookiebot','onetrust-zd-group','promotion'].includes(request.provider) ||
        !['closed','saved','hidden','unconfirmed','unsupported','blocked'].includes(request.outcome) ||
        request.outcome==='hidden' && request.provider!=='promotion')return {ok:false};
-    const reasons=['','presentation-reverted','unrecognized-controls','protected','no-settings-control','unknown-preferences','preferences-changed',
+    const reasons=['','presentation-reverted','unrecognized-controls','protected','no-settings-control','unknown-preferences','inconsistent-preferences','preferences-changed',
       'no-save-control','state-did-not-change','unsafe-control','unknown-activation','save-unconfirmed','unstable-controls','page-guard','cancelled-or-unavailable','user-interaction'];
     const key=`tab:${sender.tab.id}`,previous=(await chrome.storage.session.get(key))[key] || {host,status:'watching'};
     const categories=['consent','newsletter','registration','support','subscription','offer','survey','app','notifications','chat','video','adblock','privacy-notice'];

@@ -48,7 +48,7 @@ Action.createAction = function(config, cmp) {
         await run.beforeClick?.();
         run.assertActive();
         if (!clickable(control)) continue;
-        control.click();
+        if(run.performAction)run.performAction(()=>control.click());else control.click();
         run.registerClick();
         await run.wait(Math.min(config.timeout ?? 60, 500));
       }
@@ -78,6 +78,7 @@ export class RuleEngine {
     Bridge.topFrameUrl = host;
     this.cmps = Object.entries(rules).map(([name, config]) => new CMP(name, config));
     this.tried = new Set();
+    this.deferred = new Map();
     this.cancelled = false;
     this.numClicks = 0;
     this.pipEnabled = false;
@@ -109,6 +110,7 @@ export class RuleEngine {
       // A legacy recipe can detect a not-yet-visible provider during hydration.
       // Its attempt must not consume the semantic adapter's later opportunity.
       const attemptKey=`adapter:${owner.id}`;
+      if(Date.now()<(this.deferred.get(attemptKey)||0))return null;
       if (this.tried.has(attemptKey) || owner.observe().stage === 'absent') return null;
       this.tried.add(attemptKey);
       this.tried.add(owner.id); // Semantic handling also retires a matching legacy recipe.
@@ -116,11 +118,16 @@ export class RuleEngine {
       const flow=opaqueID();
       const result=await runPrompt(owner,{
         history:claimConsent(owner),
-        assertActive:()=>this.assertActive(), beforeClick:()=>this.beforeClick(),
+        performAction:this.performAction,
+        interactionRevision:this.interactionRevision,
+        assertActive:()=>this.assertActive(), beforeClick:()=>this.beforeClick(owner),
         beforeCommit:receipt=>this.beforeCommit?.(owner.id,receipt,flow),
-        onActivate:()=>this.registerClick()
+        onActivate:(action,snapshot)=>{owner.activated?.(action,snapshot);this.registerClick();}
       });
       finishConsent(owner,result);
+      if(result.clicks===0 && result.reason==='user-interaction' && !this.deferred.has(attemptKey)) {
+        this.deferred.set(attemptKey,Date.now()+1600);this.tried.delete(attemptKey);
+      }
       return {...result,flow,name:owner.id,dismissed:['closed','saved'].includes(result.outcome)};
     }
     const cmp = this.cmps.find(candidate => !this.tried.has(candidate.name) && this.showing(candidate));
@@ -130,6 +137,7 @@ export class RuleEngine {
     this.deadline = Date.now() + 18000;
     this.numClicks = 0;
     this.cancelled = false;
+    const interactionRevision=this.interactionRevision?.();
     try {
       if (cmp.isUtility()) {
         await cmp.runMethod('UTILITY', NONE);
@@ -140,7 +148,8 @@ export class RuleEngine {
         }
       }
       await this.wait(400);
-      return { name: cmp.name, clicks: this.numClicks, dismissed: !cmp.isUtility() && this.numClicks > 0 && !this.showing(cmp) };
+      return { name: cmp.name, clicks: this.numClicks, dismissed: !cmp.isUtility() && this.numClicks > 0 &&
+        this.interactionRevision?.()===interactionRevision && !this.showing(cmp) };
     } catch {
       return { name: cmp.name, clicks: this.numClicks, dismissed: false };
     } finally {

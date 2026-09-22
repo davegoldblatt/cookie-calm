@@ -1,3 +1,37 @@
+# Release 1.2.4 independent review
+
+Claude Opus reviewed research, then the implementation plan, through the authenticated CLI with tools disabled.
+The [research review](docs/audits/1.2.4-research.md) led to a reproduced acceptance-control counterexample and stored-state research on two publishers.
+The [plan review](docs/audits/1.2.4-plan.md) led to separate completion evidence, final cosmetic authorization, retained attempt budgets, and observed-only child preferences.
+The [research record](docs/PROMPT-COVERAGE-RESEARCH.md) and [plan](docs/PROMPT-COVERAGE-PLAN.md) distinguish accepted findings from claims contradicted by code or live captures.
+
+The [implementation review](docs/audits/1.2.4-implementation.md) identified additional shared-state and verification problems.
+Corrections scope automatic-open state to a run, exclude self-generated native checkbox events from user intent, and withhold completion after user intervention.
+The grouped preference adapter rejects custom/shadow controls and Save buttons with known acceptance identities.
+Completion snapshots existing equivalent prompts and applies its node budget per poll. Genuine inspection exhaustion still prevents success.
+An unrelated gesture before any action permits one delayed retry. An interrupted flow with earlier actions stays stopped and retains ownership.
+Manual-choice diagnostics retain their reason. Document action histories do not reset on SPA navigation.
+
+The review's proposed third visible OneTrust group was disproved by both captured live panels: each has C0001 and OSSTA_BG only.
+Publisher-locked functional permission remains enabled in storage but has no exposed control. The adapter makes no claim of rejecting that permission.
+The review also listed generated-content and native-collapse tests as missing; those exist in the full supplied repository.
+A short observation window cannot prove a prompt will never return, and neither publisher establishes coverage of all OneTrust integrations.
+
+The [second review](docs/audits/1.2.4-followup.md) caught a transient absent-stage reset and a panel-level shadow-control gap.
+The final adapter clears automatic-open state only at run disposal and inspects the panel itself for shadow content.
+The review also identified crowded mutation queues. Related records now coalesce into a shared subtree that remains subject to the inspection limit.
+Its suggestion to discard overflow records was rejected: losing observations could falsely establish disappearance.
+Ancestor inspection is memoized per poll, existing-candidate snapshots have a finite bound, and ancestors cannot masquerade as independent sibling prompts.
+The presentation primitive's synchronous focus effects also run under automatic-event suppression.
+
+The [final delta review](docs/audits/1.2.4-final-delta.md) confirmed these corrections and found an ordering problem in ancestor memoization.
+The memo now stores remaining search depth, so a shallow earlier walk cannot truncate a later, longer one.
+The review described attribute records as shallow, but they already request subtree inspection and ancestor coalescing.
+Its underlying ordering concern does apply to character-data records; a child-first text-mutation regression tests that path.
+No other blocker was reported in that reviewed delta. Reviews remain static; measured results belong in VALIDATION.md.
+
+---
+
 # Release 1.2.3 independent review
 
 Claude Opus reviewed the plan and implementation through the authenticated CLI with tools disabled.

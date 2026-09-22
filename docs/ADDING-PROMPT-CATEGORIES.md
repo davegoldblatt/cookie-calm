@@ -54,13 +54,13 @@ See [provider evidence and limits](PRIVACY-NOTICES.md).
 
 ## Add a consent provider
 
-Sourcepoint US, CookieYes legacy, and Cookiebot use the same semantic planner and runner.
+Sourcepoint US, CookieYes legacy, Cookiebot, and the researched OneTrust grouped panel use the same semantic planner and runner.
 Other bundled providers retain the Consent-O-Matic interpreter.
 
 1. Add an observation adapter to `src/consent-adapters.js` or a separate module.
 2. Identify the provider through its visible structure or verified frame origin and path.
 3. Describe each preference with an ID, purpose, current value, and `grantsWhen` value.
-4. Describe the activation as `toggle` or `set` with an explicit target value.
+4. Describe the activation as `toggle` or `set` with an explicit target value. Use `observed:true` for known dependent preferences that must be checked but never clicked.
 5. Identify the settings, reject, and save controls that the provider actually exposes.
 6. Register the adapter and add browser fixtures for its variants and refusal cases.
 

@@ -1,0 +1,27 @@
+// Fixed public-page comparison corpus. Every case uses a fresh disposable profile.
+// Usage: node scripts/coverage-corpus.mjs [extension-directory] [evidence-directory]
+// Optional: COOKIE_CALM_CASES=popsci,lifehacker
+// Prompt counts are observations, not pass/fail scores. Review the actual surfaces.
+// Missing prompts, incomplete inspections and challenges cannot establish a fix.
+const bounded=(promise,ms)=>new Promise((resolve,reject)=>{
+ const timer=setTimeout(()=>reject(new Error('Inspection timed out')),ms);
+ promise.then(value=>{clearTimeout(timer);resolve(value);},error=>{clearTimeout(timer);reject(error);});
+});
+import {chromium} from '@playwright/test';
+import {mkdtemp,rm,mkdir,writeFile,readFile} from 'node:fs/promises';import os from 'node:os';import path from 'node:path';
+const build=path.resolve(process.argv[2]||'extension');const dir=path.resolve(process.argv[3]||'evidence/coverage-corpus');await mkdir(dir,{recursive:true});
+const cases=[['popsci','https://www.popsci.com/'],['lifehacker','https://lifehacker.com/'],['bigblueview','https://www.bigblueview.com/new-york-giants-analysis/172338/jaxson-dart-injury-brian-burns-andrew-thomas-mnf-analysis-things-i-think'],['guardian','https://www.theguardian.com/us'],['e4e','https://e4eafrica.com/jobs/'],['futurism','https://futurism.com/science-energy/crowd-cheers-rfk-government-investigate-chemtrails'],['vox','https://www.vox.com/advice/503246/ai-chatgpt-claude-slop']];
+const expected=JSON.parse(await readFile(build+'/manifest.json','utf8')).version;
+async function run([name,url]){
+ const profile=await mkdtemp(os.tmpdir()+'/calm-corpus-');const ctx=await chromium.launchPersistentContext(profile,{channel:'chromium',headless:true,viewport:{width:1365,height:900},args:[`--disable-extensions-except=${build}`,`--load-extension=${build}`]});
+ const record={name,url,checkedAt:new Date().toISOString(),profile:'disposable',errors:[]};
+ try{
+ const worker=ctx.serviceWorkers()[0]||await ctx.waitForEvent('serviceworker');record.extension=await worker.evaluate(()=>({id:chrome.runtime.id,name:chrome.runtime.getManifest().name,version:chrome.runtime.getManifest().version}));if(record.extension.version!==expected||record.extension.name!=='Cookie Calm')throw Error('Invalid installation');
+ await worker.evaluate(()=>chrome.storage.local.set({settings:{enabled:false,mode:'reject'}}));const page=await ctx.newPage();await page.addInitScript(()=>{window.__calmClicks=[];document.addEventListener('click',e=>{if(e.isTrusted)return;const b=e.target.closest?.('button,a,label,[role=button]');if(b)window.__calmClicks.push({id:b.id,label:(b.getAttribute('aria-label')||b.innerText||'').trim().slice(0,80)});},true);});
+ page.on('console',m=>{if(m.type()==='warning'&&m.text().includes('Cookie Calm'))record.errors.push(m.text());});
+ const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});record.http=response?.status();await page.waitForTimeout(12000);
+ const inspect=async()=>{const results=[];const frames=page.frames();if(frames.length>60)record.inspectionTruncated=true;for(const frame of frames.slice(0,60)){try{const item=await bounded(frame.evaluate(()=>{const visible=e=>e.checkVisibility({checkOpacity:true,checkVisibilityCSS:true})&&!!e.getClientRects().length;const selector='[role="dialog"],[role="alertdialog"],[aria-modal="true"],#onetrust-banner-sdk,#onetrust-pc-sdk,#cookie-law-info-bar,#cliSettingsPopup,.duet--navigation--pmc-privacy-banner,gu-island[name="StickyBottomBanner"],#CybotCookiebotDialog';return {title:document.title,challenge:/verify you are human|access denied|are you a robot|pardon the interruption|just a moment/i.test(document.body?.innerText.slice(0,1500)||''),clicks:window.__calmClicks||[],prompts:[...document.querySelectorAll(selector)].filter(e=>visible(e)||getComputedStyle(e).display==='contents'&&[...e.querySelectorAll('button')].some(visible)).slice(0,12).map(e=>({tag:e.tagName,id:e.id,text:e.innerText?.slice(0,600),controls:[...e.querySelectorAll('button,a,[role=button]')].filter(visible).slice(0,10).map(b=>({id:b.id,label:(b.getAttribute('aria-label')||b.innerText||'').trim().slice(0,80)}))}))};}),3000);if(item.prompts.length||item.clicks.length||frame===page.mainFrame())results.push({origin:new URL(frame.url()).origin,...item});}catch{results.push({inspectionError:'Frame inspection unavailable'});record.inspectionIncomplete=true;}}return results;};
+ record.before=await inspect();await worker.evaluate(()=>chrome.storage.local.set({settings:{enabled:true,mode:'reject'}}));await page.waitForTimeout(16000);record.after=await inspect();record.state=await worker.evaluate(()=>chrome.storage.session.get(null));await page.screenshot({path:path.join(dir,name+'.png'),timeout:10000});
+ }catch(e){record.invalid=e.message.split('\n')[0];}finally{await ctx.close();await rm(profile,{recursive:true,force:true});await writeFile(path.join(dir,name+'.json'),JSON.stringify(record,null,2));console.log(JSON.stringify({name,http:record.http,version:record.extension?.version,before:record.before?.flatMap(x=>x.prompts||[]).length,after:record.after?.flatMap(x=>x.prompts||[]).length,state:record.state,inspectionIncomplete:record.inspectionIncomplete,inspectionTruncated:record.inspectionTruncated,invalid:record.invalid}));}
+}
+const selected=process.env.COOKIE_CALM_CASES?cases.filter(([name])=>process.env.COOKIE_CALM_CASES.split(',').includes(name)):cases;for(let i=0;i<selected.length;i+=2)await Promise.all(selected.slice(i,i+2).map(run));

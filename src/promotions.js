@@ -1,4 +1,6 @@
-import { clickable, label, visible, roots, structuralContainers } from './dom.js';
+import { clickable, label, visible, roots, structuralContainers, grantsAll, ACCEPT_CONTROLS, CONSENT_SURFACES } from './dom.js';
+import {PromptCompletion} from './prompt-completion.js';
+import {CosmeticHides} from './presentation.js';
 import { RULES, CATEGORIES, CANDIDATES } from './annoyance-rules.js';
 import { isRegistrationPrompt, REGISTRATION_INTENT, REQUIRED_AUTH } from './registration-prompts.js';
 import { PROMOTION_CONTROLS, CLOSE, DECLINE, ADBLOCK_REQUEST } from './promotion-controls.js';
@@ -63,6 +65,7 @@ function classify(container, rule, structural=false) {
   const text = (container.innerText || container.textContent || '').trim();
   if (text.length > 10000 || PROTECTED.test(text) || protectedForm(container)) return '';
   if (rule?.reviewedNotice) return rule.reviewedNotice(container) ? rule.category : '';
+  if (container.closest(CONSENT_SURFACES) || container.querySelector(`${CONSENT_SURFACES},${ACCEPT_CONTROLS},.onetrust-close-btn-handler`)) return '';
   if (CONSENT.test(text)) return '';
   if(structural && container.closest('nav,[role="navigation"],[role="menu"],aside'))return '';
   const evidence=structural?promptText(container):text;
@@ -90,6 +93,7 @@ function classify(container, rule, structural=false) {
 }
 function actionKind(button, rule) {
   if (!clickable(button) || button.hasAttribute('formaction') || button.hasAttribute('download')) return '';
+  if (grantsAll(button) || button.closest(ACCEPT_CONTROLS) || button.querySelector(ACCEPT_CONTROLS)) return '';
   if (button.closest('a[href],label,summary')) return '';
   if (button.closest('form') && !button.matches('button[type="button"]')) return '';
   const enclosingButton = button.parentElement?.closest('button');
@@ -137,34 +141,38 @@ function fingerprint(container, category, rule) {
   return `generic:${category}:${(title ? label(title) : container.getAttribute('aria-label') || container.id || category).replace(/\d+/g,'#').slice(0,100)}`;
 }
 
+function appHideEligible(container,rule) {
+  if(!rule?.hide || !container.matches(rule.container) || !['fixed','sticky'].includes(getComputedStyle(container).position) ||
+      container.querySelector('form,input,textarea,select,iframe,[contenteditable],video,audio'))return false;
+  return [...container.querySelectorAll('a[href]')].some(link=>{
+    if(!visible(link))return false;
+    try {
+      const url=new URL(link.href);
+      return url.protocol==='https:' && !url.username && !url.password && !url.port &&
+        (url.hostname==='apps.apple.com' && /\/id\d+\/?$/.test(url.pathname) ||
+         url.hostname==='play.google.com' && url.pathname.startsWith('/store/apps/'));
+    } catch {return false;}
+  });
+}
+const structural = (container,rule) => !rule && !container.matches(CANDIDATES);
+
 export class Promotions {
   constructor(interactions) {
-    this.interactions = interactions; this.hidden = new Map(); this.structural=new WeakSet(); this.reset();
+    this.interactions = interactions; this.hidden = new CosmeticHides(); this.reset();
   }
   reset() {
-    this.restore(); this.attempts = new Map(); this.categories = new Map(); this.done = new Set(); this.total = 0;
+    this.restore(); this.attempts = new Map(); this.categories = new Map(); this.done = new Set(); this.total = 0;this.verified=new WeakSet();
   }
   restore() {
     this.presentation?.release();
-    for (const [element, previous] of this.hidden) {
-      if (element.style.getPropertyValue('display') === 'none' && element.style.getPropertyPriority('display') === 'important') {
-        if (previous.value) element.style.setProperty('display', previous.value, previous.priority);
-        else element.style.removeProperty('display');
-      }
-      this.done?.delete(previous.key);
-      this.attempts?.delete(previous.key);
-      if (this.categories) this.categories.set(previous.category, Math.max(0,(this.categories.get(previous.category)||0)-1));
-      this.total = Math.max(0,(this.total||0)-1);
-    }
-    this.hidden.clear();
+    this.hidden.release();
   }
-  available(key, category) {
+  available(key, category,container) {
     const state = this.attempts.get(key);
     return !this.done.has(key) && this.total < 12 && (this.categories.get(category) || 0) < 4 &&
-      (!state || (state.count < 2 && (state.verified || Date.now() - state.at > 4000)));
+      (!state || (state.count < 2 && (this.verified.has(container) || Date.now() - state.at > 4000)));
   }
   find(searchRoots) {
-    for (const element of this.hidden.keys()) if (!element.isConnected) this.hidden.delete(element);
     const candidates = new Map();
     const rules = RULES.filter(rule => !rule.hosts || rule.hosts.includes(location.hostname));
     for (const root of searchRoots) {
@@ -180,17 +188,18 @@ export class Promotions {
       }
       for(const container of structuralContainers(root)) {
         if(!candidates.has(container) && !this.interactions.openedByUser(container)) {
-          candidates.set(container,null);this.structural.add(container);
+          candidates.set(container,null);
         }
       }
     }
+    const knownContainers=[...candidates].filter(([,rule])=>rule).map(([container])=>container);
     for (const [container, rule] of candidates) {
-      if (!rule && [...candidates].some(([known, matched]) => matched && (known.contains(container) || container.contains(known)))) continue;
+      if (!rule && knownContainers.some(known => known.contains(container) || container.contains(known))) continue;
       if (rule?.id === 'guardian-support' && container.hasAttribute('data-island-status') && container.getAttribute('data-island-status') !== 'hydrated') continue;
-      const category = classify(container, rule, this.structural.has(container));
+      const category = classify(container, rule, structural(container,rule));
       if (!category) continue;
       const key = fingerprint(container, category, rule);
-      if (!this.interactions.permits(container, key, category) || !this.available(key, category) ||
+      if (!this.interactions.permits(container, key, category) || !this.available(key, category,container) ||
           (rule?.reviewedNotice && this.attempts.has(key))) continue;
       const controls = [...container.querySelectorAll(CONTROLS)];
       if (rule?.control) {
@@ -209,8 +218,7 @@ export class Promotions {
         if (button) return {button, container, category, key, rule, action: actionKind(button)};
       }
       // Cosmetic fallback is restricted to a known app banner, never a generic modal.
-      if (rule?.hide && ['fixed', 'sticky'].includes(getComputedStyle(container).position) &&
-          container.querySelector('a[href*="apps.apple.com/"],a[href*="play.google.com/store/apps/"]')) {
+      if (appHideEligible(container,rule)) {
         return {container, category, key, rule, action: 'hidden'};
       }
     }
@@ -218,9 +226,11 @@ export class Promotions {
   }
   eligible(choice) {
     const {container, category, rule, button, action, key} = choice;
-    return !(rule?.reviewedNotice && this.attempts.has(key)) && classify(container, rule, this.structural.has(container)) === category && this.interactions.permits(container, key, category) && this.available(key, category) &&
+    return !(rule?.reviewedNotice && this.attempts.has(key)) && (!rule || container.matches(rule.container)) &&
+      !(structural(container,rule) && this.interactions.openedByUser(container)) &&
+      classify(container, rule, structural(container,rule)) === category && this.interactions.permits(container, key, category) && this.available(key, category,container) &&
       (category!=='adblock' || adblockChoice(container)===button) &&
-      (action === 'hidden' ? rule?.hide && ['fixed','sticky'].includes(getComputedStyle(container).position) :
+      (action === 'hidden' ? appHideEligible(container,rule) :
         container.contains(button) && actionKind(button, rule) === action && (!rule?.controlLabel || rule.controlLabel.test(label(button))));
   }
   act(choice) {
@@ -229,22 +239,37 @@ export class Promotions {
     const state = this.attempts.get(key);
     this.attempts.set(key, {count: (state?.count || 0) + 1, at: Date.now()});
     this.categories.set(category, (this.categories.get(category) || 0) + 1); this.total++;
-    this.hidden.set(container, {key, category, value: container.style.getPropertyValue('display'), priority: container.style.getPropertyPriority('display')});
-    container.style.setProperty('display', 'none', 'important');
-    return true;
+    this.startCompletion(choice);
+    return this.hidden.hide(container);
+  }
+  startCompletion(choice) {
+    choice.completion?.dispose();
+    const equivalent=node=>choice.rule ? node.matches(choice.rule.container) :
+      node.matches(CANDIDATES) && fingerprint(node,choice.category,null)===choice.key;
+    const existing=[];let inspected=0,exhausted=false;
+    for(const root of roots()) {
+      for(const node of root.querySelectorAll(choice.rule?.container || CANDIDATES)) {
+        if(++inspected>2500){exhausted=true;break;}
+        if(equivalent(node))existing.push(node);
+      }
+      if(exhausted)break;
+    }
+    choice.completion=new PromptCompletion(choice.container,equivalent,existing);
+    choice.completion.exhausted=exhausted;
   }
   prompt(choice) {
     let activated=false;
     const originalText=choice.container.textContent;
     return {
       id:'promotion', category:choice.category,
+      dispose:()=>choice.completion?.dispose(),
       recovery:()=>{
         // Stronger effects need fresh purpose, intent and scope evidence. An X
         // alone doesn't establish that a broken request is optional.
         const {container,button,category,key,rule}=choice;
         if(!activated || category!=='adblock' || rule || choice.action!=='dismissed' ||
           container.textContent!==originalText || !DECLINE.test(label(button)) ||
-          classify(container,null,this.structural.has(container))!==category || adblockChoice(container)!==button ||
+          classify(container,null,structural(container,null))!==category || adblockChoice(container)!==button ||
           !this.interactions.permits(container,key,category))return null;
         for(let surface=container,depth=0;surface && depth<3;surface=surface.parentElement,depth++) {
           if(surface.matches('html,body,main,article,nav,header,footer'))break;
@@ -267,6 +292,7 @@ export class Promotions {
         const state=this.attempts.get(key);
         this.attempts.set(key,{count:(state?.count||0)+1,at:Date.now()});
         this.categories.set(category,(this.categories.get(category)||0)+1);this.total++;
+        this.startCompletion(choice);
         choice.expandBefore=new Set([...container.querySelectorAll(CONTROLS)].filter(control=>clickable(control)&&/^expand\b/.test(label(control))));
         activated=true;
       }
@@ -274,24 +300,16 @@ export class Promotions {
   }
   finished(choice, searchRoots) {
     const {button, container, action, key, category, rule} = choice;
-    if (action === 'hidden') return !panelVisible(container);
+    if (action === 'hidden') return choice.completion?.settled(!panelVisible(container)) || false;
     if (rule?.successLabel && container.isConnected) {
       return [...container.querySelectorAll(rule.control)].some(control => clickable(control) && rule.successLabel.test(label(control)));
     }
     if (action === 'collapsed' && container.isConnected &&
         (button.getAttribute('aria-expanded') === 'false' || [...container.querySelectorAll(CONTROLS)].some(control => !choice.expandBefore.has(control) && clickable(control) && /^expand( (this|the))?( banner|popup|pop-up|chat)?$/.test(label(control))))) return true;
-    if (container.isConnected && panelVisible(container)) return false;
-    for (const root of searchRoots) {
-      for (const next of new Set([...elements(root, rule?.container || CANDIDATES),...(!rule?structuralContainers(root):[])])) {
-        if (rule?.reviewedNotice && panelVisible(next)) return false;
-        if (classify(next, rule, this.structural.has(container)) === category && fingerprint(next, category, rule) === key) return false;
-      }
-    }
-    return true;
+    return choice.completion?.settled(!(container.isConnected && panelVisible(container))) || false;
   }
   succeeded(choice) {
-    const state = this.attempts.get(choice.key);
-    if (state) state.verified = true;
-    if (choice.rule) this.done.add(choice.key);
+    this.verified.add(choice.container);
+    if (choice.rule && choice.action!=='hidden') this.done.add(choice.key);
   }
 }
