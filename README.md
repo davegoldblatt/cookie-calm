@@ -34,7 +34,7 @@ The popup includes a global switch and an exact-hostname pause control. Pauses a
 
 ## Install
 
-Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd), or use the latest GitHub package below. Version 1.2.3 adds native dismissal for reviewed Duet/PMC privacy notices. Closure does not establish cookie rejection. Store updates require a separate review; see the [submission status](store/SUBMISSION.md).
+Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd), or use the latest GitHub package below. Version 1.2.4 adds the researched grouped OneTrust settings flow and strengthens shared completion, user-intent, and cosmetic-action checks. Closure does not establish stored consent or downstream tracking behavior. Store updates require a separate review; see the [submission status](store/SUBMISSION.md).
 
 1. Download the extension ZIP from [Releases](https://github.com/davegoldblatt/cookie-calm/releases/latest).
 2. Extract the ZIP to a permanent folder.

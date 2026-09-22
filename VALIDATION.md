@@ -1,14 +1,22 @@
 # Validation
 
-## Release 1.2.4 candidate — September 22, 2026
+## Release 1.2.4 — September 22, 2026
 
 Tracked in [GitHub #4](https://github.com/davegoldblatt/cookie-calm/issues/4).
 Research, plan, independent findings, and adjudications are linked from [AUDIT.md](AUDIT.md).
 The initial complete local run passed 181 of 183 tests. Both failures were investigated:
+
 - A lifecycle fixture used an incomplete Apple App Store URL. It now uses a valid app-ID path, matching the new destination contract.
 - A presentation assertion raced the existing 100 ms cleanup. It now polls the required removal instead of reading before scheduled cleanup.
+
 Both corrected cases passed in the subsequent 59-test focused run, alongside the first audit regressions.
-The second audit's final corrections have their own targeted tests. The final complete-suite result will be recorded after CI.
+All 34 final targeted tests passed on code commit `029ddcd` after the last audit corrections.
+One earlier targeted run timed out waiting for an unsupported-frame diagnostic. No automatic action was observed.
+The same test passed three unchanged isolated repeats and the final targeted suite. The timeout cause was not established.
+Both complete GitHub runs passed all 195 tests on the final code:
+[push run](https://github.com/davegoldblatt/cookie-calm/actions/runs/35782099388) and
+[PR run](https://github.com/davegoldblatt/cookie-calm/actions/runs/35782116561).
+[PR #5](https://github.com/davegoldblatt/cookie-calm/pull/5) merged as `fabfcc1`. Later status edits change documentation only.
 
 Live research used fresh disposable profiles with verified extension versions.
 Baseline 1.2.3 missed the Close-labelled notices on Popular Science and Lifehacker.
@@ -23,6 +31,29 @@ Counts can include nested wrappers and empty widgets; they are not a coverage sc
 The baseline also closed the Big Blue View notice, E4E cookie panel, and Futurism's Sourcepoint panel.
 Guardian's captured widgets were empty, and Vox's adblock prompt did not appear. Those are not reproduced misses or verified fixes.
 Region was not independently verified. These observations do not establish cross-region coverage.
+
+The final packaged 1.2.4 build completed the same seven-page corpus:
+
+| Page | Observed result | Limit |
+| --- | --- | --- |
+| Popular Science | Opened native settings, denied exposed group, confirmed, panel closed | One empty newsletter widget remained; no consent receipt claimed |
+| Lifehacker | Same native settings flow; panel closed | Same integration as Popular Science, not an independent provider family |
+| Big Blue View reported article | One native privacy-notice dismissal; notice gone | Frame inspection hit its 60-frame cap; only the observed top-page notice is validated |
+| E4E jobs | Opened Cookie Settings and saved selected preferences; panel closed | No stored receipt claimed |
+| Futurism reported article | Sourcepoint panel disappeared and its supported receipt changed | The closed frame no longer exposed its click log |
+| Guardian US | Two empty widget wrappers; no actionable target prompt | Not reproduced; frame inspection capped |
+| Vox article | No target adblock prompt appeared | Not reproduced; frame inspection capped |
+
+All seven responses were HTTP 200. No Cookie Calm warning was captured.
+The captured OneTrust actions were the privacy-settings link, the exposed group control, and Confirm My Choices.
+The Close-labelled acceptance controls were not activated. No acceptance fallback was reported.
+The corpus uses a before/after observation window, so it does not establish that prompts never return.
+
+The 18-file ZIP matches the final built extension byte for byte: 117,448 bytes.
+SHA-256: `c8ffef46ec1fb94fda1fd206e36760e909692dae922da563c46b84ad716ebfde`.
+The [v1.2.4 GitHub release](https://github.com/davegoldblatt/cookie-calm/releases/tag/v1.2.4) and Desktop ZIP contain the same artifact.
+The everyday installation was not replaced with this package.
+
 
 The personal Default profile was verified at Store version 1.2.2, enabled. Its unpacked duplicate remained disabled.
 The developer dashboard still showed Pending review for the existing submission. No pending review was withdrawn.

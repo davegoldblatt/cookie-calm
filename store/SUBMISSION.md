@@ -1,28 +1,29 @@
-# Cookie Calm distribution status
+# Distribution status
 
 Verified September 22, 2026.
 
-| Channel | Version | State |
+| Surface | Version | Status |
 | --- | --- | --- |
-| GitHub source | 1.2.3 | PR #3 merged as `0383d5d`; both final CI runs passed all 150 browser tests |
-| GitHub release | 1.2.3 | Release ZIP and SHA-256 checksum published |
-| Personal Chrome | 1.2.2 | Store installation enabled as the everyday copy |
-| Desktop development installation | 1.2.2 | Unpacked extension remains disabled |
-| Desktop release ZIP | 1.2.3 | Copied and verified in the Cookie Calm folder |
-| Chrome Web Store update | 1.2.3 | Submitted September 22 at 12:26 p.m. Pacific; Pending review; automatic publication selected |
-| Chrome Web Store published version | 1.2.2 | Confirmed in the developer dashboard |
+| GitHub source and release | 1.2.4 | PR #5 merged; release ZIP published and verified |
+| Desktop release ZIP | 1.2.4 | Copied and verified in the Cookie Calm folder |
+| Everyday Chrome Store installation | 1.2.2 | Enabled in the personal Default profile; unchanged |
+| Desktop development installation | 1.2.2 | Unpacked duplicate remains disabled; unchanged |
+| Existing Chrome Web Store update | 1.2.3 | Pending review; automatic publication selected |
+| Next Chrome Web Store package | 1.2.4 | Ready, not uploaded or submitted; preserve the pending review |
+| Chrome Web Store published version | 1.2.2 | Last verified published version |
 
-The dashboard confirmed that the extension was submitted for review. This does not establish approval or publication of 1.2.3.
-The submission includes the updated description and test instructions. It adds no permissions.
-Development and live checks used disposable profiles. The everyday Store installation remained enabled. The work profile was not changed.
+Version 1.2.4 is available through GitHub. It is not the published Store version.
+The dashboard showed pending package 1.2.3, published package 1.2.2, and a disabled Upload new package button.
+The existing submission was not withdrawn. Upload the matching 1.2.4 package when the dashboard allows a new update.
+The next upload is tracked in [GitHub #6](https://github.com/davegoldblatt/cookie-calm/issues/6).
+No permission changes were added. Development and live checks used disposable profiles.
+The everyday Store installation remained enabled; the work profile was not changed.
 
 Extension ID: `mlcplepgfaafffckbjbaekaekpphjccd`.
-[Store listing](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd) · [GitHub releases](https://github.com/davegoldblatt/cookie-calm/releases)
+[Store listing](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd) · [GitHub release](https://github.com/davegoldblatt/cookie-calm/releases/tag/v1.2.4)
 
-Package: `cookie-calm-1.2.3-chrome-web-store.zip`.
-SHA-256: `d0ad45f4b7f9928cee71d6e5143b72c218f0f85362a68b1835ddaeeed3114613`.
-
-The following steps remain available for later releases.
+Package: `cookie-calm-1.2.4-chrome-web-store.zip`.
+SHA-256: `c8ffef46ec1fb94fda1fd206e36760e909692dae922da563c46b84ad716ebfde`.
 
 ## Register the publisher account
 
@@ -37,7 +38,7 @@ The account owner must complete payment and account declarations directly. The e
 ## Upload
 
 1. Open the existing Cookie Calm item. Check its current review status before changing the submission.
-2. If the dashboard permits an update, upload `cookie-calm-1.2.2-chrome-web-store.zip` from the release assets.
+2. If the dashboard permits an update, upload `cookie-calm-1.2.4-chrome-web-store.zip` from the release assets.
 3. Enter the copy and links in [LISTING.md](LISTING.md).
 4. Upload the 128-pixel icon and the images under `assets/`.
 5. Complete the privacy fields using [PRIVACY-DISCLOSURES.md](PRIVACY-DISCLOSURES.md).
