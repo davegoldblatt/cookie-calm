@@ -81,7 +81,7 @@ function classify(container, rule, structural=false) {
   const registration = !rule && isRegistrationPrompt(container, evidence, overlay(container));
   if (REGISTRATION_INTENT.test(text) && !registration && !optionalAdblock) return '';
   if ([...container.querySelectorAll('video,audio')].some(media => !media.paused || media.currentTime > 0)) return '';
-  const surveyText=SURVEY_INTENT.test(text)?promptText(container,true,'a,button,[role="button"],nav,[role="navigation"],[role="menu"],script,style'):'';
+  const surveyText=SURVEY_INTENT.test(text.replace(/\s+/g,' '))?promptText(container,true,'a,button,[role="button"],nav,[role="navigation"],[role="menu"],script,style').replace(/\s+/g,' '):'';
   if (SURVEY_INTENT.test(surveyText) && answeredSurvey(container)) return '';
   if (rule?.reviewedDismissal) return rule.reviewedDismissal(container) ? rule.category : '';
   if (rule) return (!rule.required || container.querySelector(rule.required)) && rule.context?.test(text) ? rule.category : '';

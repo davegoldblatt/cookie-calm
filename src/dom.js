@@ -49,7 +49,10 @@ export function structuralContainers(root) {
     if(!CLOSE.test(label(control)) && !DECLINE.test(label(control)))continue;
     if(!visible(control))continue;
     for(let node=control.parentElement,depth=0;node && depth<10;node=node.parentElement,depth++) {
-      if(node.matches('html,body,main,article,nav,header,footer'))break;
+      if(node.matches('html,body,main,article,nav,footer'))break;
+      // A component header can contain the Close control. Never select the
+      // header itself; continue toward its bounded enclosing overlay.
+      if(node.matches('header'))continue;
       if(node.matches('dialog[open],[role="dialog"],[role="alertdialog"],[aria-modal="true"]') ||
           ['fixed','sticky'].includes(getComputedStyle(node).position)) {found.add(node);break;}
     }

@@ -11,7 +11,7 @@ async function visit(page,body,{host='survey-a.example',script='',expectPromotio
 }
 const count=worker=>worker.evaluate(async()=>Object.values(await chrome.storage.session.get(null)).reduce((n,s)=>n+(s.diagnostics?.filter(r=>r.category==='survey' && r.outcome==='closed').length||0),0));
 
-for(const [host,named,copy] of [['survey-a.example',true,'original'],['survey-b.example',false,'Help us improve our site']])test(`recognizes rating surveys on ${host}`,async({extension:{page,worker}})=>{
+for(const [host,named,copy] of [['survey-a.example',true,'original'],['survey-b.example',false,'Help us improve\nour site']])test(`recognizes rating surveys on ${host}`,async({extension:{page,worker}})=>{
   const html=copy==='original'?survey():survey('Close',named).replace('<div class="survey-header">','<header>').replace('</button></div><p class="survey-title">','</button></header><p class="survey-title">').replace('Help us make our website better!',copy).replace("Overall, how well did Epoch's website meet your needs today?",'How satisfied are you with our website?');
   await visit(page,html,{host});await expect(page.locator('[data-survey]')).toHaveCount(0);await expect.poll(()=>count(worker)).toBe(1);expect(await page.evaluate(()=>actions)).toEqual(['close']);await expect(page.locator('#article')).toBeVisible();
 });
@@ -85,4 +85,9 @@ test('a self-removing thank-you screen gets no automatic action or credit',async
 test('an unsolicited rating survey is found when it mounts later',async({extension:{page,worker}})=>{
   await visit(page,'<div id="mount"></div>',{script:`setTimeout(()=>document.querySelector('#mount').innerHTML=${JSON.stringify(survey())},2400)`});
   await expect.poll(()=>count(worker),{timeout:7000}).toBe(1);expect(await page.evaluate(()=>actions)).toEqual(['close']);
+});
+
+test('ordinary fixed page headers do not become survey prompts',async({extension:{page}})=>{
+  const html='<header style="position:fixed;top:0"><nav><a href="/feedback">Help us improve our website</a></nav><button data-close aria-label="Close"></button></header><main><h2>How satisfied are you with our website?</h2>'+ratings()+'</main>';
+  await visit(page,html);await page.waitForTimeout(1200);expect(await page.evaluate(()=>actions)).toEqual([]);await expect(page.locator('header')).toBeVisible();
 });

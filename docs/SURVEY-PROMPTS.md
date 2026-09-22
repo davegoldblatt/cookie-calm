@@ -85,3 +85,5 @@ The audit's suggested timer-only deferral would not distinguish an unrelated ges
 We retain that conservative boundary and document possible missed automatic surveys near unrelated control clicks. We do not claim perfect causal attribution.
 A changed Epoch contract has no generic fallback. The captured CSS hides this survey at widths of 1023 pixels or below.
 The site's native handler adds a dismissal event to its data layer; whether a network request follows depends on the site's analytics setup and consent state.
+
+The cross-site semantic-header fixture exposed a discovery boundary as well as a prose boundary. Structural discovery now passes through a component header to its bounded enclosing overlay, while refusing to select the header itself. Ordinary page-header/navigation fixtures remain protected. Survey prose normalizes whitespace before matching.
