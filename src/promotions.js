@@ -68,7 +68,8 @@ function classify(container, rule, structural=false) {
   if (rule?.reviewedNotice) return rule.reviewedNotice(container) ? rule.category : '';
   if (container.closest(CONSENT_SURFACES) || container.querySelector(`${CONSENT_SURFACES},${ACCEPT_CONTROLS},.onetrust-close-btn-handler`)) return '';
   if (CONSENT.test(text)) return '';
-  if(structural && container.closest('nav,[role="navigation"],[role="menu"],aside'))return '';
+  if(structural && (container.closest('nav,[role="navigation"],[role="menu"],aside') ||
+    container.querySelector('main,article,nav,[role="navigation"]')))return '';
   const evidence=structural?promptText(container):text;
   // An optional ad-support request can include a secondary Sign in control.
   // Require independent request text and refuse actual forms or authentication.
@@ -81,7 +82,7 @@ function classify(container, rule, structural=false) {
   const registration = !rule && isRegistrationPrompt(container, evidence, overlay(container));
   if (REGISTRATION_INTENT.test(text) && !registration && !optionalAdblock) return '';
   if ([...container.querySelectorAll('video,audio')].some(media => !media.paused || media.currentTime > 0)) return '';
-  const surveyText=SURVEY_INTENT.test(text.replace(/\s+/g,' '))?promptText(container,true,'a,button,[role="button"],nav,[role="navigation"],[role="menu"],script,style').replace(/\s+/g,' '):'';
+  const surveyText=SURVEY_INTENT.test(text.replace(/\s+/g,' '))?promptText(container,true,'a,button,[role="button"],nav,[role="navigation"],[role="menu"],aside,footer,script,style').replace(/\s+/g,' '):'';
   if (SURVEY_INTENT.test(surveyText) && answeredSurvey(container)) return '';
   if (rule?.reviewedDismissal) return rule.reviewedDismissal(container) ? rule.category : '';
   if (rule) return (!rule.required || container.querySelector(rule.required)) && rule.context?.test(text) ? rule.category : '';

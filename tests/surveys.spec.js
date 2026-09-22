@@ -91,3 +91,10 @@ test('ordinary fixed page headers do not become survey prompts',async({extension
   const html='<header style="position:fixed;top:0"><nav><a href="/feedback">Help us improve our website</a></nav><button data-close aria-label="Close"></button></header><main><h2>How satisfied are you with our website?</h2>'+ratings()+'</main>';
   await visit(page,html);await page.waitForTimeout(1200);expect(await page.evaluate(()=>actions)).toEqual([]);await expect(page.locator('header')).toBeVisible();
 });
+
+test('structural discovery never dismisses an application shell around article or navigation content',async({extension:{page}})=>{
+  for(const content of ['<main><p>Keep the article.</p></main>','<nav><a href="/read">Read</a></nav>']){
+    await visit(page,'<div style="position:fixed;top:0;left:400px"><header><b>Take our short survey</b><button data-close aria-label="Close"></button></header>'+content+'</div>');
+    await page.waitForTimeout(1200);expect(await page.evaluate(()=>actions)).toEqual([]);await expect(page.locator('header')).toBeVisible();
+  }
+});
