@@ -1,4 +1,5 @@
 import { clickable, label, visible, roots, structuralContainers, grantsAll, ACCEPT_CONTROLS, CONSENT_SURFACES } from './dom.js';
+import {isSurveyPrompt, answeredSurvey, SURVEY_INTENT} from './survey-prompts.js';
 import {PromptCompletion} from './prompt-completion.js';
 import {CosmeticHides} from './presentation.js';
 import { RULES, CATEGORIES, CANDIDATES } from './annoyance-rules.js';
@@ -29,12 +30,12 @@ function overlay(container) {
   }
   return false;
 }
-function promptText(container, visibleOnly=false) {
+function promptText(container, visibleOnly=false, exclusions='a,button,[role="button"],nav,[role="navigation"],[role="menu"],aside,header,footer,script,style') {
   const walker=document.createTreeWalker(container,NodeFilter.SHOW_TEXT);
   let text='',node,count=0;
   while((node=walker.nextNode()) && count++<300 && text.length<10000) {
     if(visibleOnly && !visible(node.parentElement))continue;
-    if(!node.parentElement?.closest('a,button,[role="button"],nav,[role="navigation"],[role="menu"],aside,header,footer,script,style'))text+=' '+node.textContent;
+    if(!node.parentElement?.closest(exclusions))text+=' '+node.textContent;
   }
   return text;
 }
@@ -67,7 +68,8 @@ function classify(container, rule, structural=false) {
   if (rule?.reviewedNotice) return rule.reviewedNotice(container) ? rule.category : '';
   if (container.closest(CONSENT_SURFACES) || container.querySelector(`${CONSENT_SURFACES},${ACCEPT_CONTROLS},.onetrust-close-btn-handler`)) return '';
   if (CONSENT.test(text)) return '';
-  if(structural && container.closest('nav,[role="navigation"],[role="menu"],aside'))return '';
+  if(structural && (container.closest('nav,[role="navigation"],[role="menu"],aside') ||
+    container.querySelector('main,article,nav,[role="navigation"]')))return '';
   const evidence=structural?promptText(container):text;
   // An optional ad-support request can include a secondary Sign in control.
   // Require independent request text and refuse actual forms or authentication.
@@ -80,13 +82,17 @@ function classify(container, rule, structural=false) {
   const registration = !rule && isRegistrationPrompt(container, evidence, overlay(container));
   if (REGISTRATION_INTENT.test(text) && !registration && !optionalAdblock) return '';
   if ([...container.querySelectorAll('video,audio')].some(media => !media.paused || media.currentTime > 0)) return '';
-  if (rule) return (!rule.required || container.querySelector(rule.required)) && rule.context.test(text) ? rule.category : '';
+  const surveyText=SURVEY_INTENT.test(text.replace(/\s+/g,' '))?promptText(container,true,'a,button,[role="button"],nav,[role="navigation"],[role="menu"],aside,footer,script,style').replace(/\s+/g,' '):'';
+  if (SURVEY_INTENT.test(surveyText) && answeredSurvey(container)) return '';
+  if (rule?.reviewedDismissal) return rule.reviewedDismissal(container) ? rule.category : '';
+  if (rule) return (!rule.required || container.querySelector(rule.required)) && rule.context?.test(text) ? rule.category : '';
   if (registration) return 'registration';
   if (!overlay(container)) return '';
   if (optionalAdblock) return 'adblock';
   if (container.matches('.jw-flag-floating,[class*="floating-video" i],[id*="floating-video" i]') && container.querySelector('video')) return 'video';
+  if (isSurveyPrompt(container,surveyText)) return 'survey';
   const category = CATEGORIES.find(([,pattern]) => pattern.test(evidence))?.[0] || '';
-  if (['registration','adblock'].includes(category)) return ''; // Independent invitation/request evidence is mandatory.
+  if (['registration','adblock','survey'].includes(category)) return ''; // Independent invitation/request evidence is mandatory.
   // A restored conversation or composer is useful even without a click on this page.
   if (category === 'chat' && container.querySelector('[role="log"],textarea,[contenteditable],input:not([type="hidden"]),[aria-live="polite"], [aria-live="assertive"]')) return '';
   return category;
@@ -100,7 +106,7 @@ function actionKind(button, rule) {
   if (enclosingButton?.form && enclosingButton.type !== 'button') return '';
   if (button.matches('button') && button.form && button.type !== 'button') return '';
   const text = label(button);
-  if (rule?.reviewedNotice && rule.controlLabel.test(text)) return 'dismissed';
+  if ((rule?.reviewedNotice || rule?.reviewedDismissal) && rule.controlLabel.test(text)) return 'dismissed';
   if (CLOSE.test(text)) {
     if (/^(collapse|minimi[sz]e|hide)/.test(text)) return button.getAttribute('aria-expanded') === 'false' ? '' : 'collapsed';
     return 'dismissed';
@@ -200,7 +206,7 @@ export class Promotions {
       if (!category) continue;
       const key = fingerprint(container, category, rule);
       if (!this.interactions.permits(container, key, category) || !this.available(key, category,container) ||
-          (rule?.reviewedNotice && this.attempts.has(key))) continue;
+          ((rule?.reviewedNotice || rule?.reviewedDismissal) && this.attempts.has(key))) continue;
       const controls = [...container.querySelectorAll(CONTROLS)];
       if (rule?.control) {
         const button = [...container.querySelectorAll(rule.control)].find(control => rule.controlLabel.test(label(control)) && actionKind(control, rule) === rule.action);
@@ -226,7 +232,7 @@ export class Promotions {
   }
   eligible(choice) {
     const {container, category, rule, button, action, key} = choice;
-    return !(rule?.reviewedNotice && this.attempts.has(key)) && (!rule || container.matches(rule.container)) &&
+    return !((rule?.reviewedNotice || rule?.reviewedDismissal) && this.attempts.has(key)) && (!rule || container.matches(rule.container)) &&
       !(structural(container,rule) && this.interactions.openedByUser(container)) &&
       classify(container, rule, structural(container,rule)) === category && this.interactions.permits(container, key, category) && this.available(key, category,container) &&
       (category!=='adblock' || adblockChoice(container)===button) &&

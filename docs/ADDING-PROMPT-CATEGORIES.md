@@ -33,6 +33,13 @@ The shared executor still requires a safe close control and checks the dismissal
 Add candidate selectors and user-intent patterns with the detector.
 Do not copy safety checks into separate site implementations.
 
+`src/survey-prompts.js` recognizes website-improvement invitations with independent satisfaction questions and numeric rating controls.
+It also retains established survey invitation phrases. Entered or selected responses prevent automatic dismissal.
+Surveys use the shared persistent user-intent guard, including delayed mounts on named and reviewed paths.
+A contradictory close label requires separate handler research. The reviewed Epoch first-screen contract uses `reviewedDismissal` after ordinary consent and form vetoes.
+It permits one native attempt and cannot authorize a generic cookie Close action.
+See [survey evidence](SURVEY-PROMPTS.md).
+
 ## Use a site adapter for unusual controls
 
 The `RULES` array holds small declarative adapters.

@@ -1,0 +1,98 @@
+# Survey prompts: research and design
+
+## Report and evidence
+
+Issue [#7](https://github.com/davegoldblatt/cookie-calm/issues/7) tracks the Epoch survey reported on September 22, 2026.
+The personal Chrome profile had Store 1.2.2 enabled and its unpacked duplicate disabled during inspection.
+The survey was no longer present in the user's tab. No action was taken in that tab.
+A disposable-profile check must establish the result for 1.2.4 and the candidate separately.
+
+Primary sources retrieved on September 22:
+
+- [Epoch article](https://epoch.ai/publications/the-plunging-price-of-thought)
+- [SurveyWrapper JavaScript](https://epoch.ai/_astro/SurveyWrapper.pZaKRRcT.js)
+- [Cookie and event helpers](https://epoch.ai/_astro/analytics.Be6mXfeh.js)
+- [Button JavaScript](https://epoch.ai/_astro/Button.D6ZZQRP4.js)
+- [Survey CSS](https://epoch.ai/_astro/SurveyWrapper.Cs1W94lD.css)
+- [ARIA label semantics](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label)
+
+The public React component mounts a fixed `.survey-popup` after 45 seconds of session time.
+Each page has a minimum delay of ten seconds. A suppression cookie prevents repeat invitations for 30 days.
+The first screen requests a 1–7 website rating. Selecting an answer advances the survey and records answer data.
+The header X uses `aria-label="Close cookie popup"`, although this component is a survey.
+Its reviewed handler records `dismissed`, writes the suppression cookie, and removes the panel.
+The helper writes the suppression cookie with `path=/` and a 30-day `max-age`; survey events enter the site’s data layer.
+The shared Button component emits `type="button"` for this control.
+An untouched first screen has no responses to send. Subsequent screens can contain prior answers.
+A separate Feedback widget opens a message form; it is not this automatic survey.
+
+There are two independent coverage gaps. Existing survey phrases do not match the invitation or question.
+The shared close matcher also rejects the stale cookie label. Expanding survey text alone cannot fix both.
+Accessible names are evidence about a control, not proof of its effect. A conflicting label requires handler research.
+
+## Implementation plan
+
+1. Add a shared survey detector. Keep established invitation phrases, and recognize website-improvement invitations combined with satisfaction questions and a visible numeric rating group. Require independent prose outside action controls. Do not infer a survey from a class name or numbers alone.
+2. Use existing structural discovery for unknown layouts and the existing runner for native dismissal. Keep the general close vocabulary unchanged.
+3. Add a narrow, reviewed Epoch control contract for its misleading cookie label. Require the observed host, component class, first-screen copy, question progress, exact seven rating controls, and the sole header X. Reject extra controls, forms, fields, nested prompts, hidden instructions, and changed semantics. Recheck this contract immediately before activation. No cookie-consent exclusion is removed.
+4. Protect surveys opened through a trusted gesture and surveys the user has started, including delayed mounts and replaced nodes. Preserve existing interaction tracking; do not capture answers. No automatic rating, submission, or cosmetic hiding.
+5. Test multiple hosts and layouts, the exact reported variant, unsupported consent labels, changed contracts, navigation/submission controls, protected fields, started/user-opened surveys, and unsuccessful closure. Prove the extension ran in negative fixtures.
+6. Obtain Claude review of this research/plan, then of the implementation. Run focused tests, a full suite, and live Epoch comparison in isolated profiles. Package, publish, and record Store status separately. Keep the everyday installation enabled and preserve pending Store review.
+
+## Limits
+
+The detector supports bounded English survey invitations and numeric rating controls. It is not a universal survey classifier.
+A reviewed host/component contract can become stale. Changed evidence must stop that exception.
+A native Close may record the site's dismissal event. This change does not add extension telemetry or send page content elsewhere.
+
+## Research and plan audit resolution
+
+Claude's [review](audits/1.2.5-research-plan.md) confirmed the two independent causes and flagged incomplete intent protection.
+The category is `survey`. Add it to the shared ten-second intent guard, which already checks retained `openedByUser` markers on all candidate paths.
+This protects both named containers and reviewed rules; no duplicate rule-specific gesture mechanism is needed.
+Use a separate `reviewedDismissal` predicate after the ordinary consent, protected-form, authentication and media vetoes.
+Do not reuse `reviewedNotice`, which intentionally has different consent semantics. Limit reviewed dismissal to one attempt.
+
+The source excludes the homepage and paths starting with `/about`, `/contact`, or `/test`.
+Reproduction uses the reported article in a fresh profile, with no suppression cookie or session-start state.
+The first question is numeric; the two later questions are single-choice. Require exactly `Question 1 of 3` for the exception.
+The thank-you state has a no-op X and removes itself after 1600 ms. It must not match or receive success credit.
+The native dismissal suppresses the survey across this site for 30 days. That is part of the site's Close behavior.
+The vanished survey in the user's existing tab has no established cause; do not infer a manual action from absence.
+Button and CSS artifacts were captured before the audit but omitted from its input; both confirm the stated type and positioning.
+
+Post-transaction feedback is not automatically a protected transaction. Checkout routes and payment fields stay protected by the existing guard.
+An unsolicited rating invitation on a normal article remains eligible. A user-opened or answered survey remains protected.
+The exception must pass normal known-acceptance vetoes. `Close cookie popup` is not itself a `grantsAll` match.
+Publish the reviewed GitHub package; submit to the Store only when it permits a new upload. Preserve pending review.
+
+
+## Implementation audit resolution
+
+The [implementation review](audits/1.2.5-implementation.md) prompted longer user-intent tests, independent promotion witnesses, and response-state safeguards.
+Intent tests now assert beyond ten seconds. A replaced answer screen deliberately has no persistent answer attribute: that tests retained human intent, while separate fixtures test restored field values.
+Negative fixtures observe a separate successful newsletter dismissal as well as cookie rejection. Protected payment/password contexts intentionally use only the cookie witness because promotional actions must be blocked there.
+The no-op test's longer wait establishes the retry limit, not initial detection latency.
+
+Sliders, editable regions, selected custom controls, and nonempty hidden response fields now conservatively protect a survey. Unknown response widgets can therefore reduce coverage.
+Survey prose can appear in a semantic header. Action/navigation text still cannot supply the independent invitation or question.
+The reviewed contract rejects extra roles, tab stops, labels, shadow roots, and CSS-generated text, as well as changed body copy.
+
+Some audit claims did not match the available evidence. The actual live DOM and three successful candidate runs already disproved the missing-Icon theory; the Icon bundle was also captured afterward.
+The normal space bar on the document does not set `gestureAt`; only Escape or a matching interactive control does.
+The ten-second protection is deliberately conservative: a survey appearing near an ambiguous control interaction remains protected for the document, including retained mutation markers.
+The audit's suggested timer-only deferral would not distinguish an unrelated gesture from a user-opened survey and could later dismiss the latter.
+We retain that conservative boundary and document possible missed automatic surveys near unrelated control clicks. We do not claim perfect causal attribution.
+A changed Epoch contract has no generic fallback. The captured CSS hides this survey at widths of 1023 pixels or below.
+The site's native handler adds a dismissal event to its data layer; whether a network request follows depends on the site's analytics setup and consent state.
+
+The cross-site semantic-header fixture exposed a discovery boundary as well as a prose boundary. Structural discovery now passes through a component header to its bounded enclosing overlay, while refusing to select the header itself. Ordinary page-header/navigation fixtures remain protected. Survey prose normalizes whitespace before matching.
+
+The [header review](audits/1.2.5-header.md) found no traversal blocker but identified two scope checks. Survey prose keeps sidebar/footer exclusions, and structural candidates containing article, main or navigation landmarks are refused. A fixed application-shell fixture exercises this boundary with a header Close and explicit survey prose.
+
+The [follow-up review](audits/1.2.5-followup.md) identified a real omission: the semantic-attribute sweep did not include the container itself. It now does, including `aria-modal`. A root labelled as cookie consent and a preselected Epoch rating both have negative fixtures.
+The intent suite also mounts a hidden user-opened survey inside the grace window and reveals it afterward. That isolates retained mutation evidence from early key protection.
+Negative fixtures allow another 2.5 seconds after their promotion witness, and larger table cases have explicit timeout budgets.
+
+The review's generated-content concern is a conservative coverage limit. Live runs with the strict sweep already succeeded; unrelated decorations in future CSS can still stop the reviewed exception. We do not broaden an unknown CSS content value into permission.
+Nonempty selects and color fields, progress markers, and hidden fields are conservatively preserved too: initial HTML values cannot establish whether work was restored. Supported simple rating invitations have none of these ambiguous states.

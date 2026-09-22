@@ -1,10 +1,17 @@
 import { REGISTRATION_CONTAINERS, REGISTRATION_INTENT } from './registration-prompts.js';
 import { PRIVACY_NOTICE_RULES } from './privacy-notices.js';
+import { SURVEY_INTENT, reviewedEpochSurvey } from './survey-prompts.js';
 import { ADBLOCK_REQUEST } from './promotion-controls.js';
 
 // Original rules based on public DOM structure. No third-party filter list is bundled.
 export const RULES = [
   ...PRIVACY_NOTICE_RULES,
+  {
+    id:'epoch-rating-survey', category:'survey', hosts:['epoch.ai','www.epoch.ai'],
+    container:'.survey-popup', reviewedDismissal:reviewedEpochSurvey,
+    control:':scope > .survey-header > button', controlLabel:/^close cookie popup$/,
+    action:'dismissed', source:'https://epoch.ai/_astro/SurveyWrapper.pZaKRRcT.js',
+  },
   {
     id: 'guardian-support', category: 'support', hosts: ['theguardian.com', 'www.theguardian.com'],
     container: 'gu-island[name="StickyBottomBanner"]', context: /support|subscription|ad[ -]free/i,
@@ -25,7 +32,7 @@ export const CATEGORIES = [
   ['support', /\b(donat(?:e|ion|ions)|contribut(?:e|ion|ions))\b|\bsupport (us|our|the guardian|independent|journalism)\b/i],
   ['subscription', /\b(subscrib(?:e|ing)|subscriptions?)\b|\bad[ -]free\b/i],
   ['offer', /\b(special offer|exclusive offer|discount|coupon|promo code|save \d+%|\d+% off)\b/i],
-  ['survey', /\b(take (a |our |this )?survey|short survey|rate (us|your experience)|give us feedback|share your feedback)\b/i],
+  ['survey', SURVEY_INTENT],
   ['app', /\b(install|download|get|open|use|try) (our |the |this )?(mobile )?app\b|\bcontinue in (the )?app\b/i],
   ['notifications', /\b(enable|allow|turn on|receive|subscribe to|stay updated with) (push |desktop |browser )?notifications\b/i],
   ['chat', /\b(chat with us|how can (we|i) help|need (any )?help|send us a message|talk to (us|an expert))\b/i],
