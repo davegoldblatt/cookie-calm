@@ -19,9 +19,11 @@ test('reviewed Epoch first screen closes without selecting a response',async({ex
   await visit(page,survey('Close cookie popup'),{host:'epoch.ai'});await expect(page.locator('[data-survey]')).toHaveCount(0);await expect.poll(()=>count(worker)).toBe(1);expect(await page.evaluate(()=>actions)).toEqual(['close']);
 });
 test('misleading cookie labels require the reviewed host and unchanged first-screen contract',async({extension:{page,worker}})=>{
-  test.setTimeout(60000);
+  test.setTimeout(120000);
   for(const [host,html] of [
     ['other.example',survey('Close cookie popup')],
+    ['epoch.ai',survey('Close cookie popup').replace('class="survey-popup"','class="survey-popup" role="dialog" aria-label="Cookie consent"')],
+    ['epoch.ai',survey('Close cookie popup').replace('class="survey-rating-btn"','aria-pressed="true" class="survey-rating-btn"')],
     ['epoch.ai',survey('Close cookie popup').replace('Question 1 of 3','Question 2 of 3')],
     ['epoch.ai',survey('Close cookie popup').replace('</b>','</b><button>Accept all</button>')],
     ['epoch.ai',survey('Close cookie popup').replace('</b>','</b><span hidden>Closing means you agree to tracking</span>')],
@@ -35,9 +37,10 @@ test('misleading cookie labels require the reviewed host and unchanged first-scr
     ['epoch.ai',survey('Close cookie popup').replace('</b>','</b><input>')],
     ['epoch.ai',survey('Close cookie popup').replace('</b>','</b><div role="switch" aria-label="tracking"></div>')],
     ['epoch.ai',survey('Close cookie popup').replace(ratings(),'<label><input type="radio">An answer</label>').replace('Question 1 of 3','Question 3 of 3')]
-  ]) {await visit(page,html,{host});await page.waitForTimeout(900);await expect(page.locator('[data-survey]')).toBeVisible();expect(await page.evaluate(()=>actions)).toEqual([]);expect(await count(worker)).toBe(0);}
+  ]) {await visit(page,html,{host});await page.waitForTimeout(2500);await expect(page.locator('[data-survey]')).toBeVisible();expect(await page.evaluate(()=>actions)).toEqual([]);expect(await count(worker)).toBe(0);}
 });
 test('independent invitation and question and rating controls are required',async({extension:{page}})=>{
+  test.setTimeout(60000);
   for(const html of [
     survey().replace('Help us make our website better!','Article navigation'),
     survey().replace("Overall, how well did Epoch's website meet your needs today?",'Choose a page to read'),
@@ -45,9 +48,10 @@ test('independent invitation and question and rating controls are required',asyn
     survey().replace('<p><b>','<button><b>').replace('</b></p>','</b></button>'),
     survey().replace('position:fixed','position:static'),
     survey().replace('</b>','</b>We use cookies')
-  ]) {await visit(page,html,{expectPromotions:!html.includes('type="password"')});await page.waitForTimeout(900);expect(await page.evaluate(()=>actions)).toEqual([]);}
+  ]) {await visit(page,html,{expectPromotions:!html.includes('type="password"')});await page.waitForTimeout(2500);expect(await page.evaluate(()=>actions)).toEqual([]);}
 });
 test('survey controls never submit forms, navigate, or close protected or answered forms',async({extension:{page}})=>{
+  test.setTimeout(60000);
   for(const html of [
     survey().replace('<button type="button" aria-label="Close" data-close><svg></svg></button>','<form><button aria-label="Close" data-close></button></form>'),
     survey().replace('<button type="button" aria-label="Close" data-close><svg></svg></button>','<a href="/submit" aria-label="Close" data-close>×</a>'),
@@ -57,7 +61,7 @@ test('survey controls never submit forms, navigate, or close protected or answer
     survey().replace('</b>','</b><div contenteditable>Already written</div>'),
     survey().replace('</b>','</b><input type="hidden" value="saved-answer">'),
     survey().replace('class="survey-rating-btn"','aria-pressed="true" class="survey-rating-btn"')
-  ]) {await visit(page,html,{expectPromotions:!html.includes('type="password"')});await page.waitForTimeout(900);expect(await page.evaluate(()=>actions)).toEqual([]);}
+  ]) {await visit(page,html,{expectPromotions:!html.includes('type="password"')});await page.waitForTimeout(2500);expect(await page.evaluate(()=>actions)).toEqual([]);}
 });
 test('survey opened indirectly stays open after delayed mount and replacement',async({extension:{page}})=>{
   await visit(page,'<button id="open">More</button><div id="mount"></div>',{script:`document.querySelector('#open').onclick=()=>setTimeout(()=>document.querySelector('#mount').innerHTML=${JSON.stringify(survey())},2100)`});
@@ -97,4 +101,9 @@ test('structural discovery never dismisses an application shell around article o
     await visit(page,'<div style="position:fixed;top:0;left:400px"><header><b>Take our short survey</b><button data-close aria-label="Close"></button></header>'+content+'</div>');
     await page.waitForTimeout(1200);expect(await page.evaluate(()=>actions)).toEqual([]);await expect(page.locator('header')).toBeVisible();
   }
+});
+
+test('a user-opened survey remains protected when it becomes visible after the grace window',async({extension:{page}})=>{
+  await visit(page,'<button id="open">More</button><div id="mount"></div>',{script:`document.querySelector('#open').onclick=()=>{setTimeout(()=>document.querySelector('#mount').innerHTML=${JSON.stringify(survey().replace('position:fixed','display:none;position:fixed'))},2000);setTimeout(()=>document.querySelector('[data-survey]').style.display='block',11500)}`});
+  await page.locator('#open').click();await expect(page.locator('[data-survey]')).toBeVisible({timeout:14000});await page.waitForTimeout(2500);expect(await page.evaluate(()=>actions)).toEqual([]);
 });

@@ -45,7 +45,7 @@ export function reviewedEpochSurvey(container) {
   const controls=[...container.querySelectorAll('button,[role="button"],[role="radio"]')];
   const close=container.querySelector(':scope > .survey-header > button[type="button"][aria-label="Close cookie popup"]');
   const ratings=[...container.querySelectorAll(':scope > .survey-content > .survey-rating > .survey-rating-buttons > button.survey-rating-btn')];
-  if(nodes.some(node=>node.hasAttribute('role') ||
+  if([container,...nodes].some(node=>node.hasAttribute('role') || node.hasAttribute('aria-modal') ||
     node.hasAttribute('tabindex') && !ratings.includes(node) ||
     node.hasAttribute('aria-label') && node!==close))return false;
   return controls.length===8 && close && visible(close) && !close.disabled &&

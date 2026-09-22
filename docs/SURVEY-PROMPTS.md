@@ -89,3 +89,10 @@ The site's native handler adds a dismissal event to its data layer; whether a ne
 The cross-site semantic-header fixture exposed a discovery boundary as well as a prose boundary. Structural discovery now passes through a component header to its bounded enclosing overlay, while refusing to select the header itself. Ordinary page-header/navigation fixtures remain protected. Survey prose normalizes whitespace before matching.
 
 The [header review](audits/1.2.5-header.md) found no traversal blocker but identified two scope checks. Survey prose keeps sidebar/footer exclusions, and structural candidates containing article, main or navigation landmarks are refused. A fixed application-shell fixture exercises this boundary with a header Close and explicit survey prose.
+
+The [follow-up review](audits/1.2.5-followup.md) identified a real omission: the semantic-attribute sweep did not include the container itself. It now does, including `aria-modal`. A root labelled as cookie consent and a preselected Epoch rating both have negative fixtures.
+The intent suite also mounts a hidden user-opened survey inside the grace window and reveals it afterward. That isolates retained mutation evidence from early key protection.
+Negative fixtures allow another 2.5 seconds after their promotion witness, and larger table cases have explicit timeout budgets.
+
+The review's generated-content concern is a conservative coverage limit. Live runs with the strict sweep already succeeded; unrelated decorations in future CSS can still stop the reviewed exception. We do not broaden an unknown CSS content value into permission.
+Nonempty selects and color fields, progress markers, and hidden fields are conservatively preserved too: initial HTML values cannot establish whether work was restored. Supported simple rating invitations have none of these ambiguous states.
