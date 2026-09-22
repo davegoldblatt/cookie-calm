@@ -30,12 +30,12 @@ function overlay(container) {
   }
   return false;
 }
-function promptText(container, visibleOnly=false) {
+function promptText(container, visibleOnly=false, exclusions='a,button,[role="button"],nav,[role="navigation"],[role="menu"],aside,header,footer,script,style') {
   const walker=document.createTreeWalker(container,NodeFilter.SHOW_TEXT);
   let text='',node,count=0;
   while((node=walker.nextNode()) && count++<300 && text.length<10000) {
     if(visibleOnly && !visible(node.parentElement))continue;
-    if(!node.parentElement?.closest('a,button,[role="button"],nav,[role="navigation"],[role="menu"],aside,header,footer,script,style'))text+=' '+node.textContent;
+    if(!node.parentElement?.closest(exclusions))text+=' '+node.textContent;
   }
   return text;
 }
@@ -81,10 +81,10 @@ function classify(container, rule, structural=false) {
   const registration = !rule && isRegistrationPrompt(container, evidence, overlay(container));
   if (REGISTRATION_INTENT.test(text) && !registration && !optionalAdblock) return '';
   if ([...container.querySelectorAll('video,audio')].some(media => !media.paused || media.currentTime > 0)) return '';
-  const surveyText=SURVEY_INTENT.test(text)?promptText(container,true):'';
+  const surveyText=SURVEY_INTENT.test(text)?promptText(container,true,'a,button,[role="button"],nav,[role="navigation"],[role="menu"],script,style'):'';
   if (SURVEY_INTENT.test(surveyText) && answeredSurvey(container)) return '';
   if (rule?.reviewedDismissal) return rule.reviewedDismissal(container) ? rule.category : '';
-  if (rule) return (!rule.required || container.querySelector(rule.required)) && rule.context.test(text) ? rule.category : '';
+  if (rule) return (!rule.required || container.querySelector(rule.required)) && rule.context?.test(text) ? rule.category : '';
   if (registration) return 'registration';
   if (!overlay(container)) return '';
   if (optionalAdblock) return 'adblock';

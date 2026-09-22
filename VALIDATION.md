@@ -1,5 +1,22 @@
 # Validation
 
+## Release 1.2.5 — September 22, 2026
+
+Tracked in [GitHub #7](https://github.com/davegoldblatt/cookie-calm/issues/7) and [PR #8](https://github.com/davegoldblatt/cookie-calm/pull/8).
+The three initial positive fixtures failed against 1.2.4. A fresh disposable-profile live check confirmed the actual Epoch survey remained visible, with no automatic survey click.
+The personal everyday installation was independently inspected: Store 1.2.2 enabled, unpacked 1.2.2 disabled. It was not used to score candidate behavior.
+
+The candidate closed the actual article survey through one native `Close cookie popup` click. No rating was selected.
+The site set `survey-shown=1`, the prompt disappeared, and the extension recorded one `survey` / `closed` result.
+This is survey dismissal, not stored consent proof. The site's handler can record a dismissal event and suppress the survey for 30 days.
+Tests used separate disposable profiles, the reported article path, and the component's natural delay.
+Local captures are under `evidence/epoch-survey-2026-09-22/`; raw public-site bundles are not part of the extension package.
+
+The initial 11 survey tests passed. A broader 72-test local regression run passed, covering promotions, the shared engine, and survey safeguards.
+Final additional guard checks and the complete hosted suite are recorded below when finished.
+
+---
+
 ## Release 1.2.4 — September 22, 2026
 
 Tracked in [GitHub #4](https://github.com/davegoldblatt/cookie-calm/issues/4).

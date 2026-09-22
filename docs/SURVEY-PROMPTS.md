@@ -11,6 +11,7 @@ Primary sources retrieved on September 22:
 
 - [Epoch article](https://epoch.ai/publications/the-plunging-price-of-thought)
 - [SurveyWrapper JavaScript](https://epoch.ai/_astro/SurveyWrapper.pZaKRRcT.js)
+- [Cookie and event helpers](https://epoch.ai/_astro/analytics.Be6mXfeh.js)
 - [Button JavaScript](https://epoch.ai/_astro/Button.D6ZZQRP4.js)
 - [Survey CSS](https://epoch.ai/_astro/SurveyWrapper.Cs1W94lD.css)
 - [ARIA label semantics](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label)
@@ -20,6 +21,7 @@ Each page has a minimum delay of ten seconds. A suppression cookie prevents repe
 The first screen requests a 1–7 website rating. Selecting an answer advances the survey and records answer data.
 The header X uses `aria-label="Close cookie popup"`, although this component is a survey.
 Its reviewed handler records `dismissed`, writes the suppression cookie, and removes the panel.
+The helper writes the suppression cookie with `path=/` and a 30-day `max-age`; survey events enter the site’s data layer.
 The shared Button component emits `type="button"` for this control.
 An untouched first screen has no responses to send. Subsequent screens can contain prior answers.
 A separate Feedback widget opens a message form; it is not this automatic survey.
@@ -63,3 +65,23 @@ Post-transaction feedback is not automatically a protected transaction. Checkout
 An unsolicited rating invitation on a normal article remains eligible. A user-opened or answered survey remains protected.
 The exception must pass normal known-acceptance vetoes. `Close cookie popup` is not itself a `grantsAll` match.
 Publish the reviewed GitHub package; submit to the Store only when it permits a new upload. Preserve pending review.
+
+
+## Implementation audit resolution
+
+The [implementation review](audits/1.2.5-implementation.md) prompted longer user-intent tests, independent promotion witnesses, and response-state safeguards.
+Intent tests now assert beyond ten seconds. A replaced answer screen deliberately has no persistent answer attribute: that tests retained human intent, while separate fixtures test restored field values.
+Negative fixtures observe a separate successful newsletter dismissal as well as cookie rejection. Protected payment/password contexts intentionally use only the cookie witness because promotional actions must be blocked there.
+The no-op test's longer wait establishes the retry limit, not initial detection latency.
+
+Sliders, editable regions, selected custom controls, and nonempty hidden response fields now conservatively protect a survey. Unknown response widgets can therefore reduce coverage.
+Survey prose can appear in a semantic header. Action/navigation text still cannot supply the independent invitation or question.
+The reviewed contract rejects extra roles, tab stops, labels, shadow roots, and CSS-generated text, as well as changed body copy.
+
+Some audit claims did not match the available evidence. The actual live DOM and three successful candidate runs already disproved the missing-Icon theory; the Icon bundle was also captured afterward.
+The normal space bar on the document does not set `gestureAt`; only Escape or a matching interactive control does.
+The ten-second protection is deliberately conservative: a survey appearing near an ambiguous control interaction remains protected for the document, including retained mutation markers.
+The audit's suggested timer-only deferral would not distinguish an unrelated gesture from a user-opened survey and could later dismiss the latter.
+We retain that conservative boundary and document possible missed automatic surveys near unrelated control clicks. We do not claim perfect causal attribution.
+A changed Epoch contract has no generic fallback. The captured CSS hides this survey at widths of 1023 pixels or below.
+The site's native handler adds a dismissal event to its data layer; whether a network request follows depends on the site's analytics setup and consent state.

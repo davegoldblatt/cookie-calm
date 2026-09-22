@@ -6,8 +6,10 @@ const QUESTION = /\bhow (well\b.{0,100}\bmeet your needs|satisfied are you\b.{0,
 export const SURVEY_INTENT = new RegExp(`${EXPLICIT.source}|${IMPROVE.source}`, 'i');
 
 export function answeredSurvey(container) {
+  // Unknown response widgets may contain restored work without a local gesture.
+  if(container.querySelector('input[type="range"],[contenteditable],[role="slider"],[aria-current]:not([aria-current="false"]),[data-selected="true"]'))return true;
   if(container.querySelector('[aria-pressed="true"],[aria-checked="true"],[aria-selected="true"],input:checked'))return true;
-  return [...container.querySelectorAll('textarea,input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="radio"]):not([type="checkbox"]):not([type="range"]),select')]
+  return [...container.querySelectorAll('textarea,input:not([type="button"]):not([type="submit"]):not([type="radio"]):not([type="checkbox"]):not([type="range"]),select')]
     .some(field=>Boolean(field.value));
 }
 export function isSurveyPrompt(container, text) {
