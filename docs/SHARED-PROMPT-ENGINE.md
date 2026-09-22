@@ -8,7 +8,7 @@ unsolicited supported invitations and preserve protected or user-opened flows.
 Existing acceptance fallback remains available only outside a claimed consent flow.
 
 This increment migrates Sourcepoint US, CookieYes legacy, Cookiebot's supported
-dialog variants, and native promotional dismissal. Other Consent-O-Matic
+dialog variants, the researched OneTrust grouped panel, and native promotional dismissal. Other Consent-O-Matic
 recipes remain available through the existing pipeline.
 Adapters describe observed controls. They never click or implement their own loops.
 
@@ -19,6 +19,8 @@ An observation includes a root, stage, purpose, preferences, and available contr
 Each preference has an ID, semantic purpose, current boolean state, and the state
 that means permission is granted. The policy sets permission to false. The planner therefore disables a tracking switch and enables an inverse opt-out switch.
 Required preferences must already be enabled and cannot be altered by this engine.
+An observed-only preference constrains the final Save but has no activation target.
+A parent toggle can update hidden children; each known child must reach its denial state before Save.
 Unknown meanings or extra controls prevent committing the entire flow.
 
 Controls identify a logical element and its native activation target. This permits

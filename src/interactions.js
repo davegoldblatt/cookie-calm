@@ -14,10 +14,16 @@ export class Interactions {
     for (const name of ['pointerdown', 'keydown', 'input', 'change', 'focusin']) root.addEventListener(name, event => this.record(event), {capture:true, signal:this.listeners.signal});
   }
   disconnect() { this.listeners.abort(); }
+  automatic(action) {
+    // Native checkbox input/change events can be trusted even when .click()
+    // initiated them. Suppress only this synchronous activation, never a timer.
+    this.automaticDepth=(this.automaticDepth || 0)+1;
+    try {return action();} finally {this.automaticDepth--;}
+  }
   reset() {
     this.touched = new WeakSet(); this.protected = new WeakSet(); this.keys = new Set();
     this.intentNodes = new WeakSet();
-    this.targets = new Set(); this.categories = new Set(); this.gestureAt = 0;
+    this.targets = new Set(); this.categories = new Set(); this.gestureAt = 0; this.revision=0;
   }
   noteChange(node) {
     if (node.matches?.('html,body')) return;
@@ -30,9 +36,11 @@ export class Interactions {
     return false;
   }
   record(event) {
-    if (!event.isTrusted) return;
+    if (!event.isTrusted || this.automaticDepth) return;
     if (event.type === 'focusin' && !this.recent()) return; // Website autofocus is not user intent.
-    if (event.type === 'keydown' && !['Enter', ' ', 'Tab','k','m'].includes(event.key) && !event.target.matches?.('input,textarea,[contenteditable]')) return;
+    if (event.type === 'keydown' && !['Enter', ' ', 'Tab','k','m','Escape'].includes(event.key) && !event.target.matches?.('input,textarea,[contenteditable]')) return;
+    this.revision++;
+    if(event.type==='keydown' && event.key==='Escape')this.gestureAt=Date.now();
     const path = event.composedPath().filter(node => node instanceof Element);
     const control = path.find(node => node.matches('button,a,input,textarea,select,[role="button"],[contenteditable],video,audio'));
     if (control) {

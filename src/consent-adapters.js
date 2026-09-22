@@ -1,4 +1,5 @@
 import {sourcepointUS} from './sourcepoint-us.js';
+import {oneTrustGroups} from './onetrust-groups.js';
 import {visible, clickable, label, grantsAll} from './dom.js';
 import {control, single, checked, checkboxControl, legacyVisible} from './consent-controls.js';
 
@@ -72,7 +73,7 @@ export const cookieBot = {
 // A visible supported provider or an attempted flow owns its controls. Hidden
 // leftovers do not suppress unrelated providers. Unknown visible preferences
 // remain exclusive: falling back would abandon the stronger safety policy.
-export const CONSENT_ADAPTERS = [sourcepointUS,cookieYes,cookieBot];
+export const CONSENT_ADAPTERS = [sourcepointUS,cookieYes,cookieBot,oneTrustGroups];
 let claimedOwner;
 const histories=new Map();
 export function consentOwner() {

@@ -30,7 +30,7 @@ test('extension reload cancels an in-flight consent flow',async({extension:{page
 });
 test('extension invalidation restores cosmetic hiding it owns',async({extension:{page,worker,context}})=>{
   const url='https://restore-test.example/';
-  await page.route(url,r=>r.fulfill({contentType:'text/html',body:'<body><aside class="smartbanner smartbanner--ios" style="position:fixed;bottom:0"><div class="smartbanner__info">Download our app</div><a href="https://apps.apple.com/app/example">View</a></aside></body>'}));
+  await page.route(url,r=>r.fulfill({contentType:'text/html',body:'<body><aside class="smartbanner smartbanner--ios" style="position:fixed;bottom:0"><div class="smartbanner__info">Download our app</div><a href="https://apps.apple.com/app/example/id12345">View</a></aside></body>'}));
   await page.goto(url);await expect(page.locator('.smartbanner')).not.toBeVisible();
   await reloadExtension(context,worker);await expect(page.locator('.smartbanner')).toBeVisible();
 });

@@ -16,6 +16,9 @@ function pmcNotice(container) {
       !['div','p','a','button','svg','title','line','rect','path','g'].includes(node.localName) ||
       node.hasAttribute('role') || node.hasAttribute('tabindex') ||
       node.shadowRoot || (node instanceof HTMLElement && chrome.dom?.openOrClosedShadowRoot?.(node)))) return false;
+  for (const node of [container,...nodes]) for (const pseudo of ['::before','::after']) {
+    if (!['none','normal','""',"''"].includes(getComputedStyle(node,pseudo).content)) return false;
+  }
   const headings = container.querySelectorAll('#pmc-privacy-banner-heading');
   const bodies = container.querySelectorAll('#pmc-privacy-banner-body');
   const controls = container.querySelectorAll('button,[role="button"],a:not([href]),[role="checkbox"],[role="switch"],[role="radio"]');

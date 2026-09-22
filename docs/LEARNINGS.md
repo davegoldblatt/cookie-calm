@@ -37,6 +37,15 @@ A reviewed notice adapter can authorize native closure without weakening the gen
 Keep its result separate from rejection and saved consent. A marker named `accepted` does not explain its effects by itself.
 Exact copy and controls limit accidental matches, but cannot prove that a website kept the same handler.
 
+Popular Science and Lifehacker supplied a Close-labelled OneTrust acceptance button and a separate settings link inside prose.
+The shared promotional path now vetoes known consent surfaces and acceptance controls independently of cookie keywords.
+The researched provider adapter opens settings and models the advertising group and its hidden children separately.
+Observed child preferences constrain Save without becoming click targets. Unknown children or failed propagation prevent submission.
+Lazy panels cannot be preflighted before opening; validate their controls as soon as they appear.
+An empty, sandboxed measurement iframe is different from an embedded form. Any exception needs exact structure and negative tests.
+
+Evidence: [coverage research](PROMPT-COVERAGE-RESEARCH.md), [grouped preference tests](../tests/onetrust-groups.spec.js).
+
 Evidence: [reviewed notice contracts](PRIVACY-NOTICES.md), [notice regressions](../tests/privacy-notices.spec.js).
 
 ## 4. Upstream coverage does not replace our policy
@@ -103,6 +112,14 @@ The separate `hidden` result records a presentation override, not a saved prefer
 Only a supported changed receipt can establish a recorded privacy choice. It cannot prove downstream compliance by the website.
 Bound retries and cancel active work on pause, navigation, or extension unload.
 
+Use the current node's discovery evidence. Do not reuse a removed node's structural classification for its replacement.
+A replacement that loses its Close button or gains protected fields still prevents a claim of successful disappearance.
+Observe changed surfaces during the action, require a short absence interval, and withhold success when the observation budget is exhausted.
+Fingerprints constrain retry budgets; they are not unique identities for all prompts on a page.
+Always dispose action observers, including on cancellation and errors.
+
+Evidence: [replacement regressions](../tests/prompt-verification.spec.js), [completion observer](../src/prompt-completion.js).
+
 Evidence: [runner](../src/prompt-engine.js), [receipt tests](../tests/shared-engine.spec.js), [lifecycle tests](../tests/lifecycle.spec.js).
 
 ## 9a. Own the override, not the website's styles
@@ -113,6 +130,14 @@ Scope it to exact elements with document-specific attributes. Removing those att
 Keep native dialog state, competing overlays, content suppression, and shared portal roots in the verification model.
 A programmatic scroll can succeed under `overflow:hidden`; test real wheel input before claiming scrolling works.
 Do not claim runtime proof of trusted input or arbitrary event listeners from an isolated content script.
+
+Use the same authorization predicate at discovery and immediately before a cosmetic effect.
+Parse app-store destinations instead of matching hostnames embedded in arbitrary URL strings.
+Keep cosmetic ownership separate from action history. Releasing styles does not refund attempts or clear another element's completion state.
+Retain bounded records for disconnected elements so later reattachment does not strand a hidden element.
+Release an app override when its element changes, rather than hiding newly repurposed content.
+
+Evidence: [cosmetic ownership regressions](../tests/cosmetic-ownership.spec.js).
 
 Evidence: [research and decision](PRESENTATION-RECOVERY.md), [presentation tests](../tests/presentation.spec.js), [plan audit](audits/1.2.2-plan.md).
 
@@ -163,3 +188,25 @@ For a new durable lesson, record the observed failure, general rule, remaining b
 Update an existing lesson when it already covers the failure class. Keep temporary status and raw debugging output elsewhere.
 Use sanitized fixtures. Exclude gift-link tokens, private query strings, entered field values, and unrelated page content from public records.
 Bounded scans, English labels, site changes, and unknown controls remain coverage limits. A successful sample does not remove those limits.
+
+### Automatic actions and user intent
+
+Programmatic checkbox activation can emit trusted input/change events. `isTrusted` alone cannot identify a human action.
+Suppress intent recording only during the synchronous automatic activation. Never suppress a whole asynchronous flow or timer.
+A later trusted intervention cancels automatic completion credit, including Escape. Keep user input and delayed website changes visible to the guard.
+An adapter's “opened by us” flag belongs to its current run. It must not survive into a later manual preference session.
+Clear it at run disposal, not during a temporary gap between hiding the notice and mounting the preferences.
+Document attempt history is a different lifetime: retain it to prevent repeated actions across route changes and settings updates.
+
+### Completion baselines and mutation budgets
+
+Snapshot visible equivalent prompts before acting. An already-visible sibling does not become a replacement just because its CSS changes.
+Deduplicate mutation targets and budget each polling pass. Repeated benign changes must not consume a cumulative lifetime node allowance.
+If one pass cannot inspect its pending changes, retain an unconfirmed result; do not discard the uncertainty and later call it success.
+
+A shadow-control check must include the component root itself. A root can render normal light DOM through a slot alongside unseen permissions.
+Coalesce crowded mutation records into a subtree and inspect that subtree. Discarding overflow records cannot support a later success claim.
+Only disjoint, already-visible equivalent prompts belong in the independent-sibling baseline. An enclosing dialog remains relevant obstruction evidence.
+
+Memoized bounded searches must retain the remaining search depth. A “visited” bit can suppress a later traversal that would reach farther.
+Test order-dependent character-data mutations as well as attribute and subtree replacements.

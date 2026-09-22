@@ -11,6 +11,7 @@ It adds promotional dismissal, a compact popup, local rules, site pauses, and ch
 
 - Rejects optional cookies by default through recognized controls and provider rules.
 - Turns on the supported Sourcepoint US sale/sharing opt-out before saving the choice.
+- Opens the researched OneTrust/Ziff Davis settings layout and turns off its exposed advertising group before confirmation.
 - Automatically closes or minimizes supported newsletter, subscription, donation, discount, survey, app, notification, and chat prompts.
 - Dismisses recognized optional registration invitations through safe close controls across sites.
 - Dismisses supported adblock requests through native decline controls, including “Continue without support.”
@@ -22,7 +23,7 @@ It adds promotional dismissal, a compact popup, local rules, site pauses, and ch
 - Blocks acceptance around password, payment, wallet, and software download prompts.
 - Supports delayed banners, embedded frames, and shadow DOM.
 - Finds supported promotional overlays from their controls and layout, including unfamiliar class names.
-- Uses one guarded action engine for three consent providers and native promotional dismissal.
+- Uses one guarded action engine for supported consent adapters and native promotional dismissal.
 - Reports cosmetic hiding separately from native closure and recorded privacy choices.
 - Shows recent local results, with separate states for a closed panel and a recorded privacy choice.
 - Preserves protected forms and recognized user-opened prompts.
@@ -57,7 +58,10 @@ Public HTTP pages and internationalized domains cannot use the acceptance fallba
 
 A checkmark means that a supported banner disappeared or a collapse state changed after an action. It does not prove that the site stored or honors the choice.
 
-The popup reports a recorded choice only when a supported receipt changes after the action. Sourcepoint US supports this check. CookieYes and Cookiebot currently report closure without claiming a saved choice. No receipt proves that a website honors consent downstream.
+The popup reports a recorded choice only when a supported receipt changes after the action. Sourcepoint US supports this check.
+CookieYes, Cookiebot, and the researched OneTrust group layout report closure without claiming a saved choice.
+The OneTrust adapter cannot disable the publisher's locked functional category. Unknown preference layouts remain visible for manual handling.
+No receipt proves that a website honors consent downstream.
 
 Settings apply to new consent choices. They do not undo previous consent. The extension does not delete cookies or block trackers.
 
@@ -75,6 +79,7 @@ See [adding prompt categories](docs/ADDING-PROMPT-CATEGORIES.md) for the shared 
 The [shared engine design](docs/SHARED-PROMPT-ENGINE.md) explains provider adapters, permission polarity, and unsupported controls.
 The [presentation recovery decision](docs/PRESENTATION-RECOVERY.md) compares strategies and explains reversible overrides.
 The [project learnings](docs/LEARNINGS.md) record recurring failures, implementation rules, and regression evidence.
+The [coverage research](docs/PROMPT-COVERAGE-RESEARCH.md) and [audited plan](docs/PROMPT-COVERAGE-PLAN.md) explain replacement verification and provider coverage.
 
 The bundled rules need release updates as websites change. Unpacked installations require manual updates.
 

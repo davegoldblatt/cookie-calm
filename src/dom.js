@@ -19,12 +19,14 @@ export const REJECT = /^(reject( (all|optional|non-essential|additional))?( cook
 export const ACCEPT = /^(accept( all)?( cookies)?|allow( all)?( cookies)?|agree( to all)?|i agree|got it|ok(ay)?|tout accepter|accepter( tout)?|alle akzeptieren|akzeptieren|aceptar( todas| todo)?|accetta( tutti)?|alles accepteren|aceitar( todos)?)$/;
 const ACCEPT_ALL = /^(accept all|allow all|agree to all|tout accepter|accepter tout|alle akzeptieren|aceptar tod[oa]s?|accetta tutti|alles accepteren|aceitar todos)( cookies)?$/;
 
-export function grantsAll(element) {
-  return ACCEPT_ALL.test(label(element)) || element.matches([
+export const ACCEPT_CONTROLS = [
     '#onetrust-accept-btn-handler', '#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll',
     '#didomi-notice-agree-button', '[data-testid="uc-accept-all-button"]',
     '#accept-recommended-btn-handler', '.cmplz-accept'
-  ].join(','));
+  ].join(',');
+export const CONSENT_SURFACES = '#onetrust-consent-sdk,#onetrust-banner-sdk,#onetrust-pc-sdk,#CybotCookiebotDialog,#cookie-law-info-bar,#cliSettingsPopup,#didomi-host,[id^="sp_message"],[id^="qc-cmp"],.cky-consent-container';
+export function grantsAll(element) {
+  return ACCEPT_ALL.test(label(element)) || element.matches(ACCEPT_CONTROLS);
 }
 
 export function clickable(element) {

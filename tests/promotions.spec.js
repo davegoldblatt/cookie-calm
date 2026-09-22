@@ -149,7 +149,7 @@ test('scam instructions prevent promotion clicks, including inside frames', asyn
   for (const frame of page.frames()) expect(await frame.evaluate(()=>actions)).toEqual([]);
 });
 test('known app-banner cosmetic fallback restores on pause and preserves later site style changes', async ({extension:{page,settings,worker}})=>{
-  const app='<aside class="smartbanner smartbanner--ios" style="position:fixed;top:0;display:flex"><div class="smartbanner__info">Get our app on the App Store</div><a href="https://apps.apple.com/app/example">View</a></aside>';
+  const app='<aside class="smartbanner smartbanner--ios" style="position:fixed;top:0;display:flex"><div class="smartbanner__info">Get our app on the App Store</div><a href="https://apps.apple.com/app/example/id12345">View</a></aside>';
   await settings({disabledSites:['annoyance-test.example']}); await visit(page,app);
   await page.waitForTimeout(900); await expect(page.locator('aside')).toBeVisible();
   await settings({}); await expect(page.locator('aside')).not.toBeVisible();
@@ -262,7 +262,7 @@ test('foreign promotional frames stay untouched while top-page prompts close', a
   expect(await page.frames()[1].evaluate(()=>actions)).toEqual([]);
 });
 test('unrelated settings changes do not restore or exhaust a hidden app banner', async ({extension:{page,settings}})=>{
-  await visit(page,'<aside class="smartbanner smartbanner--ios" style="position:fixed;top:0"><div class="smartbanner__info">Get our app on the App Store</div><a href="https://apps.apple.com/app/example">View</a></aside>');
+  await visit(page,'<aside class="smartbanner smartbanner--ios" style="position:fixed;top:0"><div class="smartbanner__info">Get our app on the App Store</div><a href="https://apps.apple.com/app/example/id12345">View</a></aside>');
   await expect(page.locator('aside')).not.toBeVisible();
   for (const mode of ['dismiss','reject','dismiss']) {
     await settings({mode,disabledSites:['other.example']});

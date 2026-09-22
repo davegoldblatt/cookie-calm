@@ -19,10 +19,12 @@ export function usable(control) {
 export async function runPrompt(adapter, hooks) {
   let clicks = 0, expectedShape, submitted = false;
   const started = Date.now(), history=hooks.history || {}, attempted = history.attempted ||= new Set();
+  const interactionRevision=hooks.interactionRevision?.();
   expectedShape=history.shape;
   const result = (outcome,reason='') => ({provider:adapter.id,category:adapter.category || 'consent',outcome,reason,clicks,submitted});
   const active = () => {
     hooks.assertActive();
+    if(clicks && hooks.interactionRevision?.()!==interactionRevision)throw new Error('User interaction deferred');
     if (Date.now()-started > 18000 || clicks >= 60) throw new Error('Prompt budget exhausted');
   };
   const wait = async ms => {
@@ -60,29 +62,32 @@ export async function runPrompt(adapter, hooks) {
       const preventNavigation=event=>event.preventDefault();
       // A provider settings link activates its handler without changing the URL.
       if(next.control.fragmentLink)target.addEventListener('click',preventNavigation,{capture:true,once:true});
-      try { target.click(); }
+      try { if(hooks.performAction)hooks.performAction(()=>target.click());else target.click(); }
       finally { if(next.control.fragmentLink)target.removeEventListener('click',preventNavigation,true); }
       clicks++;
       if (['save','reject'].includes(action.type)) submitted = true;
-      let changed = false;
+      let changed = false, lastObserved;
       const timeout = ['save','reject','dismiss'].includes(action.type) ? 2200 : 1800;
       for (let elapsed=0; elapsed<timeout; elapsed+=100) {
         await wait(100);
         const after = observe();
+        lastObserved=after;
         if (['save','reject'].includes(action.type) && receiptBefore === false && current.receipt?.read?.() === true) return result('saved');
         if (['save','reject','dismiss'].includes(action.type) && after.stage === 'absent') return result('closed');
         if (after.stage === 'preferences' && expectedShape && shape(after) !== expectedShape) return result('unsupported','preferences-changed');
         if (action.type === 'open' && after.stage === 'preferences') { changed=true; break; }
         if (action.type === 'set-preference' && after.stage === 'preferences' && after.preferences.find(p=>p.id===action.id)?.value === action.goal) { changed=true; break; }
-        if (after.stage === 'blocked') return result('blocked','protected');
+        if (after.stage === 'blocked') return result('blocked',after.reason || 'protected');
       }
       if (!changed) {
+        if(lastObserved?.stage==='unsupported')return result('unsupported',lastObserved.reason || 'unrecognized-controls');
         if(action.type==='dismiss' && adapter.recovery && hooks.presentation && adapter.recovery()) {
           if(await hooks.presentation.ensureStyle()) {
             await hooks.beforeClick();
             active();
             const recovery=adapter.recovery();
-            if(recovery && hooks.presentation.apply(recovery)) {
+            const apply=()=>hooks.presentation.apply(recovery);
+            if(recovery && (hooks.performAction?hooks.performAction(apply):apply())) {
               adapter.recovered?.();
               return result('hidden');
             }
@@ -95,5 +100,7 @@ export async function runPrompt(adapter, hooks) {
   } catch (error) {
     return result(clicks && !error?.message?.startsWith('Automatic clicks blocked')?'unconfirmed':'blocked',
       error?.message?.startsWith('Automatic clicks blocked')?'page-guard':error?.message==='User interaction deferred'?'user-interaction':'cancelled-or-unavailable');
+  } finally {
+    adapter.dispose?.();
   }
 }
