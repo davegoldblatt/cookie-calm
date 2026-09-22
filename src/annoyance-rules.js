@@ -1,8 +1,10 @@
 import { REGISTRATION_CONTAINERS, REGISTRATION_INTENT } from './registration-prompts.js';
+import { PRIVACY_NOTICE_RULES } from './privacy-notices.js';
 import { ADBLOCK_REQUEST } from './promotion-controls.js';
 
 // Original rules based on public DOM structure. No third-party filter list is bundled.
 export const RULES = [
+  ...PRIVACY_NOTICE_RULES,
   {
     id: 'guardian-support', category: 'support', hosts: ['theguardian.com', 'www.theguardian.com'],
     container: 'gu-island[name="StickyBottomBanner"]', context: /support|subscription|ad[ -]free/i,

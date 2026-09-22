@@ -19,7 +19,7 @@ async function render() {
   const results={saved:'privacy choices recorded',closed:'closed',hidden:'hidden',unsupported:'unrecognized controls',blocked:'action stopped',unconfirmed:'result unconfirmed'};
   const records=state?.host===host?(state.diagnostics || []):[];
   $('#diagnostics').textContent=`Version ${chrome.runtime.getManifest().version}. `+(records.length?
-    records.slice(-5).map(r=>`${names[r.provider] || 'Prompt'}: ${results[r.outcome] || 'unconfirmed'}.`).join(' '):'No supported prompt recorded in this tab yet.');
+    records.slice(-5).map(r=>`${r.category==='privacy-notice'?'Privacy notice':names[r.provider] || 'Prompt'}: ${results[r.outcome] || 'unconfirmed'}.`).join(' '):'No supported prompt recorded in this tab yet.');
   if (settings.enabled && !paused && state?.host === host && state.status === 'blocked') {
     $('#status').textContent = state.reason || 'Automatic acceptance is paused on this page.';
     return;
