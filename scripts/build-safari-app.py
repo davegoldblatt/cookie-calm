@@ -47,6 +47,11 @@ for target in targets:
     for config in objects[target['buildConfigurationList']]['buildConfigurations']:
         settings = objects[config]['buildSettings']
         settings['PRODUCT_BUNDLE_IDENTIFIER'] = identifiers[target['productType']]
+        kind = 'app' if target['productType'] == 'com.apple.product-type.application' else 'extension'
+        settings['CODE_SIGN_ENTITLEMENTS'] = str(root / f'native/{kind}.entitlements')
+        settings['ENABLE_USER_SELECTED_FILES'] = 'none'
+        if kind == 'app':
+            settings['INFOPLIST_KEY_LSApplicationCategoryType'] = 'public.app-category.utilities'
 project_file.write_bytes(plistlib.dumps(project))
 (out / 'generated-project.json').write_text(json.dumps(project, indent=2) + '\n')
 shutil.copy2(root / 'native/SafariWebExtensionHandler.swift', handlers[0])
@@ -74,12 +79,10 @@ candidate.mkdir()
 app = candidate / 'Cookie Calm.app'
 run('ditto', apps[0], app)
 entitlements = {}
-for file in (out / 'project').rglob('*.entitlements'):
+for kind in ['app', 'extension']:
+    file = root / f'native/{kind}.entitlements'
     values = plistlib.loads(file.read_bytes())
     check_entitlements(values)
-    kind = 'extension' if 'Extension' in file.as_posix() else 'app'
-    if kind in entitlements:
-        sys.exit('Ambiguous generated entitlements')
     entitlements[kind] = values
 if set(entitlements) != {'app', 'extension'}:
     sys.exit('Both app and extension entitlement sources are required')
