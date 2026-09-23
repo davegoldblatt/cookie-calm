@@ -1,8 +1,8 @@
 # Validation
 
-## Release 1.2.6 candidate — September 22, 2026
+## Release 1.2.6 — September 22, 2026
 
-Tracked in [GitHub #10](https://github.com/davegoldblatt/cookie-calm/issues/10).
+Tracked in [GitHub #10](https://github.com/davegoldblatt/cookie-calm/issues/10) and [PR #12](https://github.com/davegoldblatt/cookie-calm/pull/12).
 Both initial teaser fixtures failed against unchanged 1.2.5. A fresh live profile also retained Soylent's visible side tab.
 The baseline and candidate each used an identified Cookie Calm extension in a separate disposable Chromium profile.
 The user's Store 1.2.2 copy stayed enabled. The disabled unpacked duplicate was not used to score behavior.
@@ -22,6 +22,8 @@ Local captures and public provider bundles are under ignored `evidence/soylent-2
 
 The archive contains 18 files (119,611 bytes), each byte-identical to the built extension.
 SHA-256: `13fc882d23e83d69c5f7e9e616ae3ae613706410c28498f5678f4850d62e1c55`.
+PR #12 merged as `4401fe5`. The v1.2.6 GitHub release is published at that commit.
+The downloaded GitHub asset and Desktop ZIP are byte-identical to the built archive. Hosted full checks were still running at publication.
 No permissions changed. The installed Safari preview remains 1.2.5 and was not overwritten.
 
 The Store dashboard was rechecked at approximately 18:49 Pacific on September 22.
