@@ -31,6 +31,27 @@ It showed pending 1.2.3, published 1.2.2, and Upload new package disabled.
 The initial direct deep link returned HTTP 500; entering through the dashboard root and its Package link succeeded.
 No submission was withdrawn or changed. Version 1.2.6 has not been uploaded or submitted.
 
+## Safari preview — September 22, 2026
+
+This is a separate 1.2.5 development package. It is not a signed Apple app or an App Store release.
+See [Safari instructions and native acceptance checks](docs/SAFARI.md).
+
+- Package integration test: passed. It checked target isolation, unchanged permissions/CSP, full archive contents, bundled licenses/rules and reproducible bytes.
+- Seven WebKit tests: passed. The Safari content bundle rejected cookies, left accept-only consent visible, dismissed a newsletter and a delayed survey, preserved an answered survey, handled open shadow DOM, refused a missing Safari inspection API, and displayed website-access guidance.
+- These tests used a simulated extension bridge. They did not exercise Safari extension permissions, native messaging, its service worker or closed-root API.
+- Final focused Chrome extension/lifecycle run: all 25 passed. An earlier run had 24 pass initially. One additional test failed during trace cleanup because two Playwright configurations shared the output directory. It passed on rerun after giving WebKit a separate output directory. No behavior assertion failed in that run.
+- Initial WebKit launch attempts lacked the matching Playwright browser executable. The installed test runtime resolved that environment failure; those attempts were not scored as extension behavior.
+- Chrome and Safari JavaScript bundles were byte-identical in the final preview, including the manifest-based Safari capability check. Browser-specific manifests remain separate.
+- Installed Safari 26.6.2 exposes Add Temporary Extension. The user authenticated, then selected the outer Desktop delivery folder. Safari correctly rejected that folder because its manifest was nested. The delivery folder was corrected to contain all extension files directly. Safari loaded Cookie Calm 1.2.5 with its switch enabled; website access was then allowed.
+- Full Xcode is absent from the standard application locations. The selected Command Line Tools do not provide either Apple's packager or its former converter command.
+- The Desktop ZIP and extracted resources match the generated archive. SHA-256: `5dad3cad3a5d376edf28aabe11125c64498f05916ad6ef40f9ed84f349edd1b4` (117868 bytes).
+
+The everyday Chrome installation was not disabled, replaced or used as a Safari test environment.
+Nine native Safari fixture checks then passed: rejection, newsletter dismissal, survey dismissal without answering, closed-shadow-root rejection, suspicious-page refusal, accept-only refusal, cross-origin iframe rejection, suspicious-parent frame blocking, and presentation recovery. Presentation recovery hid an author-important overlay and changed computed overflow to auto after one failed native decline, exercising the real user-origin CSS/document targeting path. This did not test trusted scrolling or pause restoration in Safari.
+The fixture pages exposed exact results through document titles; the extension ran through Safari’s actual APIs. A dedicated test window was used. Local evidence: `evidence/safari-2026-09-22/native-results.json` and `native-extra-results.json`.
+
+Safari publication, Apple account enrollment, signed restart persistence, live-site coverage and iPhone/iPad checks remain pending.
+
 ## Release 1.2.5 — September 22, 2026
 
 Tracked in [GitHub #7](https://github.com/davegoldblatt/cookie-calm/issues/7) and [PR #8](https://github.com/davegoldblatt/cookie-calm/pull/8).

@@ -18,6 +18,17 @@ No claim of universal teaser support or downstream tracking control follows from
 
 ---
 
+# Safari preview independent review
+
+Claude Opus reviewed the [research and plan](docs/audits/safari-research-plan.md), [implementation](docs/audits/safari-implementation.md), and [follow-up](docs/audits/safari-followup.md) with tools disabled.
+The final bounded review reported no blockers in the supplied changes. This is static review, not Safari certification.
+
+The reviews led to a Safari capability refusal, a negative fixture with a settling interval, website-permission guidance, browser-neutral help, fixed ZIP metadata, Finder-file exclusion, and full resource-list comparisons.
+Current Apple documentation and the installed Safari UI resolved the first review's outdated doubts about packaging and temporary installation.
+The minimum remains Safari 26. A real browser check must still establish privileged API behavior, message routing, stylesheet origin and worker lifecycle.
+Package reproducibility is claimed only for the same toolchain. No native behavior is inferred from the WebKit bridge.
+See [Safari decisions and validation boundaries](docs/SAFARI.md).
+
 # Release 1.2.5 independent review
 
 Claude Opus reviewed the [research and plan](docs/audits/1.2.5-research-plan.md), [implementation](docs/audits/1.2.5-implementation.md), [follow-up](docs/audits/1.2.5-followup.md), and [header traversal](docs/audits/1.2.5-header.md) through the authenticated CLI with tools disabled.

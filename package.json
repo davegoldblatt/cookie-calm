@@ -11,6 +11,10 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "build:safari": "node scripts/build.mjs --browser=safari",
+    "package:safari": "npm run build:safari && python3 scripts/package-safari.py",
+    "test:safari-package": "node --test scripts/tests/safari-package.test.mjs",
+    "test:webkit": "npm run build:safari && playwright test --config=playwright.safari.config.js",
     "test": "npm run build && playwright test",
     "package": "npm run build && python3 scripts/package.py",
     "store-assets": "node scripts/store-assets.mjs"

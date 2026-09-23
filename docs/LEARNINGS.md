@@ -207,6 +207,13 @@ Evidence: [research and limits](OFFER-TEASERS.md), [teaser tests](../tests/tease
 
 ## Maintain this document
 
+Browser ports need separate evidence for API compatibility, DOM behavior, native installation and distribution.
+A WebKit fixture does not load Safari's extension APIs. A ZIP is not a signed Apple app.
+Use a browser minimum that preserves required safety capabilities; do not silently weaken guards for older versions.
+Keep each browser's output and release checksums separate. Document host permissions and temporary installation expiry.
+A folder named as the installable delivery must contain manifest.json directly. A wrapper with instructions and a nested extension folder causes a valid-package error; verify the exact folder the user will select.
+See the [Safari preview](SAFARI.md) for the compatibility matrix and native acceptance checks.
+
 For a new durable lesson, record the observed failure, general rule, remaining boundary, and regression or evidence link.
 Update an existing lesson when it already covers the failure class. Keep temporary status and raw debugging output elsewhere.
 Use sanitized fixtures. Exclude gift-link tokens, private query strings, entered field values, and unrelated page content from public records.

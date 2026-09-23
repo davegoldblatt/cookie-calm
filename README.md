@@ -5,6 +5,8 @@ Reject optional cookies and automatically dismiss supported website interruption
 Cookie Calm is an open-source Chrome extension built on [Consent-O-Matic](https://github.com/cavi-au/Consent-O-Matic).
 It adds promotional dismissal, a compact popup, local rules, site pauses, and checks before automatic actions.
 
+A [Safari 26+ development preview](docs/SAFARI.md) is also available to build. It passed controlled checks in Safari 26.6.2; persistent Apple distribution and iPhone/iPad validation are pending.
+
 ![Cookie Calm popup and consent controls](store/assets/screenshot-1.png)
 
 ## What it does
