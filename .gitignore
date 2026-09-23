@@ -1,8 +1,15 @@
 node_modules/
+node_modules
+__pycache__/
+*.dmg
+*.p12
+*.p8
 test-results/
+safari-test-results/
 playwright-report/
 .DS_Store
 extension/
+build/
 evidence/
 delivery/
 dist/

@@ -207,6 +207,13 @@ Evidence: [research and limits](OFFER-TEASERS.md), [teaser tests](../tests/tease
 
 ## Maintain this document
 
+Browser ports need separate evidence for API compatibility, DOM behavior, native installation and distribution.
+A WebKit fixture does not load Safari's extension APIs. A ZIP is not a signed Apple app.
+Use a browser minimum that preserves required safety capabilities; do not silently weaken guards for older versions.
+Keep each browser's output and release checksums separate. Document host permissions and temporary installation expiry.
+A folder named as the installable delivery must contain manifest.json directly. A wrapper with instructions and a nested extension folder causes a valid-package error; verify the exact folder the user will select.
+See the [Safari preview](SAFARI.md) for the compatibility matrix and native acceptance checks.
+
 For a new durable lesson, record the observed failure, general rule, remaining boundary, and regression or evidence link.
 Update an existing lesson when it already covers the failure class. Keep temporary status and raw debugging output elsewhere.
 Use sanitized fixtures. Exclude gift-link tokens, private query strings, entered field values, and unrelated page content from public records.
@@ -233,3 +240,16 @@ Only disjoint, already-visible equivalent prompts belong in the independent-sibl
 
 Memoized bounded searches must retain the remaining search depth. A “visited” bit can suppress a later traversal that would reach farther.
 Test order-dependent character-data mutations as well as attribute and subtree replacements.
+
+## Native distribution has separate proof boundaries
+
+A temporary browser extension, a compiled app, a signed app, a notarized download, and a verified installation are different states.
+Never infer a later state from an earlier one. A successful unsigned build cannot establish durable Safari operation.
+Keep the everyday Chrome installation enabled while testing a Safari app. Avoid two active Safari copies during native acceptance.
+
+Apple's generated project is an input to review. Its packager can derive inconsistent bundle identifiers, and Xcode can generate entitlements without separate files.
+Set intended identities explicitly and sign with checked-in entitlement files. Verify the built bundle, rather than trusting command-line settings alone.
+Wrap app artifacts before CI upload to preserve executable permissions. Bind signing to the canonical run, exact source commit, and matching artifact hash.
+Keep submitted notarization artifacts immutable; staple a copy. A missing submission ID after an interrupted upload is uncertainty to resolve, not permission to upload again.
+
+Evidence: [direct distribution](SAFARI-DIRECT-DISTRIBUTION.md), [native validation](../VALIDATION.md), [independent audit](audits/safari-direct-implementation-claude.md).
