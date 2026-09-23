@@ -53,6 +53,7 @@ apply. Ordinary articles and navigation must not become prompt candidates.
 Structural discovery applies only to promotional dismissal. It does not expand
 cookie acceptance. Discovery examines up to 160 controls and 40 containers per root.
 It searches up to ten ancestors per control. Discovery and action selection share exact close and decline labels.
+Explicit `Close teaser` labels have an additional 40-control discovery budget. They require the separate compact offer contract and do not enter generic close authorization.
 Anchors without `href` can act as native controls. Anchors with navigation targets remain excluded from promotional actions.
 
 Keep disappearance, submission, and stored preference evidence distinct. Only a

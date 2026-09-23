@@ -194,6 +194,17 @@ Do not switch the user back to an unpacked release during later testing. A newer
 
 Evidence: [package script](../scripts/package.py), [validation history](../VALIDATION.md), [Store workflow](../store/SUBMISSION.md).
 
+## 13. Compact openers need a distinct dismissal contract
+
+A dismissed signup form can leave a teaser that reopens it. Closing the form does not prove the teaser is gone.
+Control text can carry all of a compact offer's meaning, while generic classification correctly excludes that text.
+Do not remove that exclusion globally. Require a bounded component with distinct opener and dismissal controls.
+Keep special dismissal labels scoped to that contract, including final action authorization.
+Preserve user-opened teasers on named selectors as well as structural discovery paths.
+Use separate offer keys without treating a retry key as unique DOM identity.
+
+Evidence: [research and limits](OFFER-TEASERS.md), [teaser tests](../tests/teasers.spec.js).
+
 ## Maintain this document
 
 For a new durable lesson, record the observed failure, general rule, remaining boundary, and regression or evidence link.

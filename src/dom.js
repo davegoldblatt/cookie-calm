@@ -1,4 +1,4 @@
-import { PROMOTION_CONTROLS, CLOSE, DECLINE } from './promotion-controls.js';
+import { PROMOTION_CONTROLS, CLOSE, DECLINE, TEASER_CLOSE, TEASER_CONTROLS } from './promotion-controls.js';
 
 export function visible(element) {
   if (!element?.isConnected || element.closest('[inert], [aria-hidden="true"]')) return false;
@@ -44,9 +44,14 @@ export function clickable(element) {
 export function structuralContainers(root) {
   const found=new Set();
   const selector=PROMOTION_CONTROLS;
-  const controls=[...(root.matches?.(selector)?[root]:[]),...root.querySelectorAll(selector)].slice(0,160);
+  const ordinary=[...(root.matches?.(selector)?[root]:[]),...root.querySelectorAll(selector)].slice(0,160);
+  // A late teaser must not lose discovery behind product buttons. The cheap
+  // explicit-label query has its own bound; ordinary discovery stays unchanged.
+  const teasers=[...(root.matches?.(TEASER_CONTROLS)?[root]:[]),...root.querySelectorAll(TEASER_CONTROLS)].slice(0,40);
+  const controls=new Set([...ordinary,...teasers]);
   for(const control of controls) {
-    if(!CLOSE.test(label(control)) && !DECLINE.test(label(control)))continue;
+    const text=label(control);
+    if(!CLOSE.test(text) && !DECLINE.test(text) && !TEASER_CLOSE.test(text))continue;
     if(!visible(control))continue;
     for(let node=control.parentElement,depth=0;node && depth<10;node=node.parentElement,depth++) {
       if(node.matches('html,body,main,article,nav,footer'))break;
