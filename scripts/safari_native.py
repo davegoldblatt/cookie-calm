@@ -38,6 +38,7 @@ def check_bundle(app, version, source=None, native=True):
     if len(plugins) != 1:
         raise ValueError('Expected exactly one Safari extension')
     extension = plugins[0]
+    executables = set()
     for bundle, expected in [(app, APP_ID), (extension, EXTENSION_ID)]:
         info = read_plist(bundle / 'Contents/Info.plist')
         if info.get('CFBundleIdentifier') != expected:
@@ -50,9 +51,12 @@ def check_bundle(app, version, source=None, native=True):
         if Path(name).name != name:
             raise ValueError('Executable must be inside Contents/MacOS')
         binary = bundle / 'Contents/MacOS' / name
+        executables.add(binary)
         if not binary.is_file():
             raise ValueError('Missing executable')
         if native:
+            if not binary.stat().st_mode & 0o111:
+                raise ValueError('Executable permissions were lost during transfer')
             if set(run('lipo', '-archs', binary).split()) != {'arm64', 'x86_64'}:
                 raise ValueError('Both Intel and Apple silicon executables are required')
             for arch in ['arm64', 'x86_64']:
@@ -72,11 +76,23 @@ def check_bundle(app, version, source=None, native=True):
         raise ValueError('Unexpected web extension permission')
     if source is not None:
         source = Path(source)
+        source_files = {file.relative_to(source).as_posix() for file in source.rglob('*') if file.is_file()}
+        embedded_files = {file.relative_to(manifests[0].parent).as_posix()
+                          for file in manifests[0].parent.rglob('*') if file.is_file()}
+        if source_files != embedded_files:
+            raise ValueError('Embedded resource file set differs from the reviewed build')
         for file in source.rglob('*'):
             if file.is_file():
                 embedded = manifests[0].parent / file.relative_to(source)
                 if not embedded.is_file() or digest(file) != digest(embedded):
                     raise ValueError(f'Embedded resource differs: {file.relative_to(source)}')
+    if native:
+        macho = {bytes.fromhex(value) for value in ['feedface', 'cefaedfe', 'feedfacf', 'cffaedfe', 'cafebabe', 'bebafeca', 'cafebabf', 'bfbafeca']}
+        for file in app.rglob('*'):
+            if file.is_file() and file not in executables:
+                with file.open('rb') as stream:
+                    if stream.read(4) in macho:
+                        raise ValueError('Unexpected additional native executable')
     return extension
 
 

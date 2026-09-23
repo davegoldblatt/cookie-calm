@@ -14,7 +14,7 @@ The `Safari Mac app candidate` GitHub workflow uses Xcode 26.6 on `macos-26`.
 It needs no signing keys or Apple account secrets.
 
 1. Review the source commit and the workflow changes.
-2. Run the workflow on that commit, or use its pull-request run.
+2. Run the workflow with `workflow_dispatch` on that commit in the canonical repository. Pull-request runs validate packaging but cannot be signed by the release script.
 3. Check the packager and Xcode build logs.
 4. Download the `safari-UNSIGNED-candidate` artifact.
 5. Compare the inner ZIP's SHA-256 with the hash printed in the build log.
@@ -24,7 +24,9 @@ The app's native-message handler completes requests without logging or returning
 Bundle identifiers are `com.davegoldblatt.cookiecalm.direct` and `com.davegoldblatt.cookiecalm.direct.Extension`.
 Both bundle versions must equal the web manifest version. Both deployment targets must be macOS 26.0.
 
-The candidate includes reviewed entitlement sources and file hashes.
+The candidate includes the checked-in entitlement values and file hashes.
+The app keeps the packager's sandbox and outgoing-client permissions for its WebKit setup window. The native extension has only the sandbox permission.
+Both targets omit the template's unused user-selected-file access. The local signer reads the entitlement files from the reviewed commit and checks candidate metadata against them.
 The app is zipped with `ditto` before artifact upload so executable permissions survive the transfer.
 **An unsigned CI candidate is not a public installer.**
 
@@ -54,12 +56,15 @@ Record the certificate fingerprint, Team ID, and Keychain profile name. These id
 
 Check out the exact reviewed commit and install its dependencies with `npm ci --ignore-scripts`.
 Use the SHA-256 from the trusted CI build log, not a checksum from an unknown download.
+The signer independently checks the canonical repository, successful manual run, workflow path, exact commit, and logged checksum through GitHub's API.
+Pull-request artifacts and runs from forks are refused. This trusts the reviewed canonical CI toolchain; it is not an independent native reproducible build or a cryptographic build attestation.
 
 ```sh
 python3 scripts/release-safari-app.py \
   --candidate /path/to/cookie-calm-1.2.6-safari-UNSIGNED.zip \
   --sha256 CI_ZIP_SHA256 \
   --source-commit REVIEWED_COMMIT_SHA \
+  --run-id SUCCESSFUL_MANUAL_RUN_ID \
   --identity DEVELOPER_ID_APPLICATION_SHA1 \
   --team-id APPLE_TEAM_ID \
   --notary-profile CookieCalm-notary \
@@ -72,8 +77,11 @@ It submits the app ZIP to Apple, checks the log, staples the accepted ticket, an
 It then builds, signs, notarizes, and staples the DMG.
 
 If notarization times out, repeat the command with the same staging directory.
-The script retains the submission ID and immutable submitted artifact instead of resubmitting it.
-Rejected submissions and reported issues require investigation. Never bypass these checks.
+The script retains known submission IDs and immutable submitted artifacts instead of resubmitting them.
+If an interruption occurs during upload before an ID is saved, it stops for manual recovery with `notarytool history`; it does not guess or submit again.
+DMG stapling operates on a copy, so a crash cannot modify the recorded submission.
+If a partial archive or DMG exists without a saved hash, the script stops for manual inspection. It does not overwrite unknown staging files.
+Rejected submissions and all reported issues, including warnings, require investigation. Never bypass these checks.
 
 Outputs include the candidate DMG, `MACOS-SHA256SUMS.txt`, notarization logs, and `release-evidence.json`.
 The evidence initially records `native_installation_verified: false`. Successful notarization does not establish Safari runtime correctness.
@@ -110,5 +118,15 @@ The Xcode command-line packager is available on the GitHub Mac runner, avoiding 
 - [Apple: Developer ID certificates](https://developer.apple.com/help/account/certificates/create-developer-id-certificates)
 - [GitHub: Mac runner image](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md)
 - [Claude plan review](audits/safari-direct-plan-claude.md)
+- [Claude implementation review](audits/safari-direct-implementation-claude.md)
+- [Claude follow-up review](audits/safari-direct-followup-claude.md)
 
 Accepted audit findings: preserve executable permissions with an outer ZIP; supply entitlements when re-signing; sign inside-out with `--force`; pin Xcode; verify identifiers, versions, and architectures; keep credentials local; distinguish compiled, notarized, and runtime-verified states.
+
+The first native run reproduced a packager mismatch: the host identifier used the app name, while the extension used the requested identifier.
+The builder now sets both target identifiers before archiving. The second run compiled the universal app and passed bundle/resource checks, then stopped because the template expresses entitlements through build settings rather than `.entitlements` files.
+Checked-in entitlement files now define signing authority explicitly. These failures were packaging observations, not installed-extension behavior failures.
+
+The packager also warns about `match_about_blank` and `match_origin_as_fallback`.
+Those warnings do not establish support or failure in installed Safari. Retain them in build evidence and verify inherited-origin frames during native acceptance.
+The app's generated settings UI, entitlement behavior, signing, and notarization still require native validation.

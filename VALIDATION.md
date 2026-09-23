@@ -1,5 +1,24 @@
 # Validation
 
+## Safari Mac app candidate — September 22, 2026
+
+Tracked in [GitHub #13](https://github.com/davegoldblatt/cookie-calm/issues/13) and [draft PR #14](https://github.com/davegoldblatt/cookie-calm/pull/14).
+This is unsigned packaging validation. No Developer ID signing, notarization, durable installation, or signed native runtime has passed yet.
+
+- Safari package integration: passed on the shared 1.2.6 source.
+- Seven WebKit tests: passed. These tests mock extension APIs and are not native Safari evidence.
+- Twelve native-input and notarization-state tests: passed locally. They reject mismatched identities, versions, resources, permissions, archive paths, untrusted CI runs, missing runtime/timestamps, changed submissions, and notarization warnings. Interrupted known submissions resume without a second upload; ambiguous submissions stop for manual recovery.
+- [Native CI run 35810770009](https://github.com/davegoldblatt/cookie-calm/actions/runs/35810770009): passed at `afa0fa2230dc4ee8247afbe3c684df796743ae8f`, using Xcode 26.6 build 17F113 and Apple's official packager.
+- Downloaded candidate ZIP: 565,925 bytes; SHA-256 `07b80926716c8ac412f9d2b1f5398baf28df73c2dca6ae07aeddfa95364cd983`, matching the CI log.
+- Local inspection after `ditto` extraction: all 33 app files match CI metadata; the 18 web resources match the local Safari build exactly. App and extension are universal `arm64`/`x86_64`, version 1.2.6, minimum macOS 26.0. Executable permissions survived transfer; no additional native executable was found.
+
+The first run failed because the packager generated inconsistent parent and extension bundle IDs. The next run compiled successfully but lacked entitlement files: this Xcode template uses generated build settings instead.
+Both observations led to explicit target identifiers and checked-in entitlements. The packager also warns about inherited-origin manifest keys; installed signed-frame behavior remains unverified.
+
+The development Mac has zero valid code-signing identities. Developer Program membership and notarization credentials are unconfirmed.
+The temporary Safari 1.2.5 preview and enabled everyday Chrome Store installation were preserved.
+See [distribution procedure and release gates](docs/SAFARI-DIRECT-DISTRIBUTION.md).
+
 ## Release 1.2.6 — September 22, 2026
 
 Tracked in [GitHub #10](https://github.com/davegoldblatt/cookie-calm/issues/10) and [PR #12](https://github.com/davegoldblatt/cookie-calm/pull/12).

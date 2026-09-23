@@ -53,9 +53,15 @@ def check_ci_run(run_id, commit, checksum):
     return record['html_url']
 
 
+def signature_requirement(team, identity, identifier=None):
+    # codesign treats requirement text as a filename unless it starts with '='.
+    requirement = (f'=anchor apple generic and certificate leaf = H"{identity}" '
+                   f'and certificate leaf[subject.OU] = "{team}"')
+    return requirement + (f' and identifier "{identifier}"' if identifier else '')
+
+
 def verify_signature(bundle, team, identity, identifier, entitlements):
-    requirement = (f'anchor apple generic and certificate leaf = H"{identity}" '
-                   f'and certificate leaf[subject.OU] = "{team}" and identifier "{identifier}"')
+    requirement = signature_requirement(team, identity, identifier)
     run('codesign', '--verify', '--deep', '--strict', '--all-architectures',
         '--test-requirement', requirement, bundle)
     info = subprocess.run(['codesign', '-d', '--verbose=4', str(bundle)], check=True,
@@ -65,6 +71,40 @@ def verify_signature(bundle, team, identity, identifier, entitlements):
     actual = plistlib.loads(run('codesign', '-d', '--entitlements', '-', '--xml', bundle).encode())
     if actual != entitlements:
         raise ValueError('Signed entitlements differ from the reviewed entitlements')
+
+
+def notarize(path, phase, state, save, work, profile):
+    record = state.setdefault(phase, {})
+    if record.get('sha256') and digest(path) != record['sha256']:
+        raise ValueError('Submitted artifact changed; refusing to reuse its notarization')
+    if not record.get('id'):
+        if record.get('submitting'):
+            raise RuntimeError(f'{phase} submission may already exist. Recover its ID from notarytool history before continuing; do not resubmit blindly.')
+        record.update(submitting=True, sha256=digest(path))
+        save()
+        result = json.loads(run('xcrun', 'notarytool', 'submit', path,
+                                '--keychain-profile', profile, '--output-format', 'json'))
+        record.update(id=result['id'], sha256=digest(path))
+        save()
+    print(f'{phase} notarization: {record["id"]}', flush=True)
+    result = json.loads(run('xcrun', 'notarytool', 'info', record['id'],
+                            '--keychain-profile', profile, '--output-format', 'json'))
+    if result['status'] == 'In Progress':
+        try:
+            result = json.loads(run('xcrun', 'notarytool', 'wait', record['id'], '--timeout', '10m',
+                                    '--keychain-profile', profile, '--output-format', 'json'))
+        except subprocess.CalledProcessError:
+            result = json.loads(run('xcrun', 'notarytool', 'info', record['id'],
+                                    '--keychain-profile', profile, '--output-format', 'json'))
+            if result['status'] == 'In Progress':
+                raise RuntimeError(f'Notarization did not finish. Resume with this same staging directory; submission {record["id"]} is preserved.')
+    log = json.loads(run('xcrun', 'notarytool', 'log', record['id'],
+                         '--keychain-profile', profile))
+    (work / f'{phase}-notary-log.json').write_text(json.dumps(log, indent=2) + '\n')
+    if result['status'] != 'Accepted' or log.get('issues'):
+        raise RuntimeError(f'Apple returned {result["status"]} or reported issues; inspect {phase}-notary-log.json before release')
+    record['accepted'] = True
+    save()
 
 
 def main():
@@ -89,6 +129,8 @@ def main():
         sys.exit('No matching valid Developer ID Application identity. Nothing was signed or submitted.')
     for tool in ['notarytool', 'stapler']:
         run('xcrun', '--find', tool)
+    # A missing credential profile must fail before signing or recording an upload.
+    run('xcrun', 'notarytool', 'history', '--keychain-profile', args.notary_profile, '--output-format', 'json')
     root = Path(__file__).resolve().parent.parent
     source = root / 'build/safari'
     if run('git', '-C', root, 'rev-parse', 'HEAD') != args.source_commit:
@@ -112,39 +154,6 @@ def main():
         pending = work / 'state.tmp'
         pending.write_text(json.dumps(state, indent=2) + '\n')
         pending.replace(state_path)
-
-    def notarize(path, phase):
-        record = state.setdefault(phase, {})
-        if record.get('sha256') and digest(path) != record['sha256']:
-            raise ValueError('Submitted artifact changed; refusing to reuse its notarization')
-        if not record.get('id'):
-            if record.get('submitting'):
-                raise RuntimeError(f'{phase} submission may already exist. Recover its ID from notarytool history before continuing; do not resubmit blindly.')
-            record.update(submitting=True, sha256=digest(path))
-            save()
-            result = json.loads(run('xcrun', 'notarytool', 'submit', path,
-                                    '--keychain-profile', args.notary_profile, '--output-format', 'json'))
-            record.update(id=result['id'], sha256=digest(path))
-            save()
-        print(f'{phase} notarization: {record["id"]}', flush=True)
-        result = json.loads(run('xcrun', 'notarytool', 'info', record['id'],
-                                '--keychain-profile', args.notary_profile, '--output-format', 'json'))
-        if result['status'] == 'In Progress':
-            try:
-                result = json.loads(run('xcrun', 'notarytool', 'wait', record['id'], '--timeout', '10m',
-                                        '--keychain-profile', args.notary_profile, '--output-format', 'json'))
-            except subprocess.CalledProcessError:
-                result = json.loads(run('xcrun', 'notarytool', 'info', record['id'],
-                                        '--keychain-profile', args.notary_profile, '--output-format', 'json'))
-                if result['status'] == 'In Progress':
-                    raise RuntimeError(f'Notarization did not finish. Resume with this same staging directory; submission {record["id"]} is preserved.')
-        log = json.loads(run('xcrun', 'notarytool', 'log', record['id'],
-                             '--keychain-profile', args.notary_profile))
-        (work / f'{phase}-notary-log.json').write_text(json.dumps(log, indent=2) + '\n')
-        if result['status'] != 'Accepted' or log.get('issues'):
-            raise RuntimeError(f'Apple returned {result["status"]} or reported issues; inspect {phase}-notary-log.json before release')
-        record['accepted'] = True
-        save()
 
     with tempfile.TemporaryDirectory(prefix='native-', dir=work) as temporary:
         scratch = Path(temporary)
@@ -182,7 +191,7 @@ def main():
             save()
         if digest(signed_zip) != state['signed_zip_sha256']:
             raise ValueError('Signed submission ZIP changed')
-        notarize(signed_zip, 'app')
+        notarize(signed_zip, 'app', state, save, work, args.notary_profile)
         # Restore the immutable, actually submitted app even when resuming.
         signed = scratch / 'signed'
         run('ditto', '-x', '-k', signed_zip, signed)
@@ -209,13 +218,14 @@ def main():
             save()
         if digest(dmg) != state['dmg_sha256']:
             raise ValueError('DMG changed outside the signing workflow')
-        notarize(dmg, 'dmg')
+        notarize(dmg, 'dmg', state, save, work, args.notary_profile)
         # Keep the submitted DMG immutable. Recreate a stapled output on resume.
         stapled = scratch / f'cookie-calm-{version}-macos-universal.dmg'
         shutil.copyfile(dmg, stapled)
         run('xcrun', 'stapler', 'staple', stapled)
         run('xcrun', 'stapler', 'validate', stapled)
-        run('codesign', '--verify', '--strict', stapled)
+        run('codesign', '--verify', '--strict', '--test-requirement',
+            signature_requirement(args.team_id, args.identity), stapled)
         run('spctl', '--assess', '--type', 'open', '--context', 'context:primary-signature', '--verbose=2', stapled)
         final_dmg = work / stapled.name
         stapled.replace(final_dmg)

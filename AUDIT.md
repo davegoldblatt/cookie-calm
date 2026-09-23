@@ -1,3 +1,26 @@
+# Safari direct-distribution independent review
+
+Claude Opus reviewed the [plan](docs/audits/safari-direct-plan-claude.md) and [implementation](docs/audits/safari-direct-implementation-claude.md) through the authenticated CLI, with tools disabled.
+The plan review led to a `ditto` archive before artifact upload and explicit entitlements for local re-signing.
+
+The implementation review's entitlement-template hypothesis was confirmed by native CI. The builder now uses checked-in entitlement files, and the signer compares those files against candidate metadata at the reviewed commit.
+The host retains the official template's outgoing-client entitlement for its WebKit settings UI; the inert native extension has only App Sandbox. Unused user-selected-file access is removed.
+
+Further corrections bind signing to a successful canonical manual workflow run at the exact source commit, reject extra web resources and native executables, check the certificate fingerprint and signing requirements, and preserve immutable notarization inputs.
+Known interrupted submissions resume by ID. Uploads interrupted before an ID is saved stop for manual recovery. All reported notary issues require review.
+Twelve local tests exercise these input and state boundaries; a real unsigned universal build passed CI and local artifact inspection.
+
+Static review and unsigned compilation do not establish Developer ID signing, notarization, Safari installation, or persistence across restarts.
+Those remain release gates. Cryptographic build attestations and independently reproducible native binaries are not claimed.
+See [research, decisions, and current prerequisites](docs/SAFARI-DIRECT-DISTRIBUTION.md).
+
+The [follow-up](docs/audits/safari-direct-followup-claude.md) found no remaining blockers in the supplied working-tree files. Its credential-preflight, DMG identity, and provenance-test suggestions were applied.
+Partial files left before a state save stop for manual inspection; the workflow does not promise automatic recovery from every interruption.
+An additional local check with Apple's `csreq` caught the required `=` prefix for literal signing requirements. Both app and DMG expressions now compile with the real Apple tool in the test suite.
+The review's reference to a pending Apple App Store build was incorrect: the pending review belongs to Chrome. Safari currently has a temporary preview, which must be inactive during signed-app acceptance.
+
+---
+
 # Release 1.2.6 independent review
 
 Claude Opus reviewed the [research and plan](docs/audits/1.2.6-research-plan.md) and [implementation](docs/audits/1.2.6-implementation.md) through the authenticated CLI with tools disabled.

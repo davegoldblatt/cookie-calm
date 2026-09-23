@@ -240,3 +240,16 @@ Only disjoint, already-visible equivalent prompts belong in the independent-sibl
 
 Memoized bounded searches must retain the remaining search depth. A “visited” bit can suppress a later traversal that would reach farther.
 Test order-dependent character-data mutations as well as attribute and subtree replacements.
+
+## Native distribution has separate proof boundaries
+
+A temporary browser extension, a compiled app, a signed app, a notarized download, and a verified installation are different states.
+Never infer a later state from an earlier one. A successful unsigned build cannot establish durable Safari operation.
+Keep the everyday Chrome installation enabled while testing a Safari app. Avoid two active Safari copies during native acceptance.
+
+Apple's generated project is an input to review. Its packager can derive inconsistent bundle identifiers, and Xcode can generate entitlements without separate files.
+Set intended identities explicitly and sign with checked-in entitlement files. Verify the built bundle, rather than trusting command-line settings alone.
+Wrap app artifacts before CI upload to preserve executable permissions. Bind signing to the canonical run, exact source commit, and matching artifact hash.
+Keep submitted notarization artifacts immutable; staple a copy. A missing submission ID after an interrupted upload is uncertainty to resolve, not permission to upload again.
+
+Evidence: [direct distribution](SAFARI-DIRECT-DISTRIBUTION.md), [native validation](../VALIDATION.md), [independent audit](audits/safari-direct-implementation-claude.md).
