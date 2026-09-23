@@ -1,3 +1,23 @@
+# Release 1.2.6 independent review
+
+Claude Opus reviewed the [research and plan](docs/audits/1.2.6-research-plan.md) and [implementation](docs/audits/1.2.6-implementation.md) through the authenticated CLI with tools disabled.
+The [research record](docs/OFFER-TEASERS.md) records adjudication and remaining limits.
+
+The plan review narrowed `Close teaser` authorization to a separate component contract and avoided a broad offer-intent policy change.
+The implementation review identified false completion when a structural teaser moves to another corner, plus unchecked instruction-bearing attributes.
+These findings led to stronger replacement observations and conservative attribute, role, and generated-text vetoes.
+
+[The follow-up review](docs/audits/1.2.6-followup.md) confirmed that replacement observations do not widen click authorization.
+Its shared-wrapper finding led to a stricter independent-sibling baseline and another regression fixture.
+Two broader observation hypotheses are tracked in [GitHub #11](https://github.com/davegoldblatt/cookie-calm/issues/11).
+
+Actual provider code and two live candidate runs established that the supported contract matches the reported Soylent component.
+The review's concern about that evidence gap did not remain after live verification.
+Intent markers, observation exhaustion, unknown overlapping widgets, fragmented copy, and discovery caps remain documented coverage limits.
+No claim of universal teaser support or downstream tracking control follows from this work.
+
+---
+
 # Release 1.2.5 independent review
 
 Claude Opus reviewed the [research and plan](docs/audits/1.2.5-research-plan.md), [implementation](docs/audits/1.2.5-implementation.md), [follow-up](docs/audits/1.2.5-followup.md), and [header traversal](docs/audits/1.2.5-header.md) through the authenticated CLI with tools disabled.

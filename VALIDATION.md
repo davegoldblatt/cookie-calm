@@ -1,5 +1,34 @@
 # Validation
 
+## Release 1.2.6 candidate — September 22, 2026
+
+Tracked in [GitHub #10](https://github.com/davegoldblatt/cookie-calm/issues/10).
+Both initial teaser fixtures failed against unchanged 1.2.5. A fresh live profile also retained Soylent's visible side tab.
+The baseline and candidate each used an identified Cookie Calm extension in a separate disposable Chromium profile.
+The user's Store 1.2.2 copy stayed enabled. The disabled unpacked duplicate was not used to score behavior.
+
+The first candidate passed 11 teaser tests. They cover two markup/hostname variants, late mounting, rotated tabs after 200 controls, multiple offers, user-opened/reused/replaced nodes, unsafe variants, no-op handlers, and changed replacements.
+Further negative cases cover generated instructions, contradictory close titles, and checked-state controls.
+All 221 tests passed in the full local run (7.3 minutes, three workers).
+The audit then led to attribute and replacement-observation changes. The new moved-replacement regression failed against the preceding built candidate, reproducing one false closure credit.
+All 61 final focused tests passed (2.8 minutes, three workers), including all 16 teaser tests and the promotion/completion regressions.
+The moved replacement, identical siblings, closed-shadow field, and existing-wrapper cases passed on the final runtime source in `ab368dc`.
+
+Three live candidate runs observed the actual teaser before dismissal. Each recorded exactly one `Close teaser` click, no teaser-opener click, disappearance, and `offer` / `closed`.
+All 40 product links remained. The final run identified version 1.2.6 and included the attribute safeguards and audited replacement observations.
+The earlier newsletter action remained `unconfirmed` when its form transitioned into the teaser. It was not relabelled as a success.
+These are dismissal results, not saved cookie-consent proof or evidence of universal Klaviyo coverage.
+Local captures and public provider bundles are under ignored `evidence/soylent-2026-09-22/`.
+
+The archive contains 18 files (119,611 bytes), each byte-identical to the built extension.
+SHA-256: `13fc882d23e83d69c5f7e9e616ae3ae613706410c28498f5678f4850d62e1c55`.
+No permissions changed. The installed Safari preview remains 1.2.5 and was not overwritten.
+
+The Store dashboard was rechecked at approximately 18:49 Pacific on September 22.
+It showed pending 1.2.3, published 1.2.2, and Upload new package disabled.
+The initial direct deep link returned HTTP 500; entering through the dashboard root and its Package link succeeded.
+No submission was withdrawn or changed. Version 1.2.6 has not been uploaded or submitted.
+
 ## Release 1.2.5 — September 22, 2026
 
 Tracked in [GitHub #7](https://github.com/davegoldblatt/cookie-calm/issues/7) and [PR #8](https://github.com/davegoldblatt/cookie-calm/pull/8).

@@ -98,6 +98,12 @@ Discovery is bounded per search root. Large pages, unfamiliar languages, and unl
 Buttons and anchors without `href` can expose native dismissal handlers. Navigating anchors remain excluded.
 Discovery examines up to ten ancestors for each recognized control.
 
+Offer teasers use a separate `Close teaser` discovery label and the strict contract in `src/teaser-prompts.js`.
+Only that contract permits offer text inside the opener to establish purpose.
+The opener is never clicked. The native X still passes through the shared guarded runner.
+An additional bounded query finds explicit teaser labels after ordinary product controls.
+See [teaser research and limits](OFFER-TEASERS.md).
+
 The `adblock` category requires a visible request to disable an ad blocker, outside links, buttons, and navigation text.
 It permits an incidental Sign in button only when the prompt contains no authentication request, form, field, or embedded frame.
 It prefers one explicit decline control and excludes unrelated nested panels. Multiple eligible refusals prevent action.

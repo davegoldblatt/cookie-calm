@@ -4,7 +4,8 @@ import {PromptCompletion} from './prompt-completion.js';
 import {CosmeticHides} from './presentation.js';
 import { RULES, CATEGORIES, CANDIDATES } from './annoyance-rules.js';
 import { isRegistrationPrompt, REGISTRATION_INTENT, REQUIRED_AUTH } from './registration-prompts.js';
-import { PROMOTION_CONTROLS, CLOSE, DECLINE, ADBLOCK_REQUEST } from './promotion-controls.js';
+import { PROMOTION_CONTROLS, CLOSE, DECLINE, ADBLOCK_REQUEST, TEASER_CLOSE } from './promotion-controls.js';
+import {offerTeaser,teaserSurface} from './teaser-prompts.js';
 
 const CONSENT = /\bcookies?\b|\bconsent\b|\btracking technologies\b/i;
 const PROTECTED = /\b(checkout|shopping cart|your cart|payment|billing|card number|password|passcode|verification code|two.factor|captcha|unsaved (work|changes)|delete (your |my )?account|verify your email|subscription (expired|expires|cancelled|canceled)|renewal failed|account suspended)\b/i;
@@ -91,13 +92,14 @@ function classify(container, rule, structural=false) {
   if (optionalAdblock) return 'adblock';
   if (container.matches('.jw-flag-floating,[class*="floating-video" i],[id*="floating-video" i]') && container.querySelector('video')) return 'video';
   if (isSurveyPrompt(container,surveyText)) return 'survey';
+  if (offerTeaser(container)) return 'offer';
   const category = CATEGORIES.find(([,pattern]) => pattern.test(evidence))?.[0] || '';
   if (['registration','adblock','survey'].includes(category)) return ''; // Independent invitation/request evidence is mandatory.
   // A restored conversation or composer is useful even without a click on this page.
   if (category === 'chat' && container.querySelector('[role="log"],textarea,[contenteditable],input:not([type="hidden"]),[aria-live="polite"], [aria-live="assertive"]')) return '';
   return category;
 }
-function actionKind(button, rule) {
+function actionKind(button, rule, teaser=false) {
   if (!clickable(button) || button.hasAttribute('formaction') || button.hasAttribute('download')) return '';
   if (grantsAll(button) || button.closest(ACCEPT_CONTROLS) || button.querySelector(ACCEPT_CONTROLS)) return '';
   if (button.closest('a[href],label,summary')) return '';
@@ -106,6 +108,7 @@ function actionKind(button, rule) {
   if (enclosingButton?.form && enclosingButton.type !== 'button') return '';
   if (button.matches('button') && button.form && button.type !== 'button') return '';
   const text = label(button);
+  if (teaser && TEASER_CLOSE.test(text)) return 'dismissed';
   if ((rule?.reviewedNotice || rule?.reviewedDismissal) && rule.controlLabel.test(text)) return 'dismissed';
   if (CLOSE.test(text)) {
     if (/^(collapse|minimi[sz]e|hide)/.test(text)) return button.getAttribute('aria-expanded') === 'false' ? '' : 'collapsed';
@@ -143,6 +146,8 @@ function ownsSurface(surface, button) {
 }
 function fingerprint(container, category, rule) {
   if (rule) return rule.id;
+  const teaser=category==='offer' && offerTeaser(container);
+  if (teaser) return `teaser:offer:${label(teaser.opener)}`;
   const title = container.querySelector('h1,h2,h3,[role="heading"]');
   return `generic:${category}:${(title ? label(title) : container.getAttribute('aria-label') || container.id || category).replace(/\d+/g,'#').slice(0,100)}`;
 }
@@ -204,10 +209,16 @@ export class Promotions {
       if (rule?.id === 'guardian-support' && container.hasAttribute('data-island-status') && container.getAttribute('data-island-status') !== 'hydrated') continue;
       const category = classify(container, rule, structural(container,rule));
       if (!category) continue;
+      const teaser=!rule && category==='offer' && offerTeaser(container);
+      if (teaser && this.interactions.openedByUser(container)) continue;
       const key = fingerprint(container, category, rule);
       if (!this.interactions.permits(container, key, category) || !this.available(key, category,container) ||
           ((rule?.reviewedNotice || rule?.reviewedDismissal) && this.attempts.has(key))) continue;
       const controls = [...container.querySelectorAll(CONTROLS)];
+      if (teaser) {
+        if (actionKind(teaser.close,null,true)) return {button:teaser.close,container,category,key,rule,action:'dismissed',teaser:true};
+        continue;
+      }
       if (rule?.control) {
         const button = [...container.querySelectorAll(rule.control)].find(control => rule.controlLabel.test(label(control)) && actionKind(control, rule) === rule.action);
         if (button) return {button, container, category, key, rule, action: rule.action};
@@ -233,11 +244,12 @@ export class Promotions {
   eligible(choice) {
     const {container, category, rule, button, action, key} = choice;
     return !((rule?.reviewedNotice || rule?.reviewedDismissal) && this.attempts.has(key)) && (!rule || container.matches(rule.container)) &&
-      !(structural(container,rule) && this.interactions.openedByUser(container)) &&
+      !((choice.teaser || structural(container,rule)) && this.interactions.openedByUser(container)) &&
       classify(container, rule, structural(container,rule)) === category && this.interactions.permits(container, key, category) && this.available(key, category,container) &&
       (category!=='adblock' || adblockChoice(container)===button) &&
       (action === 'hidden' ? appHideEligible(container,rule) :
-        container.contains(button) && actionKind(button, rule) === action && (!rule?.controlLabel || rule.controlLabel.test(label(button))));
+        container.contains(button) && (!choice.teaser || offerTeaser(container)?.close===button) &&
+        actionKind(button, rule,choice.teaser) === action && (!rule?.controlLabel || rule.controlLabel.test(label(button))));
   }
   act(choice) {
     if (choice.action!=='hidden' || !this.eligible(choice)) return false;
@@ -250,13 +262,14 @@ export class Promotions {
   }
   startCompletion(choice) {
     choice.completion?.dispose();
-    const equivalent=node=>choice.rule ? node.matches(choice.rule.container) :
+    const equivalent=node=>choice.teaser ? teaserSurface(node) : choice.rule ? node.matches(choice.rule.container) :
       node.matches(CANDIDATES) && fingerprint(node,choice.category,null)===choice.key;
     const existing=[];let inspected=0,exhausted=false;
     for(const root of roots()) {
-      for(const node of root.querySelectorAll(choice.rule?.container || CANDIDATES)) {
+      const candidates=[...root.querySelectorAll(choice.rule?.container || CANDIDATES),...(choice.teaser?structuralContainers(root):[])];
+      for(const node of candidates) {
         if(++inspected>2500){exhausted=true;break;}
-        if(equivalent(node))existing.push(node);
+        if(equivalent(node) && (!choice.teaser || offerTeaser(node)))existing.push(node);
       }
       if(exhausted)break;
     }
