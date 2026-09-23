@@ -1,8 +1,8 @@
 # Cookie Calm privacy policy
 
-Effective September 21, 2026.
+Effective September 22, 2026.
 
-Cookie Calm handles cookie consent and supported website interruptions in Chrome. Dave Goldblatt maintains the project. Contact: dave@davegoldblatt.com.
+Cookie Calm handles cookie consent and supported website interruptions in supported browsers, including the Safari development preview. Dave Goldblatt maintains the project. Contact: dave@davegoldblatt.com.
 
 ## Information processed on your device
 
@@ -14,13 +14,13 @@ The extension uses page signals to avoid some suspicious clicks. It inspects fie
 
 It reads button labels and consent switch states. It observes interaction events to preserve forms, chats, and media that you use. No typed characters or field values are recorded.
 
-The extension processes the current tab address to apply site-specific pauses and to coordinate embedded frames. It does not use Chrome's browsing-history API.
+The extension processes the current tab address to apply site-specific pauses and to coordinate embedded frames. It does not use the browser’s browsing-history API.
 
 For supported Sourcepoint consent flows, it temporarily reads the site's named local consent receipt to check the saved opt-out. The raw value stays in transient memory and expires within eight seconds. The extension does not copy or transmit it.
 
 ## Information stored on your device
 
-Local Chrome extension storage contains your selected mode, enabled state, and hostnames where you paused automation.
+Local extension storage contains your selected mode, enabled state, and hostnames where you paused automation.
 
 Session storage contains temporary tab status: hostname, rule name, action outcome, promotion category and count, and a generic guard reason.
 
@@ -28,7 +28,7 @@ It also contains up to 12 recent provider results and an opaque action ID. Resul
 
 Tab status clears on navigation, tab closure, settings changes, or browser-session termination. Preferences remain until you change them or remove the extension.
 
-The extension does not store page text, browsing-history records, passwords, or payment-field values. It does not use Chrome storage sync.
+The extension does not store page text, browsing-history records, passwords, or payment-field values. It does not use extension storage sync.
 
 ## Transmission and sharing
 
@@ -44,7 +44,7 @@ The website's own privacy policy governs those requests and any cookies that it 
 
 If you open a project link, your browser makes a normal request to that external website.
 
-Chrome and the Chrome Web Store perform their own installation, update, and store operations under Google's policies.
+Browsers and extension stores perform their own installation, update, and store operations under their providers’ policies. Apple’s packaging and distribution services are separate from Cookie Calm’s page processing.
 
 ## Support messages
 
@@ -58,9 +58,9 @@ You can request deletion of a support email through the contact address. GitHub 
 
 You can pause automation globally or for an exact hostname. Pausing stops new actions and restores elements hidden by Cookie Calm. It does not undo choices saved by website controls.
 
-You can remove Cookie Calm through Chrome's extensions page. Removal deletes its local extension settings and temporary status.
+You can remove Cookie Calm through your browser’s extension settings. Removal deletes its local extension settings and temporary status.
 
-The website retains its own cookies and saved choices. You can manage them through the website or Chrome's site settings.
+The website retains its own cookies and saved choices. You can manage them through the website or your browser’s site settings.
 
 ## Limited use
 

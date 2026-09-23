@@ -127,7 +127,7 @@ async function message(request, sender) {
 
 chrome.runtime.onMessage.addListener((request, sender, reply) => {
   // Serial writes prevent one frame from overwriting another frame's completion.
-  queue = queue.then(() => message(request, sender)).then(reply, () => reply({ error: 'The extension could not load. Reload it in chrome://extensions.' }));
+  queue = queue.then(() => message(request, sender)).then(reply, () => reply({ error: 'The extension could not load. Reload it in your browser’s extension settings.' }));
   return true;
 });
 

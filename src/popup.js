@@ -3,6 +3,7 @@ const $ = selector => document.querySelector(selector);
 let settings, host = '', tabId;
 let saving = Promise.resolve();
 const feedback = text => { $('#feedback').textContent = text; };
+const safari = Boolean(chrome.runtime.getManifest().browser_specific_settings?.safari);
 
 async function render() {
   const paused = host && settings.disabledSites.includes(host);
@@ -29,7 +30,7 @@ async function render() {
   const outcomes={saved:'The site recorded your privacy choices.',closed:'Cookie panel closed. Saved choices could not be verified.',
     unconfirmed:'The consent action could not be confirmed.',unsupported:'This consent form has controls we do not recognize.',blocked:'The consent action was stopped.'};
   const consentStatus = outcomes[current?.consentOutcome] || (current?.status === 'dismissed' ? (current.accepted ? 'Cookie banner dismissed with acceptance.' : 'Cookie banner dismissed after a rejection attempt.') : current?.status === 'needs-help' ? 'This cookie banner may need your help.' : '');
-  $('#status').textContent = !settings.enabled ? 'Paused everywhere.' : !host ? 'Open a website to use Cookie Calm.' : paused ? 'You handle banners and pop-ups here.' : [consentStatus, promotionStatus].filter(Boolean).join(' ') || 'Ready for supported cookies and pop-ups.';
+  $('#status').textContent = !settings.enabled ? 'Paused everywhere.' : !host ? (safari ? 'Open a website and allow website access in Safari’s extension settings.' : 'Open a website to use Cookie Calm.') : paused ? 'You handle banners and pop-ups here.' : [consentStatus, promotionStatus].filter(Boolean).join(' ') || 'Ready for supported cookies and pop-ups.';
 }
 
 function save(change) {
