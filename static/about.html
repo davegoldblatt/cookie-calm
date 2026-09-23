@@ -14,16 +14,17 @@
 <h2>Suspicious pages</h2>
 <p>Clear scam phrases stop all automatic clicks. Password, payment, and wallet signals stop promotional actions and the acceptance fallback. Download prompts stop the acceptance fallback.</p>
 <p>Public HTTP pages and internationalized domains cannot use automatic acceptance. Consent frames inherit checks on the parent page.</p>
-<p>These local checks can miss scams or stop on legitimate pages. They do not certify websites. Chrome Safe Browsing remains separate.</p>
+<p>These local checks can miss scams or stop on legitimate pages. They do not certify websites. Your browser’s own security checks remain separate.</p>
 <h2>Coverage and limits</h2>
 <p>This build bundles 203 rule files from Consent-O-Matic, plus a conservative detector for common cookie buttons. Rules cover many banner variants.</p>
 <p>Delayed banners, embedded frames, and shadow DOM can work. Site changes and unusual consent forms can still require a manual choice.</p>
-<p>Cookie Calm does not block trackers, delete cookies, undo past consent, or bypass paywalls. It handles supported in-page notification requests. Chrome notification and location permission prompts remain outside its reach.</p>
-<p>Chrome protects its settings pages and the Chrome Web Store from extensions. Cookie Calm cannot run there.</p>
+<p>Cookie Calm does not block trackers, delete cookies, undo past consent, or bypass paywalls. It handles supported in-page notification requests. Browser notification and location permission prompts remain outside its reach.</p>
+<p>Protected browser pages and stores remain outside Cookie Calm’s reach.</p>
 <p>The pause control applies to the exact hostname and all frames in that tab. Other subdomains remain separate.</p>
 <p>When you pause, Cookie Calm stops new clicks and restores elements hidden by its own styles. The site can still finish a request from an earlier click.</p>
 <h2>Privacy and permissions</h2>
-<p>The extension needs website access to find consent forms and promotional prompts and use their controls. Settings stay in local Chrome storage.</p>
+<p>The extension needs website access to find consent forms and promotional prompts and use their controls. Settings stay in local extension storage.</p>
+<p>In Safari, enable Cookie Calm for your profile and allow website access in Safari’s extension settings. Without that access, page automation cannot run.</p>
 <p>Temporary status stays in session storage. It contains a hostname, rule name, action results, and promotion counts for each open tab.</p>
 <p>Recent results distinguish closed panels from recorded privacy choices. A Sourcepoint receipt can verify the saved opt-out after its frame closes. Other supported providers currently report closure without receipt proof.</p>
 <p>Up to 12 local result records contain fixed codes. An opaque action ID associates delayed receipt evidence with its action. Raw receipt values remain in temporary memory for at most eight seconds.</p>
@@ -31,7 +32,7 @@
 <p>The extension reads page text, consent-control states, and addresses locally. It does not read password or payment-field values.</p>
 <p><a href="https://davegoldblatt.github.io/cookie-calm/privacy.html" target="_blank" rel="noreferrer">Read the privacy policy</a>.</p>
 <p>Site controls can send the usual consent requests.</p>
-<p>The extension does not request access to the Chrome cookies API or browsing history API.</p>
+<p>The extension does not request access to the browser cookies API or browsing history API.</p>
 <h2>Credits and maintenance</h2>
 <p>Cookie Calm uses the MIT-licensed rule interpreter and rules from <a href="https://github.com/cavi-au/Consent-O-Matic" target="_blank" rel="noreferrer">Consent-O-Matic at Aarhus University</a>.</p>
 <p>It adds local packaging, new controls, guarded actions, cancellation, delayed detection, and an acceptance fallback. It is an independent customization.</p>

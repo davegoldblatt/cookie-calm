@@ -299,6 +299,13 @@ function configure() {
     settings = data.settings;
     enabled = isEnabled(settings, data.host);
     if (!enabled) { promotions.restore(); return; }
+    if (chrome.runtime.getManifest().browser_specific_settings?.safari &&
+        typeof chrome.dom?.openOrClosedShadowRoot !== 'function') {
+      enabled = false;
+      promotions.restore();
+      await send({type:'status',status:'blocked',reason:'This Safari version lacks required page inspection. Use Safari 26 or later.'});
+      return;
+    }
     if (!data.rules) { enabled = false; promotions.restore(); return; }
     promotionAllowed = data.promotionAllowed === true;
     fullScan = true;
