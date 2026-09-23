@@ -46,6 +46,9 @@ and [website permission model](https://developer.apple.com/documentation/safaris
 
 ## Persistent installation and iPhone/iPad
 
+For the Mac app distributed through GitHub, see [direct distribution](SAFARI-DIRECT-DISTRIBUTION.md).
+That work requires Developer ID signing and notarization. The temporary preview is not the durable installer.
+
 For a normal distribution, package the extension inside an Apple app.
 Apple offers two routes:
 
