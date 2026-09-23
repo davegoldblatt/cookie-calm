@@ -11,10 +11,11 @@ The first candidate passed 11 teaser tests. They cover two markup/hostname varia
 Further negative cases cover generated instructions, contradictory close titles, and checked-state controls.
 All 221 tests passed in the full local run (7.3 minutes, three workers).
 The audit then led to attribute and replacement-observation changes. The new moved-replacement regression failed against the preceding built candidate, reproducing one false closure credit.
-A final focused run covers the updated teaser, promotion, and completion code.
+All 61 final focused tests passed (2.8 minutes, three workers), including all 16 teaser tests and the promotion/completion regressions.
+The moved replacement, identical siblings, closed-shadow field, and existing-wrapper cases passed on the final runtime source in `ab368dc`.
 
-Two live candidate runs observed the actual teaser before dismissal. Both recorded exactly one `Close teaser` click, no teaser-opener click, disappearance, and `offer` / `closed`.
-All 40 product links remained. The final run identified version 1.2.6 and included the generated-text and attribute safeguards.
+Three live candidate runs observed the actual teaser before dismissal. Each recorded exactly one `Close teaser` click, no teaser-opener click, disappearance, and `offer` / `closed`.
+All 40 product links remained. The final run identified version 1.2.6 and included the attribute safeguards and audited replacement observations.
 The earlier newsletter action remained `unconfirmed` when its form transitioned into the teaser. It was not relabelled as a success.
 These are dismissal results, not saved cookie-consent proof or evidence of universal Klaviyo coverage.
 Local captures and public provider bundles are under ignored `evidence/soylent-2026-09-22/`.

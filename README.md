@@ -34,7 +34,7 @@ The popup includes a global switch and an exact-hostname pause control. Pauses a
 
 ## Install
 
-Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd), or use the latest GitHub package below. Version 1.2.6 adds native dismissal of supported compact discount teasers, including the reported Soylent side tab. It keeps user-opened offers available and never opens their signup forms. It also includes the 1.2.5 survey support and earlier consent and completion safeguards. Closure does not establish stored consent or downstream tracking behavior. Store updates require a separate review; see the [submission status](store/SUBMISSION.md).
+Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/cookie-calm/mlcplepgfaafffckbjbaekaekpphjccd), or use the latest GitHub package below. Version 1.2.6 adds native dismissal of supported compact discount teasers, including the reported Soylent side tab. It keeps user-opened offers available and does not activate offer openers or fill signup forms. It also includes the 1.2.5 survey support and earlier consent and completion safeguards. Closure does not establish stored consent or downstream tracking behavior. Store updates require a separate review; see the [submission status](store/SUBMISSION.md).
 
 1. Download the extension ZIP from [Releases](https://github.com/davegoldblatt/cookie-calm/releases/latest).
 2. Extract the ZIP to a permanent folder.
