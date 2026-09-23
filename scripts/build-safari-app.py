@@ -5,7 +5,7 @@ import plistlib
 import shutil
 import sys
 from pathlib import Path
-from safari_native import APP_ID, MINIMUM_OS, run, digest, check_bundle, check_entitlements, bundle_hashes
+from safari_native import APP_ID, EXTENSION_ID, MINIMUM_OS, run, digest, check_bundle, check_entitlements, bundle_hashes
 
 root = Path(__file__).resolve().parent.parent
 os.chdir(root)
@@ -33,6 +33,22 @@ projects = list((out / 'project').rglob('*.xcodeproj'))
 handlers = list((out / 'project').rglob('SafariWebExtensionHandler.swift'))
 if len(projects) != 1 or len(handlers) != 1:
     sys.exit('Generated project layout changed; review packager.log')
+# The packager generated a name-derived host ID but the requested extension ID.
+# Set each target explicitly so the extension is inside the intended app namespace.
+project_file = projects[0] / 'project.pbxproj'
+project = json.loads(run('plutil', '-convert', 'json', '-o', '-', project_file))
+objects = project['objects']
+targets = [value for value in objects.values() if value.get('isa') == 'PBXNativeTarget']
+identifiers = {'com.apple.product-type.application': APP_ID,
+               'com.apple.product-type.app-extension': EXTENSION_ID}
+if len(targets) != 2 or {target['productType'] for target in targets} != set(identifiers):
+    sys.exit('Unexpected generated native targets')
+for target in targets:
+    for config in objects[target['buildConfigurationList']]['buildConfigurations']:
+        settings = objects[config]['buildSettings']
+        settings['PRODUCT_BUNDLE_IDENTIFIER'] = identifiers[target['productType']]
+project_file.write_bytes(plistlib.dumps(project))
+(out / 'generated-project.json').write_text(json.dumps(project, indent=2) + '\n')
 shutil.copy2(root / 'native/SafariWebExtensionHandler.swift', handlers[0])
 listing = json.loads(run('xcodebuild', '-list', '-json', '-project', projects[0]))
 schemes = listing.get('project', {}).get('schemes', [])

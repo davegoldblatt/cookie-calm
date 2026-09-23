@@ -44,3 +44,4 @@ jobs:
             build/safari-macos/UNSIGNED-SHA256SUMS.txt
             build/safari-macos/packager.log
             build/safari-macos/xcodebuild.log
+            build/safari-macos/generated-project.json
